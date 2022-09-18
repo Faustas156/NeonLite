@@ -15,7 +15,7 @@ Still currently a work in progress and thus it only features very limited amount
 2. Run the game once. This will create required folders; you should see a splash screen if you installed the modloader correctly.
 3. Download the **Mono** version of [Melon Preferences Manager](https://github.com/sinai-dev/MelonPreferencesManager/releases/latest), and put the .dlls from that zip into the `mods` folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White\Mods`)
     * The IL2CPP version **WILL NOT WORK**; you **must** download `MelonPreferencesManager.Mono.zip`. 
-4. Download the `NeonLite.dll` from the [Releases page](https://github.com/Faustas156/NeonLite/releases/) and drop it in the mods folder.
+4. Download the `NeonWhiteQoL.dll` from the [Releases page](https://github.com/Faustas156/NeonLite/releases/) and drop it in the mods folder.
 
 ### Additional Notes
 
