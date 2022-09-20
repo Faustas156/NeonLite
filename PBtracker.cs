@@ -15,11 +15,11 @@ namespace NeonWhiteQoL
             game = Singleton<Game>.Instance;
             MethodInfo method = typeof(Game).GetMethod("OnLevelWin");
             HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PreOnLevelWin"));
-            NeonLite.harmony.Patch(method, harmonyMethod);
+            NeonLite.Harmony.Patch(method, harmonyMethod);
 
             method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
             harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PostOnSetVisible"));
-            NeonLite.harmony.Patch(method, null, harmonyMethod);
+            NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
         public static bool PreOnLevelWin()
         {

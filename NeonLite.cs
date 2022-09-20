@@ -4,11 +4,11 @@ namespace NeonWhiteQoL
 {
     public class NeonLite : MelonMod
     {
-        public static HarmonyLib.Harmony harmony { get; private set; }
+        public static HarmonyLib.Harmony Harmony { get; private set; }
 
         public override void OnApplicationLateStart()
         {
-            harmony = new HarmonyLib.Harmony("NAMEHERE");
+            Harmony = new HarmonyLib.Harmony("NAMEHERE");
             PBtracker.Initialize();
             GreenHP.Initialize();
         }
