@@ -1,12 +1,11 @@
 ﻿using HarmonyLib;
-using MelonLoader;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
 
 namespace NeonWhiteQoL
 {
-    public class PBtracker : MelonMod
+    public class PBtracker
     {
         private static Game game;
         private static string delta = "";

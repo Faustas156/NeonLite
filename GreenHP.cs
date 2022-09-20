@@ -1,9 +1,7 @@
 ﻿using HarmonyLib;
-using System.Diagnostics;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace NeonWhiteQoL
 {
@@ -17,8 +15,8 @@ namespace NeonWhiteQoL
         }
         public static void OnPostUpdateBossUI(BossUI __instance)
         {
-            FieldInfo fi = __instance.GetType().GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
-            int bossHP = (int)fi.GetValue(__instance);
+            //FieldInfo fi = __instance.GetType().GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
+            //int bossHP = (int)fi.GetValue(__instance);
 
             GameObject bossName = GameObject.Find("HUD/BossUI/BossUI Anchor/BossUI Holder/Boss Name Text");
             GameObject bossHealth = GameObject.Find("HUD/BossUI/BossUI Anchor/BossUI Holder/Boss Health Text");
@@ -31,7 +29,7 @@ namespace NeonWhiteQoL
                 bossHealth.SetActive(true);
             }
             TextMeshPro text = bossHealth.GetComponent<TextMeshPro>();
-            text.SetText(bossHP + "");
+            text.SetText("");
         }
     }
 }
