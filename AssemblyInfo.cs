@@ -18,4 +18,4 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("5f33956d-d43c-45a5-acad-c6e5ace98a5b")]
 
-[assembly: MelonInfo(typeof(NeonLite), "Neon White QoL", "1.1.0", "Faustas & MOPPI")]
+[assembly: MelonInfo(typeof(NeonLite), "Neon White QoL", "1.1.0", "Faustas & MOPSKATER")]
