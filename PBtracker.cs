@@ -30,7 +30,7 @@ namespace NeonWhiteQoL
                 LevelInformation levelInformation = game.GetGameData().GetLevelInformation(game.GetCurrentLevel());
                 besttime = GameDataManager.levelStats[levelInformation.levelID].GetTimeBestMicroseconds();
                 FieldInfo fi = game.GetType().GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
-                LevelPlaythrough currentPlaythrough = (LevelPlaythrough) fi.GetValue(game);
+                LevelPlaythrough currentPlaythrough = (LevelPlaythrough)fi.GetValue(game);
                 newtime = currentPlaythrough.GetCurrentTimeMicroseconds();
             }
             else
