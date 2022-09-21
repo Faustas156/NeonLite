@@ -2,7 +2,6 @@
 using System.Reflection;
 using TMPro;
 using UnityEngine;
-using static MelonLoader.MelonLogger;
 
 namespace NeonWhiteQoL
 {
@@ -22,7 +21,7 @@ namespace NeonWhiteQoL
         {
             if (_lastEnemyHealth == null)
                 _lastEnemyHealth = __instance.GetType().GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
-            int bossHP = (int) _lastEnemyHealth.GetValue(__instance);
+            int bossHP = (int)_lastEnemyHealth.GetValue(__instance);
 
             if (bossName == null)
             {
