@@ -25,7 +25,7 @@ namespace NeonWhiteQoL
         {
             long besttime, newtime;
 
-            if (game.GetCurrentLevel().levelRushType == LevelRush.LevelRushType.None)
+            if (!LevelRush.IsLevelRush())
             { // Normal level
                 LevelInformation levelInformation = game.GetGameData().GetLevelInformation(game.GetCurrentLevel());
                 besttime = GameDataManager.levelStats[levelInformation.levelID].GetTimeBestMicroseconds();
