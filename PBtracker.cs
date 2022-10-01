@@ -8,33 +8,20 @@ namespace NeonWhiteQoL
     public class PBtracker
     {
         private static Game game;
-        private static string delta = string.Empty;
         private static bool newbest;
         public static void Initialize()
         {
             game = Singleton<Game>.Instance;
 
-            MethodInfo method = typeof(Game).GetMethod("OnLevelWin");
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PreOnLevelWin"));
-            NeonLite.Harmony.Patch(method, harmonyMethod);
-
-            method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
-            harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PostOnSetVisible"));
+            MethodInfo method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
+            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PostOnSetVisible"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
-        }
-
-        public static bool PreOnLevelWin()
-        {
-            if (LevelRush.IsLevelRush()) return true;
-            delta = GetDeltaTimeString(false);
-            return true;
         }
 
         public static void PostOnSetVisible()
         {
             bool isLevelRush = LevelRush.IsLevelRush();
-            if (delta != string.Empty)
-                delta = GetDeltaTimeString(true);
+            string delta = GetDeltaTimeString(isLevelRush);
 
             GameObject bestText = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Results Panel/New Best Text");
             GameObject deltaTime = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Results Panel/Delta Time");
@@ -60,14 +47,13 @@ namespace NeonWhiteQoL
             {
                 deltaTimeRush = UnityEngine.Object.Instantiate(bestTextRush, bestTextRush.transform.parent);
                 deltaTimeRush.name = "Delta Time Rush";
-                deltaTimeRush.transform.localPosition += new Vector3(0, -30, 0);
+                deltaTimeRush.transform.localPosition += new Vector3(89, -30, 0);
+                deltaTimeRush.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
                 deltaTimeRush.SetActive(true);
             }
             text = deltaTimeRush.GetComponent<TextMeshProUGUI>();
             text.SetText(delta);
             text.color = newbest ? Color.red : Color.green;
-
-            delta = string.Empty;
         }
         private static string GetDeltaTimeString(bool isLevelRush)
         {
