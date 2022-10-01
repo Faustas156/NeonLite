@@ -11,6 +11,7 @@ namespace NeonWhiteQoL
             Harmony = new HarmonyLib.Harmony("NAMEHERE");
             PBtracker.Initialize();
             GreenHP.Initialize();
+            SkipIntro.Initialize();
         }
     }
 }

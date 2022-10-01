@@ -33,7 +33,7 @@ namespace NeonWhiteQoL
         public static void PostOnSetVisible()
         {
             bool isLevelRush = LevelRush.IsLevelRush();
-            if (delta != string.Empty)
+            if (delta == string.Empty)
                 delta = GetDeltaTimeString(true);
 
             GameObject bestText = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Results Panel/New Best Text");
@@ -47,6 +47,7 @@ namespace NeonWhiteQoL
                 deltaTime.transform.localPosition += new Vector3(-5, -30, 0);
                 deltaTime.SetActive(true);
             }
+
             TextMeshProUGUI text = deltaTime.GetComponent<TextMeshProUGUI>();
             text.SetText(delta);
             text.color = newbest ? Color.red : Color.green;
