@@ -1,5 +1,4 @@
 ﻿using MelonLoader;
-using NeonWhiteQoL.cl;
 
 namespace NeonWhiteQoL
 {
@@ -12,8 +11,6 @@ namespace NeonWhiteQoL
             Harmony = new HarmonyLib.Harmony("NAMEHERE");
             PBtracker.Initialize();
             GreenHP.Initialize();
-            RemoveMission.Initialize();
-            SkipIntro.Initialize();
         }
     }
 }
