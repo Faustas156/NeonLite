@@ -1,24 +1,24 @@
-﻿using UnityEngine;
+﻿using HarmonyLib;
+using System.Reflection;
 
-//Main Menu/Canvas/Location Panel/Location Menu/Content/Scroll View/Viewport/Buttons/
 namespace NeonWhiteQoL
 {
-    public class RemoveMission : MonoBehaviour
+    public class RemoveMission
     {
         public static void Initialize()
         {
-            //MethodInfo method = typeof(MenuButtonHolder).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance);
-            //HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(RemoveMission).GetMethod("PostRemoveButton"));
-            //NeonLite.Harmony.Patch(method, null, harmonyMethod);
+            MethodInfo method = typeof(MenuScreenLocation).GetMethod("CreateActionButton");
+            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(RemoveMission).GetMethod("PostRemoveButton"));
+            NeonLite.Harmony.Patch(method, harmonyMethod);
         }
-        public static void PostRemoveButton(MenuButtonHolder __instance)
+        // todo: add a way to reenable the continue mission button, mainly for convenience
+        public static bool PostRemoveButton(HubAction hubAction)
         {
-            //GameObject gameobject = __instance.gameObject.transform.Find("Button/Text").gameObject;
-            //if (gameobject == null) return;
-            //TextMeshProUGUI text = gameobject.GetComponent<TextMeshProUGUI>();
-            //if (text == null || text.text != "Start Mission") return ;
-            //Debug.Log(__instance.gameObject.activeSelf);
-            //__instance.gameObject.transform.position = new Vector3(-1000, 0, 0);
+            if (hubAction.ID == "PORTAL_CONTINUE_MISSION")
+            {
+                return false;
+            }
+            return true;
         }
     }
 }
