@@ -3,6 +3,7 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 
+
 namespace NeonWhiteQoL
 {
     public class GreenHP
@@ -19,6 +20,9 @@ namespace NeonWhiteQoL
         }
         public static void OnPostUpdateBossUI(BossUI __instance)
         {
+            if (!NeonLite.GreenHP_display.Value)
+                return;
+
             if (_lastEnemyHealth == null)
                 _lastEnemyHealth = __instance.GetType().GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
             int bossHP = (int)_lastEnemyHealth.GetValue(__instance);
@@ -38,6 +42,7 @@ namespace NeonWhiteQoL
             }
             TextMeshPro text = bossHealth.GetComponent<TextMeshPro>();
             text.SetText(bossHP + "");
+
         }
     }
 }

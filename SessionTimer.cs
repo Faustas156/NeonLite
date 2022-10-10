@@ -20,13 +20,14 @@ namespace NeonWhiteQoL
 
         internal void LevelLoaded()
         {
-            if (SceneManager.GetActiveScene().name == "Heaven_Environment")
+            if (SceneManager.GetActiveScene().name == "Heaven_Environment" || !NeonLite.LevelTimer_display.Value)
                 return;
             new GameObject("LevelTimer", typeof(LevelTimer));
         }
 
         void OnGUI()
         {
+            if (NeonLite.SessionTimer_display.Value)
             GUI.Label(new Rect(10, 0, 100, 70), Utils.FloatToTime(Time.realtimeSinceStartup, "#00:00"), style);
         }
     }

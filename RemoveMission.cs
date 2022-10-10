@@ -8,16 +8,17 @@ namespace NeonWhiteQoL
         public static void Initialize()
         {
             MethodInfo method = typeof(MenuScreenLocation).GetMethod("CreateActionButton");
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(RemoveMission).GetMethod("PostRemoveButton"));
+            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(RemoveMission).GetMethod("PreCreateActionButton"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
-        // todo: add a way to reenable the continue mission button, mainly for convenience
-        public static bool PostRemoveButton(HubAction hubAction)
+
+        public static bool PreCreateActionButton(HubAction hubAction)
         {
+            //return hubAction.ID != "PORTAL_CONTINUE_MISSION" || NeonLite.RemoveMission_display.Value;
             if (hubAction.ID == "PORTAL_CONTINUE_MISSION")
-            {
-                return false;
-            }
+
+                return !NeonLite.RemoveMission_display.Value;
+
             return true;
         }
     }

@@ -25,6 +25,9 @@ namespace NeonWhiteQoL
 
         public static bool PreOnLevelWin()
         {
+            if (!NeonLite.PBtracker_display.Value)
+                return true;
+
             if (LevelRush.IsLevelRush()) return true;
             delta = GetDeltaTimeString(false);
             return true;
@@ -32,6 +35,9 @@ namespace NeonWhiteQoL
 
         public static void PostOnSetVisible()
         {
+            if (!NeonLite.PBtracker_display.Value)
+                return;
+
             bool isLevelRush = LevelRush.IsLevelRush();
             if (delta == string.Empty)
                 delta = GetDeltaTimeString(true);

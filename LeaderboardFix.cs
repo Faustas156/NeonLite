@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using MelonLoader;
 using System.Reflection;
 
 namespace NeonWhiteQoL
