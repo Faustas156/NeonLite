@@ -22,7 +22,7 @@ Still currently a work in progress and thus it only features very limited amount
 
 * an unofficial ban list, displaying your true position on the leaderboards.
 * a way to track how far away you are from WRs.
-* add customization options.
+* add customization options. (partically completed, mainly added the ability to enable/disable mods)
 
 ## Installation & Usage
 
