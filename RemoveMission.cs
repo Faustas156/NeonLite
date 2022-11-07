@@ -14,7 +14,6 @@ namespace NeonWhiteQoL
 
         public static bool PreCreateActionButton(HubAction hubAction)
         {
-            //return hubAction.ID != "PORTAL_CONTINUE_MISSION" || NeonLite.RemoveMission_display.Value;
             if (hubAction.ID == "PORTAL_CONTINUE_MISSION")
 
                 return !NeonLite.RemoveMission_display.Value;

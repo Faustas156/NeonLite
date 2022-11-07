@@ -1,25 +1,32 @@
 ﻿using HarmonyLib;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 
 namespace NeonWhiteQoL
 {
     public class CommunityMedals
     {
-        public static Sprite platinumMedal, rainbowMedal;
+        public static Sprite emeraldMedal, purpleMedal, emeraldCrystal;
         private static readonly FieldInfo _getLevelData = typeof(MenuButtonLevel).GetField("_levelData", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static string displaytime = "";
         public static void Initialize()
         {
             MethodInfo method = typeof(LevelInfo).GetMethod("SetLevel");
             HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetLevel"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
+            method = typeof(LevelInfo).GetMethod("SetLevel");
+            harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetDev"));
+            NeonLite.Harmony.Patch(method, null, harmonyMethod);
+
             method = typeof(MenuButtonLevel).GetMethod("UpdateTime");
             harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostUpdateTime"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
-            platinumMedal = LoadSprite(Properties.Resources.uiMedal_Platinum);
-            rainbowMedal = LoadSprite(Properties.Resources.uiMedal_Rainbow);
+            emeraldMedal = LoadSprite(Properties.Resources.uiMedal_Emerald);
+            purpleMedal = LoadSprite(Properties.Resources.uiMedal_Purple);
+            emeraldCrystal = LoadSprite(Properties.Resources.uiCrystal_Emerald);
         }
 
         private static Sprite LoadSprite(byte[] image)
@@ -35,16 +42,63 @@ namespace NeonWhiteQoL
             GameData gameData = Singleton<Game>.Instance.GetGameData();
             LevelStats levelStats = gameData.GetLevelStats(level.levelID);
 
-            if (!levelStats.GetCompleted() || level.isSidequest) return;
+            if (!levelStats.GetCompleted()) return;
 
-            //__instance._levelMedal.sprite = gameData.GetSpriteForMedal(levelStats.GetMedalAchieved());
+            //if ((level.hasCollectible || level.isSidequest) && !fromStore)
+            //{
+            //    bool flag = level.isSidequest ? levelStats.GetCompleted() : levelStats.HasCollectibleBeenFound();
+            //    __instance._crystalHolder.SetActive(true);
+            //    __instance._crystalHolderFilled.SetActive(flag);
+            //    __instance._crystalFillBG.SetActive(flag);
+            //    __instance._levelMedal.sprite =  
+            //}
+
+            if (level.isSidequest)
+            {
+                __instance._levelMedal.sprite = gameData.GetSpriteForMedal(levelStats.GetMedalAchieved());
+                __instance._levelMedal.gameObject.SetActive(true);
+            }
+
             var communityTimes = CommunityMedalTimes[level.levelID];
 
-            if (levelStats._timeBestMicroseconds < communityTimes.Item1)
-                __instance._levelMedal.sprite = platinumMedal;
-            else if (levelStats._timeBestMicroseconds < communityTimes.Item2)
-                __instance._levelMedal.sprite = rainbowMedal;
+            if (levelStats._timeBestMicroseconds < communityTimes.Item2)
+            {
+                __instance._levelMedal.sprite = purpleMedal;
+            }
+            else if (levelStats._timeBestMicroseconds < communityTimes.Item1)
+                __instance._levelMedal.sprite = emeraldMedal;
         }
+
+        //public static void PostSetDev(LevelInfo __instance, ref LevelData level, ref bool fromStore, ref bool isNewScore, ref bool skipNewScoreInitalDelay)
+        //{
+        //    GameData gameData = Singleton<Game>.Instance.GetGameData();
+        //    LevelStats levelStats = gameData.GetLevelStats(level.levelID);
+
+        //    var communityTimes = CommunityMedalTimes[level.levelID];
+
+        //    if (levelStats._timeBestMicroseconds < communityTimes.Item2) ;
+        //    {
+        //        TimeSpan t = TimeSpan.FromMilliseconds(communityTimes.Item2 / 1000);
+
+        //        displaytime = String.Format("{0:0}:{1:00}.{2:000}",
+        //                                         t.Minutes,
+        //                                         t.Seconds,
+        //                                         t.Milliseconds);
+
+        //        //GameObject devStamp = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/MikeyStampGraphic");
+        //        //GameObject devStampDoubler = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/MikeyStampGraphicDoubler");
+        //        GameObject devTime = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/DevTimeDisplay");
+
+        //        //devStamp.GetComponent<Renderer>().material.color = new Color(172,80,233);
+        //        //devStampDoubler.GetComponent<Renderer>().material.color = new Color(160, 32, 240);
+        //        TextMeshProUGUI devtext = devTime.GetComponent<TextMeshProUGUI>();
+        //        devtext.SetText(displaytime);
+        //        devtext.color = new Color(0.674f, 0.313f, 0.913f);
+
+        //        return;
+        //    }
+
+        //}
 
         public static void PostUpdateTime(MenuButtonLevel __instance)
         {
@@ -54,136 +108,142 @@ namespace NeonWhiteQoL
             LevelStats levelStats = GameDataRef.GetLevelStats(_levelData.levelID);
             var communityTimes = CommunityMedalTimes[_levelData.levelID];
 
-            if (levelStats._timeBestMicroseconds < communityTimes.Item1)
-                __instance._medal.sprite = platinumMedal;
-            else if (levelStats._timeBestMicroseconds < communityTimes.Item2)
-                __instance._medal.sprite = rainbowMedal;
+            if (_levelData.isSidequest)
+            {
+                __instance._medalHolder.SetActive(true);
+                __instance._medalBG.sprite = __instance._iconBGFull;
+            }
+
+            if (levelStats._timeBestMicroseconds < communityTimes.Item2)
+                __instance._medal.sprite = purpleMedal;
+            else if (levelStats._timeBestMicroseconds < communityTimes.Item1)
+                __instance._medal.sprite = emeraldMedal;
         }
 
 
         private static readonly Dictionary<string, (long, long)> CommunityMedalTimes = new()
         {
-            ["TUT_MOVEMENT"] = (182099990L, 10L), // Movement, 18.209 
-            ["TUT_SHOOTINGRANGE"] = (7289999L, 10L), // Pummel, 7.289 
-            ["SLUGGER"] = (7546650L, 10L), // Gunner, 7.546 
-            ["TUT_FROG"] = (9759999L, 10L), // Cascade, 9.759 
-            ["TUT_JUMP"] = (15334180L, 10L), // Elevate
-            ["GRID_TUT_BALLOON"] = (16151228L, 10L), // Bounce
-            ["TUT_BOMB2"] = (9149372L, 10L), // Purify
-            ["TUT_BOMBJUMP"] = (11789203L, 10L), // Climb, 11.789
-            ["TUT_FASTTRACK"] = (21503666L, 10L), // Fasttrack
-            ["GRID_PORT"] = (22909394L, 10L), // Glass Port, 22.909
-            ["GRID_PAGODA"] = (15505762L, 10L), // Take Flight
-            ["TUT_RIFLE"] = (5958456L, 10L), // Godspeed
-            ["TUT_RIFLEJOCK"] = (9757365L, 10L), // Dasher
-            ["TUT_DASHENEMY"] = (12034663L, 10L), // Thrasher
-            ["GRID_JUMPDASH"] = (10031733L, 10L), // Outstretched
-            ["GRID_SMACKDOWN"] = (9975487L, 10L), // Smackdown
-            ["GRID_MEATY_BALLOONS"] = (13980655L, 10L), // Catwalk
-            ["GRID_FAST_BALLOON"] = (22220199L, 10L), // Fastlane
-            ["GRID_DRAGON2"] = (15509626L, 10L), // Distinguish
-            ["GRID_DASHDANCE"] = (16678540L, 10L), // Dancer
-            ["TUT_GUARDIAN"] = (20729077L, 10L), // Guardian
-            ["TUT_UZI"] = (14991806L, 10L), // Stomp
-            ["TUT_JUMPER"] = (13332682L, 10L), // Jumper
-            ["TUT_BOMB"] = (12912954L, 10L), // Dash Tower
-            ["GRID_DESCEND"] = (10335671L, 10L), // Descent
-            ["GRID_STAMPEROUT"] = (11832381L, 10L), // Driller
-            ["GRID_CRUISE"] = (16972199L, 10L), // Canals
-            ["GRID_SPRINT"] = (16539524L, 10L), // Sprint
-            ["GRID_MOUNTAIN"] = (17751583L, 10L), // Mountain
-            ["GRID_SUPERKINETIC"] = (18940711L, 10L), // Superkinetic
-            ["GRID_ARRIVAL"] = (21670773L, 10L), // Arrival
-            ["FLOATING"] = (29918134L, 10L), // Floating City
-            ["GRID_BOSS_YELLOW"] = (35869550L, 10L), // The Clocktower
-            ["GRID_HOPHOP"] = (17307570L, 10L), // Expel
-            ["GRID_RINGER_TUTORIAL"] = (13477808L, 10L), // Ringer
-            ["GRID_RINGER_EXPLORATION"] = (12345938L, 10L), // Cleaner
-            ["GRID_HOPSCOTCH"] = (12215342L, 10L), // Warehouse
-            ["GRID_BOOM"] = (16667146L, 10L), // Boom
-            ["GRID_SNAKE_IN_MY_BOOT"] = (7433524L, 10L), // Streets
-            ["GRID_FLOCK"] = (12049666L, 10L), // Steps
-            ["GRID_BOMBS_AHOY"] = (7455451L, 10L), // Demolition
-            ["GRID_ARCS"] = (17538608L, 10L), // Arcs
-            ["GRID_APARTMENT"] = (15282634L, 10L), // Apartment
-            ["TUT_TRIPWIRE"] = (23794515L, 10L), // Hanging Gardens
-            ["GRID_TANGLED"] = (13849910L, 10L), // Tangled
-            ["GRID_HUNT"] = (21075598L, 10L), // Waterworks
-            ["GRID_CANNONS"] = (25262354L, 10L), // Killswitch
-            ["GRID_FALLING"] = (20352457L, 10L), // Falling
-            ["TUT_SHOCKER2"] = (28314797L, 10L), // 
-            ["TUT_SHOCKER"] = (22993897L, 10L), // Shocker
-            ["GRID_PREPARE"] = (29542685L, 10L), // Prepare
-            ["GRID_TRIPMAZE"] = (33386847L, 10L), // Triptrack
-            ["GRID_RACE"] = (24454515L, 10L), // Race
-            ["TUT_FORCEFIELD2"] = (15450825L, 10L), // 
-            ["GRID_SHIELD"] = (17571507L, 10L), // 
-            ["SA L VAGE2"] = (13101509L, 10L), // Salvage
-            ["GRID_VERTICAL"] = (24673282L, 10L), // 
-            ["GRID_MINEFIELD"] = (13999097L, 10L), // 
-            ["TUT_MIMIC"] = (9735374L, 10L), // Mimic
-            ["GRID_MIMICPOP"] = (20076717L, 10L), // 
-            ["GRID_SWARM"] = (8526356L, 10L), // Locker
-            ["GRID_SWITCH"] = (19402400L, 10L), // 
-            ["GRID_TRAPS2"] = (25211403L, 10L), // 
-            ["TUT_ROCKETJUMP"] = (12738460L, 10L), // 
-            ["TUT_ZIPLINE"] = (12406723L, 10L), // Zipline
-            ["GRID_CLIMBANG"] = (18301839L, 10L), // Swing
-            ["GRID_ROCKETUZI"] = (40260798L, 10L), // Bounce
-            ["GRID_CRASHLAND"] = (29967362L, 10L), // Crash
-            ["GRID_ESCALATE"] = (25564361L, 10L), // Escalate
-            ["GRID_SPIDERCLAUS"] = (41411414L, 10L), // Straightaway
-            ["GRID_FIRECRACKER_2"] = (33825553L, 10L), // Firecracker
-            ["GRID_SPIDERMAN"] = (25334568L, 10L), // Streak
-            ["GRID_DESTRUCTION"] = (29866018L, 10L), // DESTRUCTION
-            ["GRID_HEAT"] = (26454879L, 10L), // Escalation
-            ["GRID_BOLT"] = (29229606L, 10L), // SMOTHER
-            ["GRID_PON"] = (28318747L, 10L), // GODSTREAK
-            ["GRID_CHARGE"] = (32276517L, 10L), // 
-            ["GRID_MIMICFINALE"] = (18188015L, 10L), // 
-            ["GRID_BARRAGE"] = (31944284L, 10L), // 
-            ["GRID_1GUN"] = (35522186L, 10L), // CLEANSE
-            ["GRID_HECK"] = (23262454L, 10L), // Trick
-            ["GRID_ANTFARM"] = (33691689L, 10L), // Pinball
-            ["GRID_FORTRESS"] = (29082751L, 10L), // FORTRESS
-            ["GRID_GODTEMPLE_ENTRY"] = (53154236L, 10L), // 
-            ["GRID_BOSS_GODSDEATHTEMPLE"] = (67185332L, 10L), // 
-            ["GRID_EXTERMINATOR"] = (8534697L, 10L), // 
-            ["GRID_FEVER"] = (5710572L, 10L), // 
-            ["GRID_SKIPSLIDE"] = (9886996L, 10L), // 
-            ["GRID_CLOSER"] = (12283612L, 10L), // 
-            ["GRID_HIKE"] = (8392915L, 10L), // 
-            ["GRID_SKIP"] = (12777535L, 10L), // 
-            ["GRID_CEILING"] = (16457145L, 10L), // 
-            ["GRID_BOOP"] = (25078087L, 10L), // 
-            ["GRID_TRIPRAP"] = (11291891L, 10L), // 
-            ["GRID_ZIPRAP"] = (14371503L, 10L), // 
-            ["TUT_ORIGIN"] = (66285453L, 10L), // 
-            ["GRID_BOSS_RAPTURE"] = (85179804L, 10L),
-            ["SIDEQUEST_OBSTACLE_PISTOL"] = (15022354L, 10L), // Elevate Obstacle Course 1
-            ["SIDEQUEST_OBSTACLE_PISTOL_SHOOT"] = (26145684L, 10L), // Elevate Obstacle Course 2
-            ["SIDEQUEST_OBSTACLE_MACHINEGUN"] = (31912929L, 10L), // Purify Obstacle Course 2
-            ["SIDEQUEST_OBSTACLE_RIFLE_2"] = (13720596L, 10L), // Godspeed Obstacle Course 1
-            ["SIDEQUEST_OBSTACLE_UZI2"] = (39198861L, 10L), // Stomp Obstacle Course 1
-            ["SIDEQUEST_OBSTACLE_SHOTGUN"] = (36360132L, 10L), // Expel Obstacle Course 2
-            ["SIDEQUEST_OBSTACLE_ROCKETLAUNCHER"] = (44690294L, 10L), // Rocket Obstacle Course 2
-            ["SIDEQUEST_RAPTURE_QUEST"] = (1399748L, 10L), // Telefrag Challenge
-            ["SIDEQUEST_SUNSET_FLIP_POWERBOMB"] = (37824825L, 10L), // 
-            ["GRID_BALLOONLAIR"] = (19774182L, 10L), // Balloon Climber
-            ["SIDEQUEST_BARREL_CLIMB"] = (37504589L, 10L), // Barrel Climb
-            ["SIDEQUEST_FISHERMAN_SUPLEX"] = (43806639L, 10L), // 
-            ["SIDEQUEST_STF"] = (18672359L, 10L), // 
-            ["SIDEQUEST_ARENASIXNINE"] = (25047807L, 10L), // 
-            ["SIDEQUEST_ATTITUDE_ADJUSTMENT"] = (41812642L, 10L), // 
-            ["SIDEQUEST_ROCKETGODZ"] = (47798658L, 10L), // 
-            ["SIDEQUEST_DODGER"] = (19930937L, 10L), // Dodger
-            ["GRID_GLASSPATH"] = (25075795L, 10L), // Glass Path 1
-            ["GRID_GLASSPATH2"] = (19368072L, 10L), // Glass Path 2
-            ["GRID_HELLVATOR"] = (21305813L, 10L), // Hellvator
-            ["GRID_GLASSPATH3"] = (24712880L, 10L), // Glass Path 3
-            ["SIDEQUEST_ALL_SEEING_EYE"] = (28070976L, 10L), // All Seeing Eye
-            ["SIDEQUEST_RESIDENTSAWB"] = (17299871L, 10L), // 
-            ["SIDEQUEST_RESIDENTSAW"] = (16410187L, 10L) //
+            ["TUT_MOVEMENT"] = (18209999L, 17840999L), // Movement, 18.209 , 17.840
+            ["TUT_SHOOTINGRANGE"] = (7249999L, 6999999L), // Pummel, 7.289 , 6.999
+            ["SLUGGER"] = (7513650L, 7026999L), // Gunner, 7.513 , 7.026 
+            ["TUT_FROG"] = (9759999L, 9439999L), // Cascade, 9.759 , 9.439
+            ["TUT_JUMP"] = (15384180L, 14999999L), // Elevate, 15.384 ,  14.999
+            ["GRID_TUT_BALLOON"] = (16233228L, 15705999L), // Bounce, 16.233 , 15.705
+            ["TUT_BOMB2"] = (8759372L, 8517999L), // Purify, 8.759 , 8.517
+            ["TUT_BOMBJUMP"] = (10950999L, 10630999L), // Climb, 10.950 , 10.630
+            ["TUT_FASTTRACK"] = (21766666L, 20999999L), // Fasttrack, 21.766 , 20.999
+            ["GRID_PORT"] = (22200999L, 19999999L), // Glass Port, 22.200 , 19.999 
+            ["GRID_PAGODA"] = (15789999L, 15383999L), // Take Flight, 15.789 , 15.383
+            ["TUT_RIFLE"] = (5968789L, 5950999L), // Godspeed 5.968 , 5.950
+            ["TUT_RIFLEJOCK"] = (9567365L, 9268999L), // Dasher, 9.567 , 9.268
+            ["TUT_DASHENEMY"] = (11842663L, 11512999L), // Thrasher, 11.842 , 11.512
+            ["GRID_JUMPDASH"] = (9931733L, 9599999L), // Outstretched, 9.931 , 9.599
+            ["GRID_SMACKDOWN"] = (9975487L, 9789999L), // Smackdown 9.975 , 9.789
+            ["GRID_MEATY_BALLOONS"] = (13800655L, 13725999L), // Catwalk, 13.800 , 13.725
+            ["GRID_FAST_BALLOON"] = (21949799L, 21742999L), // Fastlane 21.949 , 21.742
+            ["GRID_DRAGON2"] = (15320626L, 15133999L), // Distinguish, 15.320 , 15.133
+            ["GRID_DASHDANCE"] = (16192999L, 15999999L), // Dancer, 16.192 , 15.999
+            ["TUT_GUARDIAN"] = (20529077L, 19974999L), // Guardian, 20.529 , 19.974
+            ["TUT_UZI"] = (14694806L, 13699999L), // Stomp, 14.694 , 13.699
+            ["TUT_JUMPER"] = (13599682L, 12999999L), // Jumper, 13.599 , 12.999
+            ["TUT_BOMB"] = (12912954L, 12402999L), // Dash Tower, 12.912 , 12.402
+            ["GRID_DESCEND"] = (9999671L, 9579999L), // Descent, 9.999 , 9.579
+            ["GRID_STAMPEROUT"] = (11199381L, 10989999L), // Driller, 11.199, 10.989
+            ["GRID_CRUISE"] = (16972199L, 14975999L), // Canals, 16.972, 14.975
+            ["GRID_SPRINT"] = (16539524L, 15978499L), // Sprint, 16.539, 15.978
+            ["GRID_MOUNTAIN"] = (17751583L, 16078999L), // Mountain, 17.751, 16.078
+            ["GRID_SUPERKINETIC"] = (16299711L, 15064999L), // Superkinetic 16.299, 15.064
+            ["GRID_ARRIVAL"] = (21579773L, 20999999L), // Arrival, 21.579, 20.999
+            ["FLOATING"] = (27918134L, 24650999L), // Floating City(Forgotten City), 27.918, 24.650
+            ["GRID_BOSS_YELLOW"] = (36569550L, 34999999L), // The Clocktower, 36.569, 34.999
+            ["GRID_HOPHOP"] = (16787970L, 16544999L), // Expel (Fireball), 16.787, 16.544
+            ["GRID_RINGER_TUTORIAL"] = (13999808L, 12859989L), // Ringer, 13.999, 12.859
+            ["GRID_RINGER_EXPLORATION"] = (12999938L, 11648999L), // Cleaner, 12.999, 11.648
+            ["GRID_HOPSCOTCH"] = (11753942L, 11179785L), // Warehouse, 11.753, 11.179
+            ["GRID_BOOM"] = (16341946L, 15599941L), // Boom, 16.341 , 15.599
+            ["GRID_SNAKE_IN_MY_BOOT"] = (7354999L, 6984999L), // Streets 7.354, 6.984
+            ["GRID_FLOCK"] = (12464666L, 12140666L), // Steps, 12.464, 12.140
+            ["GRID_BOMBS_AHOY"] = (7094951L, 6720999L), // Demolition, 7.094, 6.720
+            ["GRID_ARCS"] = (17292908L, 16699999L), // Arcs, 17.292, 16.699
+            ["GRID_APARTMENT"] = (15382634L, 12879999L), // Apartment, 15.382, 12.879
+            ["TUT_TRIPWIRE"] = (23009999L, 21821999L), // Hanging Gardens, 23.009, 21.821 (from here on out it gets harder)
+            ["GRID_TANGLED"] = (13458910L, 12520999L), // Tangled, 13.458, 12.520
+            ["GRID_HUNT"] = (20275598L, 19799999L), // Waterworks, 20.275, 19.799
+            ["GRID_CANNONS"] = (25262354L, 24227999L), // Killswitch, 25.262, 24.227
+            ["GRID_FALLING"] = (20452457L, 19464999L), // Falling, 20.452, 19.464
+            ["TUT_SHOCKER2"] = (28277797L, 27556999L), // Shocker, 28.277, 27.556
+            ["TUT_SHOCKER"] = (23441999L, 21993897L), // Bouquet, 23.441, 21.993
+            ["GRID_PREPARE"] = (27522685L, 25487999L), // Prepare, 27.522, 25.487
+            ["GRID_TRIPMAZE"] = (32816847L, 29999999L), // Triptrack, 32.816, 29.999
+            ["GRID_RACE"] = (23074515L, 22247999L), // Race 23.074, 22.247
+            ["TUT_FORCEFIELD2"] = (16165925L, 14420825L), // Bubble 16.165, 14.420
+            ["GRID_SHIELD"] = (16771907L, 15748999L), // Shield 16.771, 15.748
+            ["SA L VAGE2"] = (13340509L, 12681509L), // Overlook 13.340, 12.681
+            ["GRID_VERTICAL"] = (24673282L, 23949999L), // Pop, 24.673, 23.949
+            ["GRID_MINEFIELD"] = (12999097L, 12280999L), // Minefield, 12.999,  12.280
+            ["TUT_MIMIC"] = (9735374L, 9325247L), // Mimic, 9.735, 9.325
+            ["GRID_MIMICPOP"] = (20076717L, 19378999L), // Trigger, 20.076, 19.378
+            ["GRID_SWARM"] = (7676856L, 7499999L), // Greenhouse, 7.676, 7.499
+            ["GRID_SWITCH"] = (17922400L, 16735999L), // Sweep 17.922, 16.735
+            ["GRID_TRAPS2"] = (25211403L, 23520999L), // Fuse, 25.221, 23.520
+            ["TUT_ROCKETJUMP"] = (12738460L, 11299999L), // Heaven's Edge, 12.738, 11.299 (RE-ADJUST EMERALD TIMES FOR BENEDICTION AND APOCRYPHA) 
+            ["TUT_ZIPLINE"] = (12406723L, 11564999L), // Zipline, 12.406, 11.564
+            ["GRID_CLIMBANG"] = (18301839L, 15315999L), // Swing 18.301, 15.315
+            ["GRID_ROCKETUZI"] = (40099898L, 37799999L), // Bounce 40.099, 37.799
+            ["GRID_CRASHLAND"] = (28867362L, 26679999L), // Crash, 28.867, 26.679
+            ["GRID_ESCALATE"] = (25564361L, 22699999L), // Ascent, 25.564, 22.699
+            ["GRID_SPIDERCLAUS"] = (40237414L, 38899999L), // Straightaway, 40.237, 38.899
+            ["GRID_FIRECRACKER_2"] = (34927753L, 30999999L), // Firecracker, 34.927, 30.999 
+            ["GRID_SPIDERMAN"] = (25074568L, 21440999L), // Streak, 25.074, 21.440
+            ["GRID_DESTRUCTION"] = (29966018L, 24999999L), // Mirror, 29.966, 24.999
+            ["GRID_HEAT"] = (26400879L, 25259999L), // Escalation, 26.400, 25.259
+            ["GRID_BOLT"] = (29229606L, 26599999L), // Bolt, 29.229, 26.599
+            ["GRID_PON"] = (27599747L, 25999999L), // Godstreak, 27.599, 25.999
+            ["GRID_CHARGE"] = (31821917L, 29999999L), // Plunge, 31.821, 29.999
+            ["GRID_MIMICFINALE"] = (18188015L, 16599999L), // Mayhem, 18.188, 16.599
+            ["GRID_BARRAGE"] = (31944284L, 28678999L), // Barrage, 31.944, 28.678
+            ["GRID_1GUN"] = (36722186L, 32875999L), // Estate, 36.722, 32.875
+            ["GRID_HECK"] = (23262454L, 20899999L), // Trapwire, 23.262, 20.899
+            ["GRID_ANTFARM"] = (34291689L, 32222999L), // Ricochet, 34.291, 32.222
+            ["GRID_FORTRESS"] = (29082751L, 25117999L), // Fortress, 29.082, 25.117
+            ["GRID_GODTEMPLE_ENTRY"] = (52999936L, 51699999L), // Holy Ground, 52.999, 51.699
+            ["GRID_BOSS_GODSDEATHTEMPLE"] = (69785332L, 59999999L), // The Third Temple, 1:09.785, 59.999
+            ["GRID_EXTERMINATOR"] = (8359876L, 7294251L), // Spree, 8.359 , 7.294
+            ["GRID_FEVER"] = (5999972L, 5299999L), // Breakthrough, 5.999, 5.299
+            ["GRID_SKIPSLIDE"] = (9899996L, 9229999L), // Glide 9.899, 9.229
+            ["GRID_CLOSER"] = (12333912L, 10888999L), // Closer, 12.333, 10.888
+            ["GRID_HIKE"] = (8159915L, 7499999L), // Hike, 8.159, 7.499
+            ["GRID_SKIP"] = (12899935L, 11889999L), // Switch, 12.899, 11.889
+            ["GRID_CEILING"] = (16457145L, 15499999L), // Access, 16.499, 15.499
+            ["GRID_BOOP"] = (24899987L, 23699999L), // Congretation 24.899, 23.699
+            ["GRID_TRIPRAP"] = (10699891L, 9799999L), // Sequence, 10.699, 9.799
+            ["GRID_ZIPRAP"] = (14899903L, 12999999L), // Marathon, 14.899, 12.999
+            ["TUT_ORIGIN"] = (66999999L, 63750999L), // Sacrifice 1:06.999, 1:03.750
+            ["GRID_BOSS_RAPTURE"] = (85999999L, 78999999L), // Absolution, 1:25.999, 1:18.999
+            ["SIDEQUEST_OBSTACLE_PISTOL"] = (14899888L, 14399999L), // Elevate Obstacle Course 1 (Elevate Traversal I), 14.899, 14.399 (formula used for these times may be slightly altered since i got more friends on neon white now xd)
+            ["SIDEQUEST_OBSTACLE_PISTOL_SHOOT"] = (25699684L, 24999999L), // Elevate Obstacle Course 2 (Elevate Traversal II), 25.699, 24.999
+            ["SIDEQUEST_OBSTACLE_MACHINEGUN"] = (31912929L, 30787999L), // Purify Obstacle Course 2 (Purify Traversal), 31.912, 30.787
+            ["SIDEQUEST_OBSTACLE_RIFLE_2"] = (12874596L, 12569999L), // Godspeed Obstacle Course 1 (Godspeed Traversal), 12.874, 12.569
+            ["SIDEQUEST_OBSTACLE_UZI2"] = (39228861L, 38284878L), // Stomp Obstacle Course 1 (Stomp Traversal), 39.228, 28.284
+            ["SIDEQUEST_OBSTACLE_SHOTGUN"] = (35470132L, 33999999L), // Expel Obstacle Course 2 (Fireball Traversal), 35.470, 33.999
+            ["SIDEQUEST_OBSTACLE_ROCKETLAUNCHER"] = (39699294L, 37548999L), // Rocket Obstacle Course 2 (Dominion Traversal), 39.699, 37.548
+            ["SIDEQUEST_RAPTURE_QUEST"] = (1549748L, 1399999L), // Telefrag Challenge (Book of Life Traversal), 1.549, 1.399
+            ["SIDEQUEST_SUNSET_FLIP_POWERBOMB"] = (36924825L, 36479899L), // Sunset Flip Powerbomb, 36.924, 36.479 
+            ["GRID_BALLOONLAIR"] = (19774182L, 19579999L), // Balloon Climber (Balloon Mountain), 19.774, 19.579
+            ["SIDEQUEST_BARREL_CLIMB"] = (36874889L, 35899999L), // Barrel Climb (Climbing Gym), 36.874, 35.899
+            ["SIDEQUEST_FISHERMAN_SUPLEX"] = (41596839L, 37989899L), // Fisherman Suplex, 41.596, 37.989
+            ["SIDEQUEST_STF"] = (17772359L, 16842999L), // STF, 17.772, 16.842
+            ["SIDEQUEST_ARENASIXNINE"] = (23389807L, 20999999L), // Arena, 23.389, 20.999
+            ["SIDEQUEST_ATTITUDE_ADJUSTMENT"] = (41512642L, 40247898L), // Attitude Adjustment, 41.512, 40.247
+            ["SIDEQUEST_ROCKETGODZ"] = (47999658L, 44259999L), // Rocket, 47.999, 44.259
+            ["SIDEQUEST_DODGER"] = (19699937L, 18789999L), // Dodger (Doghouse), 19.699, 18.789
+            ["GRID_GLASSPATH"] = (25075795L, 24399999L), // Glass Path 1 (Choker), 24.678, 24.399
+            ["GRID_GLASSPATH2"] = (19199999L, 18599999L), // Glass Path 2 (Chain), 19.199, 18.599
+            ["GRID_HELLVATOR"] = (21720813L, 21299999L), // Hellvator (Hellevator), 21.720, 21.299
+            ["GRID_GLASSPATH3"] = (24534980L, 23937999L), // Glass Path 3 (Razor), 24.534, 23.937
+            ["SIDEQUEST_ALL_SEEING_EYE"] = (27899976L, 27355999L), // All Seeing Eye, 27.899, 27.355
+            ["SIDEQUEST_RESIDENTSAWB"] = (17299871L, 16699999L), // Resident Saw I, 17.199, 16.699
+            ["SIDEQUEST_RESIDENTSAW"] = (16399999L, 16359999L) // Resident Saw II, 16.399, 16.359   
         };
     }
 }

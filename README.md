@@ -1,7 +1,7 @@
 # NeonLite
  The Quality of Life Mod for All Your Neon White needs!
 
-Still currently a work in progress and thus it only features very limited amount of mods.
+Still currently a work in progress and thus it only features a limited amount of mods.
 
 ## Current Mods
 
@@ -16,7 +16,16 @@ Still currently a work in progress and thus it only features very limited amount
 * Session Timer
   * Tracks your current play session and the time you've spent on the current level you're playing!
 * Friends Leaderboard Fix
-
+* Sidequest Insight Screen Remover
+* In-depth Ingame Timer
+  * Allows you to modify the timer and also displays the timer in milliseconds.
+* Community Medals
+  * This mod will allow you to compete for community times and will display their respective medals based on how well you've performed in the level!
+  * Emerald Rank is the definition of achieving a Dev+ time, this rank is for people who want to take it a step further from the secret developer rank and obtain something better!
+  * Amethyst Ranks are for the worthy, for the truly experienced players who are willing to stand out from the rest and obtain an incredibly respectible time!
+* Cheater Leaderboard (WIP, if i didn't edit this one out i'm fucking stupid LOL)
+* Apocalypse, begone!
+  * Changes the visual aspects of the central heaven, making it more beautiful.
 
 ## Future fixes/additions to NeonLite:
 
@@ -30,7 +39,7 @@ Still currently a work in progress and thus it only features very limited amount
 2. Run the game once. This will create required folders; you should see a splash screen if you installed the modloader correctly.
 3. Download the **Mono** version of [Melon Preferences Manager](https://github.com/sinai-dev/MelonPreferencesManager/releases/latest), and put the .dlls from that zip into the `mods` folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White\Mods`)
     * The IL2CPP version **WILL NOT WORK**; you **must** download `MelonPreferencesManager.Mono.zip`. 
-4. Download the `NeonWhiteQoL.dll` from the [Releases page](https://github.com/Faustas156/NeonLite/releases/) and drop it in the mods folder.
+4. Download the `NeonLite.dll` from the [Releases page](https://github.com/Faustas156/NeonLite/releases/) and drop it in the mods folder.
 
 ## SPECIAL CREDITS:
 

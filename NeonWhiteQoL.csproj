@@ -4,6 +4,7 @@
     <TargetFramework>net472</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
 	<LangVersion>latest</LangVersion>
+	<AssemblyName>NeonLite</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

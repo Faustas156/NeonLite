@@ -118,10 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="uiMedal_Platinum" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uiMedal_Platinum.png;System.Byte[]</value>
+  <data name="uiCrystal_Amethyst" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\uiCrystal_Amethyst.png;System.Byte[]</value>
   </data>
-  <data name="uiMedal_Rainbow" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uiMedal_Rainbow.png;System.Byte[]</value>
+  <data name="uiCrystal_Emerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\uiCrystal_Emerald.png;System.Byte[]</value>
+  </data>
+  <data name="uiMedal_Emerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\uiMedal_Emerald.png;System.Byte[]</value>
+  </data>
+  <data name="uiMedal_Purple" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\uiMedal_Purple.png;System.Byte[]</value>
   </data>
 </root>

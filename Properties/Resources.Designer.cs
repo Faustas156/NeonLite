@@ -63,9 +63,9 @@ namespace NeonWhiteQoL.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] uiMedal_Platinum {
+        internal static byte[] uiCrystal_Amethyst {
             get {
-                object obj = ResourceManager.GetObject("uiMedal_Platinum", resourceCulture);
+                object obj = ResourceManager.GetObject("uiCrystal_Amethyst", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -73,9 +73,29 @@ namespace NeonWhiteQoL.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] uiMedal_Rainbow {
+        internal static byte[] uiCrystal_Emerald {
             get {
-                object obj = ResourceManager.GetObject("uiMedal_Rainbow", resourceCulture);
+                object obj = ResourceManager.GetObject("uiCrystal_Emerald", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] uiMedal_Emerald {
+            get {
+                object obj = ResourceManager.GetObject("uiMedal_Emerald", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] uiMedal_Purple {
+            get {
+                object obj = ResourceManager.GetObject("uiMedal_Purple", resourceCulture);
                 return ((byte[])(obj));
             }
         }
