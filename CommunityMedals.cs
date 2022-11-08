@@ -2,37 +2,37 @@
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NeonWhiteQoL
 {
     public class CommunityMedals
     {
-        public static Sprite emeraldMedal, purpleMedal, emeraldCrystal;
-        private static readonly FieldInfo _getLevelData = typeof(MenuButtonLevel).GetField("_levelData", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static Sprite emeraldMedal, purpleMedal, emeraldCrystal, purpleCrystal, mikeyEmerald, mikeyAmethyst;
         public static string displaytime = "";
         public static void Initialize()
         {
+            emeraldMedal = LoadSprite(Properties.Resources.uiMedal_Emerald);
+            purpleMedal = LoadSprite(Properties.Resources.uiMedal_Purple);
+            emeraldCrystal = LoadSprite(Properties.Resources.uiCrystal_Emerald);
+            purpleCrystal = LoadSprite(Properties.Resources.uiCrystal_Amethyst);
+            mikeyEmerald = LoadSprite(Properties.Resources.mikeysealEmerald);
+            mikeyAmethyst = LoadSprite(Properties.Resources.mikeysealAmethyst);
+
             MethodInfo method = typeof(LevelInfo).GetMethod("SetLevel");
             HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetLevel"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
-            method = typeof(LevelInfo).GetMethod("SetLevel");
-            harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetDev"));
+            method = typeof(MenuButtonLevel).GetMethod("SetLevelData");
+            harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetLevelData"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
-
-            method = typeof(MenuButtonLevel).GetMethod("UpdateTime");
-            harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostUpdateTime"));
-            NeonLite.Harmony.Patch(method, null, harmonyMethod);
-
-            emeraldMedal = LoadSprite(Properties.Resources.uiMedal_Emerald);
-            purpleMedal = LoadSprite(Properties.Resources.uiMedal_Purple);
-            emeraldCrystal = LoadSprite(Properties.Resources.uiCrystal_Emerald);
         }
 
         private static Sprite LoadSprite(byte[] image)
         {
             Texture2D SpriteTexture = new(2, 2);
             SpriteTexture.LoadImage(image);
+            //Debug.Log(SpriteTexture.width); 
 
             return Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
         }
@@ -44,80 +44,83 @@ namespace NeonWhiteQoL
 
             if (!levelStats.GetCompleted()) return;
 
-            //if ((level.hasCollectible || level.isSidequest) && !fromStore)
+            //if (level.isSidequest)
             //{
-            //    bool flag = level.isSidequest ? levelStats.GetCompleted() : levelStats.HasCollectibleBeenFound();
-            //    __instance._crystalHolder.SetActive(true);
-            //    __instance._crystalHolderFilled.SetActive(flag);
-            //    __instance._crystalFillBG.SetActive(flag);
-            //    __instance._levelMedal.sprite =  
+            //    __instance._levelMedal.sprite = gameData.GetSpriteForMedal(levelStats.GetMedalAchieved());
+            //    __instance._levelMedal.gameObject.SetActive(true);
             //}
 
-            if (level.isSidequest)
-            {
-                __instance._levelMedal.sprite = gameData.GetSpriteForMedal(levelStats.GetMedalAchieved());
-                __instance._levelMedal.gameObject.SetActive(true);
-            }
 
             var communityTimes = CommunityMedalTimes[level.levelID];
 
             if (levelStats._timeBestMicroseconds < communityTimes.Item2)
             {
                 __instance._levelMedal.sprite = purpleMedal;
+                if (level.isSidequest)
+                {
+                    __instance._crystalHolderFilledImage.sprite = purpleCrystal;
+                }
+                else
+                {
+                    Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                    if (stamps.Length < 3) return;
+
+                    stamps[1].sprite = mikeyAmethyst;
+                    stamps[2].sprite = mikeyAmethyst;
+                }
             }
             else if (levelStats._timeBestMicroseconds < communityTimes.Item1)
+            {
                 __instance._levelMedal.sprite = emeraldMedal;
+                if (level.isSidequest)
+                {
+                    __instance._crystalHolderFilledImage.sprite = emeraldCrystal;
+                }
+                else
+                {
+                    Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                    if (stamps.Length < 3) return;
+
+                    stamps[1].sprite = mikeyEmerald;
+                    stamps[2].sprite = mikeyEmerald;
+                }
+            }
         }
-
-        //public static void PostSetDev(LevelInfo __instance, ref LevelData level, ref bool fromStore, ref bool isNewScore, ref bool skipNewScoreInitalDelay)
-        //{
-        //    GameData gameData = Singleton<Game>.Instance.GetGameData();
-        //    LevelStats levelStats = gameData.GetLevelStats(level.levelID);
-
-        //    var communityTimes = CommunityMedalTimes[level.levelID];
-
-        //    if (levelStats._timeBestMicroseconds < communityTimes.Item2) ;
-        //    {
-        //        TimeSpan t = TimeSpan.FromMilliseconds(communityTimes.Item2 / 1000);
-
-        //        displaytime = String.Format("{0:0}:{1:00}.{2:000}",
-        //                                         t.Minutes,
-        //                                         t.Seconds,
-        //                                         t.Milliseconds);
-
-        //        //GameObject devStamp = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/MikeyStampGraphic");
-        //        //GameObject devStampDoubler = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/MikeyStampGraphicDoubler");
-        //        GameObject devTime = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/DevTimeDisplay");
 
         //        //devStamp.GetComponent<Renderer>().material.color = new Color(172,80,233);
         //        //devStampDoubler.GetComponent<Renderer>().material.color = new Color(160, 32, 240);
-        //        TextMeshProUGUI devtext = devTime.GetComponent<TextMeshProUGUI>();
-        //        devtext.SetText(displaytime);
         //        devtext.color = new Color(0.674f, 0.313f, 0.913f);
 
-        //        return;
-        //    }
-
-        //}
-
-        public static void PostUpdateTime(MenuButtonLevel __instance)
+        public static void PostSetLevelData(MenuButtonLevel __instance, ref LevelData ld, ref int displayIndex)
         {
             GameData GameDataRef = Singleton<Game>.Instance.GetGameData();
-            LevelData _levelData = _getLevelData.GetValue(__instance) as LevelData;
 
-            LevelStats levelStats = GameDataRef.GetLevelStats(_levelData.levelID);
-            var communityTimes = CommunityMedalTimes[_levelData.levelID];
+            LevelStats levelStats = GameDataRef.GetLevelStats(ld.levelID);
+            var communityTimes = CommunityMedalTimes[ld.levelID];
 
-            if (_levelData.isSidequest)
-            {
-                __instance._medalHolder.SetActive(true);
-                __instance._medalBG.sprite = __instance._iconBGFull;
-            }
+            //if (ld.isSidequest)
+            //{
+            //    __instance._medalHolder.SetActive(true);
+            //    __instance._medalBG.sprite = __instance._iconBGFull;
+            //}
 
             if (levelStats._timeBestMicroseconds < communityTimes.Item2)
+            {
                 __instance._medal.sprite = purpleMedal;
+                if (ld.isSidequest)
+                {
+                    __instance._imageLoreFilled.sprite = purpleCrystal;
+                }
+            }
+
             else if (levelStats._timeBestMicroseconds < communityTimes.Item1)
+            {
                 __instance._medal.sprite = emeraldMedal;
+                if (ld.isSidequest)
+                {
+                    __instance._imageLoreFilled.sprite = emeraldCrystal;
+                }
+            }
         }
 
 
