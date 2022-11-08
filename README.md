@@ -16,6 +16,9 @@ Still currently a work in progress and thus it only features a limited amount of
 * Session Timer
   * Tracks your current play session and the time you've spent on the current level you're playing!
 * Friends Leaderboard Fix
+
+**Set to be released in v1.3.0:**
+
 * Sidequest Insight Screen Remover
 * In-depth Ingame Timer
   * Allows you to modify the timer and also displays the timer in milliseconds.
@@ -23,13 +26,11 @@ Still currently a work in progress and thus it only features a limited amount of
   * This mod will allow you to compete for community times and will display their respective medals based on how well you've performed in the level!
   * Emerald Rank is the definition of achieving a Dev+ time, this rank is for people who want to take it a step further from the secret developer rank and obtain something better!
   * Amethyst Ranks are for the worthy, for the truly experienced players who are willing to stand out from the rest and obtain an incredibly respectible time!
-* Cheater Leaderboard (WIP, if i didn't edit this one out i'm fucking stupid LOL)
+* Cheater Leaderboard (work in progress)
 * Apocalypse, begone!
   * Changes the visual aspects of the central heaven, making it more beautiful.
 
 ## Future fixes/additions to NeonLite:
-
-* an unofficial ban list, displaying your true position on the leaderboards.
 * a way to track how far away you are from WRs.
 * add customization options. (partically completed, mainly added the ability to enable/disable mods)
 
