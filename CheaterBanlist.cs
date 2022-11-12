@@ -1,6 +1,6 @@
 ﻿namespace NeonWhiteQoL
 {
-    internal class CheaterLeaderboard
+    internal class CheaterBanlist
     {
 
     }

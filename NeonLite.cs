@@ -47,6 +47,7 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> SessionTimer_display;
         public static MelonPreferences_Entry<bool> LevelTimer_display;
         public static MelonPreferences_Entry<bool> IGTimer_display;
+        public static MelonPreferences_Entry<Color> IGTimer_color;
         public static MelonPreferences_Entry<bool> Apocalypse_display;
         public static MelonPreferences_Entry<bool> BossGhost_recorder;
 
@@ -58,7 +59,8 @@ namespace NeonWhiteQoL
             RemoveMission_display = neonLite_config.CreateEntry("Remove Start Mission button in Job Archive", true, null, "Sick and tired of the big, bulky \"Start Mission\" button that appears? Now you can get rid of it, forever!");
             SessionTimer_display = neonLite_config.CreateEntry("Display Session Timer", true, null, "Tracks your current play session time.");
             LevelTimer_display = neonLite_config.CreateEntry("Display Level Timer", true, null, "Tracks the time you've spent on the current level you're playing.");
-            IGTimer_display = neonLite_config.CreateEntry("Display in-depth in game timer", true, null, "Allows the modification of the timer and lets you display milliseconds.");
+            IGTimer_display = neonLite_config.CreateEntry("Display in-depth in-game timer", true, null, "Allows the modification of the timer and lets you display milliseconds.");
+            IGTimer_color = neonLite_config.CreateEntry("In-game Timer Color", Color.white, null, "Customization settings for the in-game timer, does not apply to result screen time.");
             Apocalypse_display = neonLite_config.CreateEntry("Begone Apocalypse", true, null, "Get rid of the Apocalyptic view and replace it with the blue skies.");
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, null, "Allows you to record and playback a ghost for the boss levels.");
         }

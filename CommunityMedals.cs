@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using System.Reflection;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +7,9 @@ namespace NeonWhiteQoL
 {
     public class CommunityMedals
     {
-        public static Sprite emeraldMedal, purpleMedal, emeraldCrystal, purpleCrystal, mikeyEmerald, mikeyAmethyst;
+        public static Sprite emeraldMedal, purpleMedal, emeraldCrystal, purpleCrystal, mikeyEmerald, mikeyAmethyst, mikeyOriginal;
         public static string displaytime = "";
+
         public static void Initialize()
         {
             emeraldMedal = LoadSprite(Properties.Resources.uiMedal_Emerald);
@@ -32,13 +32,19 @@ namespace NeonWhiteQoL
         {
             Texture2D SpriteTexture = new(2, 2);
             SpriteTexture.LoadImage(image);
-            //Debug.Log(SpriteTexture.width); 
 
             return Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
         }
 
         public static void PostSetLevel(LevelInfo __instance, ref LevelData level, ref bool fromStore, ref bool isNewScore, ref bool skipNewScoreInitalDelay)
         {
+            if (mikeyOriginal == null)
+            {
+                GameObject mikeyStamp = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/");
+                if (mikeyStamp.activeSelf)
+                    mikeyOriginal = mikeyStamp.transform.Find("MikeyStampGraphic").gameObject.GetComponent<Image>().sprite;
+            }
+
             GameData gameData = Singleton<Game>.Instance.GetGameData();
             LevelStats levelStats = gameData.GetLevelStats(level.levelID);
 
@@ -53,11 +59,14 @@ namespace NeonWhiteQoL
 
             var communityTimes = CommunityMedalTimes[level.levelID];
 
+
             if (levelStats._timeBestMicroseconds < communityTimes.Item2)
             {
                 __instance._levelMedal.sprite = purpleMedal;
                 if (level.isSidequest)
                 {
+                    __instance._medalInfoHolder.SetActive(true);
+                    
                     __instance._crystalHolderFilledImage.sprite = purpleCrystal;
                 }
                 else
@@ -85,11 +94,23 @@ namespace NeonWhiteQoL
                     stamps[2].sprite = mikeyEmerald;
                 }
             }
+            else if (!level.isSidequest)
+            {
+                Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                if (stamps.Length < 3) return;
+
+                stamps[1].sprite = mikeyOriginal;
+                stamps[2].sprite = mikeyOriginal;
+            }
         }
 
-        //        //devStamp.GetComponent<Renderer>().material.color = new Color(172,80,233);
-        //        //devStampDoubler.GetComponent<Renderer>().material.color = new Color(160, 32, 240);
+        //        devStamp.GetComponent<Renderer>().material.color = new Color(172,80,233);
+        //        devStampDoubler.GetComponent<Renderer>().material.color = new Color(160, 32, 240);
         //        devtext.color = new Color(0.674f, 0.313f, 0.913f);
+
+        // to do:
+        // still needs sidequest devstamp of some sort
+        // change devText color (replace the original text with the time needed to achieve emerald, if emerald already achieved, display amethyst time requirement)
 
         public static void PostSetLevelData(MenuButtonLevel __instance, ref LevelData ld, ref int displayIndex)
         {
@@ -157,7 +178,7 @@ namespace NeonWhiteQoL
             ["GRID_MOUNTAIN"] = (17751583L, 16078999L), // Mountain, 17.751, 16.078
             ["GRID_SUPERKINETIC"] = (16299711L, 15064999L), // Superkinetic 16.299, 15.064
             ["GRID_ARRIVAL"] = (21579773L, 20999999L), // Arrival, 21.579, 20.999
-            ["FLOATING"] = (27918134L, 24650999L), // Floating City(Forgotten City), 27.918, 24.650
+            ["FLOATING"] = (27918134L, 24650999L), // Floating City (Forgotten City), 27.918, 24.650
             ["GRID_BOSS_YELLOW"] = (36569550L, 34999999L), // The Clocktower, 36.569, 34.999
             ["GRID_HOPHOP"] = (16787970L, 16544999L), // Expel (Fireball), 16.787, 16.544
             ["GRID_RINGER_TUTORIAL"] = (13999808L, 12859989L), // Ringer, 13.999, 12.859
@@ -174,7 +195,7 @@ namespace NeonWhiteQoL
             ["GRID_HUNT"] = (20275598L, 19799999L), // Waterworks, 20.275, 19.799
             ["GRID_CANNONS"] = (25262354L, 24227999L), // Killswitch, 25.262, 24.227
             ["GRID_FALLING"] = (20452457L, 19464999L), // Falling, 20.452, 19.464
-            ["TUT_SHOCKER2"] = (28277797L, 27556999L), // Shocker, 28.277, 27.556
+            ["TUT_SHOCKER2"] = (28277797L, 27289999L), // Shocker, 28.277, 27.289
             ["TUT_SHOCKER"] = (23441999L, 21993897L), // Bouquet, 23.441, 21.993
             ["GRID_PREPARE"] = (27522685L, 25487999L), // Prepare, 27.522, 25.487
             ["GRID_TRIPMAZE"] = (32816847L, 29999999L), // Triptrack, 32.816, 29.999
@@ -188,18 +209,18 @@ namespace NeonWhiteQoL
             ["GRID_MIMICPOP"] = (20076717L, 19378999L), // Trigger, 20.076, 19.378
             ["GRID_SWARM"] = (7676856L, 7499999L), // Greenhouse, 7.676, 7.499
             ["GRID_SWITCH"] = (17922400L, 16735999L), // Sweep 17.922, 16.735
-            ["GRID_TRAPS2"] = (25211403L, 23520999L), // Fuse, 25.221, 23.520
-            ["TUT_ROCKETJUMP"] = (12738460L, 11299999L), // Heaven's Edge, 12.738, 11.299 (RE-ADJUST EMERALD TIMES FOR BENEDICTION AND APOCRYPHA) 
+            ["GRID_TRAPS2"] = (25211403L, 22999999L), // Fuse, 25.221, 22.999
+            ["TUT_ROCKETJUMP"] = (12738460L, 11449999L), // Heaven's Edge, 12.738, 11.449 (RE-ADJUST EMERALD TIMES FOR BENEDICTION AND APOCRYPHA) 
             ["TUT_ZIPLINE"] = (12406723L, 11564999L), // Zipline, 12.406, 11.564
             ["GRID_CLIMBANG"] = (18301839L, 15315999L), // Swing 18.301, 15.315
-            ["GRID_ROCKETUZI"] = (40099898L, 37799999L), // Bounce 40.099, 37.799
+            ["GRID_ROCKETUZI"] = (40099898L, 37799999L), // Chute, 40.099, 37.799
             ["GRID_CRASHLAND"] = (28867362L, 26679999L), // Crash, 28.867, 26.679
             ["GRID_ESCALATE"] = (25564361L, 22699999L), // Ascent, 25.564, 22.699
             ["GRID_SPIDERCLAUS"] = (40237414L, 38899999L), // Straightaway, 40.237, 38.899
             ["GRID_FIRECRACKER_2"] = (34927753L, 30999999L), // Firecracker, 34.927, 30.999 
             ["GRID_SPIDERMAN"] = (25074568L, 21440999L), // Streak, 25.074, 21.440
             ["GRID_DESTRUCTION"] = (29966018L, 24999999L), // Mirror, 29.966, 24.999
-            ["GRID_HEAT"] = (26400879L, 25259999L), // Escalation, 26.400, 25.259
+            ["GRID_HEAT"] = (25890879L, 23999999L), // Escalation, 25.890, 23.999
             ["GRID_BOLT"] = (29229606L, 26599999L), // Bolt, 29.229, 26.599
             ["GRID_PON"] = (27599747L, 25999999L), // Godstreak, 27.599, 25.999
             ["GRID_CHARGE"] = (31821917L, 29999999L), // Plunge, 31.821, 29.999
