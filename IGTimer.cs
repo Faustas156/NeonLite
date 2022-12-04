@@ -45,18 +45,8 @@ namespace NeonWhiteQoL
                                                 t.Milliseconds);
 
             GameObject centiseconds = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Results Panel/Level Time Text");
-            //GameObject milliseconds = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Results Panel/Level Milliseconds Text");
 
-            //if (milliseconds == null)
-            //{
-            //    milliseconds = UnityEngine.Object.Instantiate(centiseconds, centiseconds.transform.parent);
-            //    milliseconds.name = "Level Milliseconds Text";
-            //    milliseconds.SetActive(true);
-            //    milliseconds.transform.localPosition += new Vector3(0, 0, 0);
-            //}
-            //TextMeshProUGUI text = milliseconds.GetComponent<TextMeshProUGUI>();
             TextMeshProUGUI text = centiseconds.GetComponent<TextMeshProUGUI>();
-            //centiseconds.SetActive(false);
             text.SetText(resulttime);
             LevelStats levelStats = GameDataManager.levelStats[game.GetCurrentLevel().levelID];
             text.color = levelStats.IsNewBest() ? Color.green : Color.white;
@@ -97,13 +87,5 @@ namespace NeonWhiteQoL
 
             return false;
         }
-
-        //public static void OnPostUpdateTimerText(PlayerUI __instance)
-        //{
-        //    if (!NeonLite.IGTimer_display.Value)
-        //        return;
-
-        //    if ()
-        //}
     }
 }

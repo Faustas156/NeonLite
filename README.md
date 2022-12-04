@@ -31,10 +31,6 @@ Still currently a work in progress and thus it only features a limited amount of
 * Apocalypse, begone!
   * Changes the visual aspects of the central heaven, making it more beautiful.
 
-## Future fixes/additions to NeonLite:
-* a way to track how far away you are from WRs.
-* add customization options. (partically completed, mainly added the ability to enable/disable mods)
-
 ## Installation & Usage
 
 1. Download [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest) and install it onto your `Neon White.exe`.

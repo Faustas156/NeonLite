@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
+using JetBrains.Annotations;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +11,9 @@ namespace NeonWhiteQoL
     {
         public static Sprite emeraldMedal, purpleMedal, emeraldCrystal, purpleCrystal, mikeyEmerald, mikeyAmethyst, mikeyOriginal;
         public static string displaytime = "";
+
+        // to do:
+        // FIX SIDEQUEST STAMPS, THEY ARE LITERALLY COPY PASTED . I WAS WORKING ON THEM AT 2 AM .
 
         public static void Initialize()
         {
@@ -59,15 +64,29 @@ namespace NeonWhiteQoL
 
             var communityTimes = CommunityMedalTimes[level.levelID];
 
+            string AmethystMedalTime = Game.GetTimerFormattedMillisecond(communityTimes.Item2);
+            string EmeraldMedalTime = Game.GetTimerFormattedMillisecond(communityTimes.Item1);
+            //Utils.LongToTime(communityTimes.Item1, "#0:00.000");
+
 
             if (levelStats._timeBestMicroseconds < communityTimes.Item2)
             {
                 __instance._levelMedal.sprite = purpleMedal;
+                __instance.devTime.SetText(AmethystMedalTime);
+                __instance.devTime.color = new Color(0.674f, 0.313f, 0.913f);
+
                 if (level.isSidequest)
                 {
                     __instance._medalInfoHolder.SetActive(true);
-                    
+                    __instance.devStamp.SetActive(true);
+
                     __instance._crystalHolderFilledImage.sprite = purpleCrystal;
+
+                    Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                    if (stamps.Length < 3) return;
+
+                    stamps[1].sprite = mikeyAmethyst;
+                    stamps[2].sprite = mikeyAmethyst;
                 }
                 else
                 {
@@ -81,8 +100,20 @@ namespace NeonWhiteQoL
             else if (levelStats._timeBestMicroseconds < communityTimes.Item1)
             {
                 __instance._levelMedal.sprite = emeraldMedal;
+                __instance.devTime.SetText(AmethystMedalTime);
+                __instance.devTime.color = new Color(0.674f, 0.313f, 0.913f);
+
                 if (level.isSidequest)
                 {
+                    __instance._medalInfoHolder.SetActive(true);
+                    __instance.devStamp.SetActive(true);
+
+                    Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                    if (stamps.Length < 3) return;
+
+                    stamps[1].sprite = mikeyEmerald;
+                    stamps[2].sprite = mikeyEmerald;
+
                     __instance._crystalHolderFilledImage.sprite = emeraldCrystal;
                 }
                 else
@@ -96,21 +127,27 @@ namespace NeonWhiteQoL
             }
             else if (!level.isSidequest)
             {
+                __instance.devTime.SetText(EmeraldMedalTime);
+                __instance.devTime.color = new Color(0.388f, 0.8f, 0.388f);
+
                 Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
                 if (stamps.Length < 3) return;
 
                 stamps[1].sprite = mikeyOriginal;
                 stamps[2].sprite = mikeyOriginal;
             }
+
+            else if (level.isSidequest)
+            {
+                __instance._medalInfoHolder.SetActive(true);
+                __instance.devStamp.SetActive(true);
+                __instance.devTime.SetText(EmeraldMedalTime);
+                __instance.devTime.color = new Color(0.388f, 0.8f, 0.388f);
+            }
         }
-
-        //        devStamp.GetComponent<Renderer>().material.color = new Color(172,80,233);
-        //        devStampDoubler.GetComponent<Renderer>().material.color = new Color(160, 32, 240);
-        //        devtext.color = new Color(0.674f, 0.313f, 0.913f);
-
-        // to do:
-        // still needs sidequest devstamp of some sort
-        // change devText color (replace the original text with the time needed to achieve emerald, if emerald already achieved, display amethyst time requirement)
+        //        amethyst medal time (0.674f, 0.313f, 0.913f);
+        //        emerald medal time (99,204,99), (0.388f, 0.8f, 0.388f)
+        //        original medal color (107,4,11) (0.420f, 0.015f, 0.043f)
 
         public static void PostSetLevelData(MenuButtonLevel __instance, ref LevelData ld, ref int displayIndex)
         {
@@ -196,7 +233,7 @@ namespace NeonWhiteQoL
             ["GRID_CANNONS"] = (25262354L, 24227999L), // Killswitch, 25.262, 24.227
             ["GRID_FALLING"] = (20452457L, 19464999L), // Falling, 20.452, 19.464
             ["TUT_SHOCKER2"] = (28277797L, 27289999L), // Shocker, 28.277, 27.289
-            ["TUT_SHOCKER"] = (23441999L, 21993897L), // Bouquet, 23.441, 21.993
+            ["TUT_SHOCKER"] = (22471999L, 20999897L), // Bouquet, 22.471, 20.999
             ["GRID_PREPARE"] = (27522685L, 25487999L), // Prepare, 27.522, 25.487
             ["GRID_TRIPMAZE"] = (32816847L, 29999999L), // Triptrack, 32.816, 29.999
             ["GRID_RACE"] = (23074515L, 22247999L), // Race 23.074, 22.247
@@ -238,8 +275,8 @@ namespace NeonWhiteQoL
             ["GRID_CLOSER"] = (12333912L, 10888999L), // Closer, 12.333, 10.888
             ["GRID_HIKE"] = (8159915L, 7499999L), // Hike, 8.159, 7.499
             ["GRID_SKIP"] = (12899935L, 11889999L), // Switch, 12.899, 11.889
-            ["GRID_CEILING"] = (16457145L, 15499999L), // Access, 16.499, 15.499
-            ["GRID_BOOP"] = (24899987L, 23699999L), // Congretation 24.899, 23.699
+            ["GRID_CEILING"] = (16457145L, 15299999L), // Access, 16.457, 15.299
+            ["GRID_BOOP"] = (24899987L, 23699999L), // Congregation 24.899, 23.699
             ["GRID_TRIPRAP"] = (10699891L, 9799999L), // Sequence, 10.699, 9.799
             ["GRID_ZIPRAP"] = (14899903L, 12999999L), // Marathon, 14.899, 12.999
             ["TUT_ORIGIN"] = (66999999L, 63750999L), // Sacrifice 1:06.999, 1:03.750
