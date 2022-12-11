@@ -22,6 +22,8 @@ namespace NeonWhiteQoL
             GameObject text = new GameObject("Text", typeof(Text));
             GameObject timer = new GameObject("SessionTimer", typeof(SessionTimer));
             CheaterBanlist.Initialize();
+
+            Debug.Log("Initialization complete.");
         }
 
         //public override void OnUpdate()
