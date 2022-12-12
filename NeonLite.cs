@@ -8,6 +8,9 @@ namespace NeonWhiteQoL
         public static new HarmonyLib.Harmony Harmony { get; private set; }
         public override void OnApplicationLateStart()
         {
+            GameObject modObject = new GameObject();
+            GameObject.DontDestroyOnLoad(modObject);
+
             Harmony = new HarmonyLib.Harmony("NeonLite");
             PBtracker.Initialize();
             GreenHP.Initialize();
@@ -21,7 +24,7 @@ namespace NeonWhiteQoL
             BossfightGhost.Initialize();
             GameObject text = new GameObject("Text", typeof(Text));
             GameObject timer = new GameObject("SessionTimer", typeof(SessionTimer));
-            CheaterBanlist.Initialize();
+            modObject.AddComponent<CheaterBanlist>();
 
             Debug.Log("Initialization complete.");
         }
@@ -46,7 +49,9 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Category neonLite_config;
         public static MelonPreferences_Entry<bool> PBtracker_display;
         public static MelonPreferences_Entry<bool> SessionTimer_display;
+        public static MelonPreferences_Entry<int> SessionTimer_fontSize;
         public static MelonPreferences_Entry<bool> LevelTimer_display;
+        public static MelonPreferences_Entry<int> LevelTimer_fontSize;
         //public static MelonPreferences_Entry<Vector3> LevelTimer_coords;
         public static MelonPreferences_Entry<bool> IGTimer_display;
         public static MelonPreferences_Entry<Color> IGTimer_color;
@@ -58,12 +63,14 @@ namespace NeonWhiteQoL
         //add customization options for session timer/level timer, add community medal toggle with a dropdown table for different display options(?)
         //allow people to customize PB tracker color(?), ext fov slider custom values(?) and/or toggle
 
-        public override void OnApplicationStart() 
+        public override void OnApplicationStart()
         {
             neonLite_config = MelonPreferences.CreateCategory("NeonLite Settings");
             PBtracker_display = neonLite_config.CreateEntry("Enable PB Tracker", true, description: "Displays a time based on whether or not you got a new personal best.");
             SessionTimer_display = neonLite_config.CreateEntry("Display Session Timer", true, description: "Tracks your current play session time.");
+            SessionTimer_fontSize = neonLite_config.CreateEntry("Session Timer Font Size", 20, description: "Enter a value to set your font size (Must not include decimals).");
             LevelTimer_display = neonLite_config.CreateEntry("Display Level Timer", true, description: "Tracks the time you've spent on the current level you're playing.");
+            LevelTimer_fontSize = neonLite_config.CreateEntry("Level Timer Font Size", 20, description: "Enter a value to set your font size (Must not include decimals).");
             //LevelTimer_coords = neonLite_config.CreateEntry("Level Timer Position", new Vector3(-5, -30, -0), description: "Enter a value to move the Level Timer.");
             IGTimer_display = neonLite_config.CreateEntry("Display in-depth in-game timer", true, description: "Allows the modification of the timer and lets you display milliseconds.");
             IGTimer_color = neonLite_config.CreateEntry("In-game Timer Color", Color.white, description: "Customization settings for the in-game timer, does not apply to result screen time.");

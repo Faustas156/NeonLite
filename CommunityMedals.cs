@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
-using JetBrains.Annotations;
 using System.Reflection;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +12,7 @@ namespace NeonWhiteQoL
 
         // to do:
         // FIX SIDEQUEST STAMPS, THEY ARE LITERALLY COPY PASTED . I WAS WORKING ON THEM AT 2 AM .
+        // fix bug where if you select sidequest stamps first --> go to main levels, the stamps will not work properly if selecting a level with a default red ace medal
 
         public static void Initialize()
         {
