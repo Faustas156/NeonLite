@@ -27,7 +27,7 @@ Still currently a work in progress and thus it only features a limited amount of
   * Emerald Rank is the definition of achieving a Dev+ time, this rank is for people who want to take it a step further from the secret developer rank and obtain something better!
   * Amethyst Ranks are for the worthy, for the truly experienced players who are willing to stand out from the rest and obtain an incredibly respectible time!
 * Cheater Banlist (work in progress)
-  * Removes cheaters and displays your true ranking on leaderboards.
+  * Uses an online banlist to highlight cheaters in red (Automatically updated, does not require downloading any updates).
 * Apocalypse, begone!
   * Changes the visual aspects of the central heaven, making it more beautiful.
 

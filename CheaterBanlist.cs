@@ -12,7 +12,7 @@ namespace NeonWhiteQoL
     {
         //private static readonly FieldInfo _leaderboadsRefInfo = typeof(LeaderboardIntegrationSteam).GetField("leaderboardsRef", BindingFlags.NonPublic | BindingFlags.Static);
         //private static MethodInfo OnLoadComplete = typeof(LeaderboardIntegrationSteam).GetMethod("OnLoadComplete2", BindingFlags.NonPublic | BindingFlags.Static);
-        //private static FieldInfo currentLeaderboardEntriesGlobal = typeof(LeaderboardIntegrationSteam).GetField("currentLeaderboardEntriesGlobal", BindingFlags.NonPublic | BindingFlags.Static);
+        private static FieldInfo currentLeaderboardEntriesGlobal = typeof(LeaderboardIntegrationSteam).GetField("currentLeaderboardEntriesGlobal", BindingFlags.NonPublic | BindingFlags.Static);
         //private static FieldInfo globalNeonRankingsRequest = typeof(LeaderboardIntegrationSteam).GetField("globalNeonRankingsRequest", BindingFlags.NonPublic | BindingFlags.Static);
         public static bool isLoaded = false;
         public static bool? friendsOnly = null;
@@ -50,7 +50,7 @@ namespace NeonWhiteQoL
 
         public IEnumerator DownloadCheaters()
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get("https://raw.githubusercontent.com/Faustas156/NeonLite/main/testbanList.txt"))
+            using (UnityWebRequest webRequest = UnityWebRequest.Get("https://raw.githubusercontent.com/Faustas156/NeonLiteBanList/main/banlist.txt"))
             {
                 yield return webRequest.SendWebRequest();
 
@@ -101,8 +101,8 @@ namespace NeonWhiteQoL
         public static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
             //LeaderboardEntry_t leaderboardEntry_t;
-            //SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out leaderboardEntry_t, new int[1], 1);
-            //Debug.Log(newData._ranking + " " + newData._username + " " + leaderboardEntry_t.m_steamIDUser.m_SteamID + " " + leaderboardEntry_t.m_nGlobalRank);
+            SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
+            Debug.Log(leaderboardEntry_t.m_steamIDUser.m_SteamID + " " + leaderboardEntry_t.m_nGlobalRank);
             if (!cheaters.Contains(newData._ranking)) return;
 
             __instance._ranking.color = Color.red;

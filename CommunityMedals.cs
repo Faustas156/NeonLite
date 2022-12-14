@@ -142,6 +142,12 @@ namespace NeonWhiteQoL
                 __instance.devStamp.SetActive(true);
                 __instance.devTime.SetText(EmeraldMedalTime);
                 __instance.devTime.color = new Color(0.388f, 0.8f, 0.388f);
+
+                Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                if (stamps.Length < 3) return;
+
+                stamps[1].sprite = mikeyOriginal;
+                stamps[2].sprite = mikeyOriginal;
             }
         }
         //        amethyst medal time (0.674f, 0.313f, 0.913f);
@@ -246,27 +252,27 @@ namespace NeonWhiteQoL
             ["GRID_SWARM"] = (7676856L, 7499999L), // Greenhouse, 7.676, 7.499
             ["GRID_SWITCH"] = (17922400L, 16735999L), // Sweep 17.922, 16.735
             ["GRID_TRAPS2"] = (25211403L, 22999999L), // Fuse, 25.221, 22.999
-            ["TUT_ROCKETJUMP"] = (12738460L, 11449999L), // Heaven's Edge, 12.738, 11.449 (RE-ADJUST EMERALD TIMES FOR BENEDICTION AND APOCRYPHA) 
-            ["TUT_ZIPLINE"] = (12406723L, 11564999L), // Zipline, 12.406, 11.564
-            ["GRID_CLIMBANG"] = (18301839L, 15315999L), // Swing 18.301, 15.315
-            ["GRID_ROCKETUZI"] = (40099898L, 37799999L), // Chute, 40.099, 37.799
-            ["GRID_CRASHLAND"] = (28867362L, 26679999L), // Crash, 28.867, 26.679
+            ["TUT_ROCKETJUMP"] = (12238460L, 11449999L), // Heaven's Edge, 12.238, 11.449
+            ["TUT_ZIPLINE"] = (11896723L, 11564999L), // Zipline, 11.896, 11.564
+            ["GRID_CLIMBANG"] = (16681839L, 15315999L), // Swing 16.681, 15.315
+            ["GRID_ROCKETUZI"] = (39872898L, 37799999L), // Chute, 39.872, 37.799
+            ["GRID_CRASHLAND"] = (28464362L, 26679999L), // Crash, 28.464, 26.679
             ["GRID_ESCALATE"] = (25564361L, 22699999L), // Ascent, 25.564, 22.699
-            ["GRID_SPIDERCLAUS"] = (40237414L, 38899999L), // Straightaway, 40.237, 38.899
-            ["GRID_FIRECRACKER_2"] = (34927753L, 30999999L), // Firecracker, 34.927, 30.999 
-            ["GRID_SPIDERMAN"] = (25074568L, 21440999L), // Streak, 25.074, 21.440
-            ["GRID_DESTRUCTION"] = (29966018L, 24999999L), // Mirror, 29.966, 24.999
+            ["GRID_SPIDERCLAUS"] = (39555414L, 37999999L), // Straightaway, 39.555, 37.999
+            ["GRID_FIRECRACKER_2"] = (34527753L, 30999999L), // Firecracker, 34.527, 30.999 
+            ["GRID_SPIDERMAN"] = (25074568L, 21678999L), // Streak, 25.074, 21.678
+            ["GRID_DESTRUCTION"] = (27966018L, 24999999L), // Mirror, 27.966, 24.999
             ["GRID_HEAT"] = (25890879L, 23999999L), // Escalation, 25.890, 23.999
             ["GRID_BOLT"] = (29229606L, 26599999L), // Bolt, 29.229, 26.599
-            ["GRID_PON"] = (27599747L, 25999999L), // Godstreak, 27.599, 25.999
-            ["GRID_CHARGE"] = (31821917L, 29999999L), // Plunge, 31.821, 29.999
+            ["GRID_PON"] = (26999747L, 25999999L), // Godstreak, 26.999, 25.999
+            ["GRID_CHARGE"] = (31121917L, 29759999L), // Plunge, 31.121, 29.759
             ["GRID_MIMICFINALE"] = (18188015L, 16599999L), // Mayhem, 18.188, 16.599
-            ["GRID_BARRAGE"] = (31944284L, 28678999L), // Barrage, 31.944, 28.678
+            ["GRID_BARRAGE"] = (31844284L, 28298999L), // Barrage, 31.844, 28.298
             ["GRID_1GUN"] = (36722186L, 32875999L), // Estate, 36.722, 32.875
-            ["GRID_HECK"] = (23262454L, 20899999L), // Trapwire, 23.262, 20.899
-            ["GRID_ANTFARM"] = (34291689L, 32222999L), // Ricochet, 34.291, 32.222
-            ["GRID_FORTRESS"] = (29082751L, 25117999L), // Fortress, 29.082, 25.117
-            ["GRID_GODTEMPLE_ENTRY"] = (52999936L, 51699999L), // Holy Ground, 52.999, 51.699
+            ["GRID_HECK"] = (22092454L, 20399999L), // Trapwire, 22.092, 20.399
+            ["GRID_ANTFARM"] = (33791689L, 31179999L), // Ricochet, 33.791, 31.179
+            ["GRID_FORTRESS"] = (29082751L, 24117999L), // Fortress, 29.082, 24.117
+            ["GRID_GODTEMPLE_ENTRY"] = (52799936L, 51599999L), // Holy Ground, 52.799, 51.599
             ["GRID_BOSS_GODSDEATHTEMPLE"] = (69785332L, 59999999L), // The Third Temple, 1:09.785, 59.999
             ["GRID_EXTERMINATOR"] = (8359876L, 7294251L), // Spree, 8.359 , 7.294
             ["GRID_FEVER"] = (5999972L, 5299999L), // Breakthrough, 5.999, 5.299
