@@ -58,10 +58,10 @@ namespace NeonWhiteQoL
                 {
                     case UnityWebRequest.Result.ConnectionError:
                     case UnityWebRequest.Result.DataProcessingError:
-                        Debug.LogError(": Error: " + webRequest.error);
+                        Debug.LogError("Error: " + webRequest.error);
                         break;
                     case UnityWebRequest.Result.ProtocolError:
-                        Debug.LogError(": HTTP Error: " + webRequest.error);
+                        Debug.LogError("HTTP Error: " + webRequest.error);
                         break;
                     case UnityWebRequest.Result.Success:
                         test = webRequest.downloadHandler.text;
@@ -101,8 +101,8 @@ namespace NeonWhiteQoL
         public static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
             //LeaderboardEntry_t leaderboardEntry_t;
-            SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
-            Debug.Log(leaderboardEntry_t.m_steamIDUser.m_SteamID + " " + leaderboardEntry_t.m_nGlobalRank);
+            //SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
+            //Debug.Log(leaderboardEntry_t.m_steamIDUser.m_SteamID + " " + leaderboardEntry_t.m_nGlobalRank);
             if (!cheaters.Contains(newData._ranking)) return;
 
             __instance._ranking.color = Color.red;

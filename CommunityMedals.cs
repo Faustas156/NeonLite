@@ -42,6 +42,12 @@ namespace NeonWhiteQoL
 
         public static void PostSetLevel(LevelInfo __instance, ref LevelData level, ref bool fromStore, ref bool isNewScore, ref bool skipNewScoreInitalDelay)
         {
+            if (!NeonLite.CommunityMedals_enable.Value)
+            {
+                __instance.devTime.color = new Color(0.420f, 0.015f, 0.043f);
+                return;
+            }
+
             if (mikeyOriginal == null)
             {
                 GameObject mikeyStamp = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/");
@@ -156,6 +162,9 @@ namespace NeonWhiteQoL
 
         public static void PostSetLevelData(MenuButtonLevel __instance, ref LevelData ld, ref int displayIndex)
         {
+            if (!NeonLite.CommunityMedals_enable.Value)
+                return;
+
             GameData GameDataRef = Singleton<Game>.Instance.GetGameData();
 
             LevelStats levelStats = GameDataRef.GetLevelStats(ld.levelID);
@@ -212,7 +221,7 @@ namespace NeonWhiteQoL
             ["TUT_GUARDIAN"] = (20529077L, 19974999L), // Guardian, 20.529 , 19.974
             ["TUT_UZI"] = (14694806L, 13699999L), // Stomp, 14.694 , 13.699
             ["TUT_JUMPER"] = (13599682L, 12999999L), // Jumper, 13.599 , 12.999
-            ["TUT_BOMB"] = (12912954L, 12402999L), // Dash Tower, 12.912 , 12.402
+            ["TUT_BOMB"] = (12912954L, 12299999L), // Dash Tower, 12.912 , 12.299
             ["GRID_DESCEND"] = (9999671L, 9579999L), // Descent, 9.999 , 9.579
             ["GRID_STAMPEROUT"] = (11199381L, 10989999L), // Driller, 11.199, 10.989
             ["GRID_CRUISE"] = (16972199L, 14975999L), // Canals, 16.972, 14.975
@@ -221,7 +230,7 @@ namespace NeonWhiteQoL
             ["GRID_SUPERKINETIC"] = (16299711L, 15064999L), // Superkinetic 16.299, 15.064
             ["GRID_ARRIVAL"] = (21579773L, 20999999L), // Arrival, 21.579, 20.999
             ["FLOATING"] = (27918134L, 24650999L), // Floating City (Forgotten City), 27.918, 24.650
-            ["GRID_BOSS_YELLOW"] = (36569550L, 34999999L), // The Clocktower, 36.569, 34.999
+            ["GRID_BOSS_YELLOW"] = (36569550L, 34199999L), // The Clocktower, 36.569, 34.199
             ["GRID_HOPHOP"] = (16787970L, 16544999L), // Expel (Fireball), 16.787, 16.544
             ["GRID_RINGER_TUTORIAL"] = (13999808L, 12859989L), // Ringer, 13.999, 12.859
             ["GRID_RINGER_EXPLORATION"] = (12999938L, 11648999L), // Cleaner, 12.999, 11.648
