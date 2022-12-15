@@ -16,9 +16,6 @@ Still currently a work in progress and thus it only features a limited amount of
 * Session Timer
   * Tracks your current play session and the time you've spent on the current level you're playing!
 * Friends Leaderboard Fix
-
-**Set to be released in v1.3.0:**
-
 * Sidequest Insight Screen Remover
 * In-depth Ingame Timer
   * Allows you to modify the timer and also displays the timer in milliseconds.
