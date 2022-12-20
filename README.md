@@ -17,6 +17,8 @@ Still currently a work in progress and thus it only features a limited amount of
   * Tracks your current play session and the time you've spent on the current level you're playing!
 * Friends Leaderboard Fix
 * Sidequest Insight Screen Remover
+* Boss Recorder
+  * Makes a ghost that can be played back on certain boss levels.
 * In-depth Ingame Timer
   * Allows you to modify the timer and also displays the timer in milliseconds.
 * Community Medals
