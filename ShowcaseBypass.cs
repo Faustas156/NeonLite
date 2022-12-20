@@ -14,6 +14,9 @@ namespace NeonWhiteQoL
 
         public static bool PreSetItemShowcaseCard(MainMenu __instance, ref PlayerCardData cardData, ref Action callback)
         {
+            if (!NeonLite.InsightScreen_enable.Value)
+                return true;
+
             if (callback != null) callback();
             return false;
         }

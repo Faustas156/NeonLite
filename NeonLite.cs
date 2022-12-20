@@ -61,6 +61,7 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> RemoveMission_display;
         public static MelonPreferences_Entry<bool> GreenHP_display;
         public static MelonPreferences_Entry<bool> Apocalypse_display;
+        public static MelonPreferences_Entry<bool> InsightScreen_enable;
         public static MelonPreferences_Entry<bool> BossGhost_recorder;
 
         //add customization options for session timer/level timer (this bugs with the whole mod so i'll figure this out later)
@@ -82,6 +83,7 @@ namespace NeonWhiteQoL
             IGTimer_color = neonLite_config.CreateEntry("In-game Timer Color", Color.white, description: "Customization settings for the in-game timer, does not apply to result screen time.");
             GreenHP_display = neonLite_config.CreateEntry("Enable Neon Green HP", true, description: "Displays the HP of Neon Green in Text Form.");
             RemoveMission_display = neonLite_config.CreateEntry("Remove Start Mission button in Job Archive", true, description: "Sick and tired of the big, bulky \"Start Mission\" button that appears? Now you can get rid of it, forever!");
+            InsightScreen_enable = neonLite_config.CreateEntry("Insight Screen Remover", true, description: "No longer displays the \"Insight Crystal Dust (Empty)\" screen after finishing a sidequest level.");
             Apocalypse_display = neonLite_config.CreateEntry("Begone Apocalypse", true, description: "Get rid of the Apocalyptic view and replace it with the blue skies.");
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
         }
