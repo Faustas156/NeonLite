@@ -2,6 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 namespace NeonWhiteQoL
 {
@@ -42,6 +43,8 @@ namespace NeonWhiteQoL
 
         public static void PostSetLevel(LevelInfo __instance, ref LevelData level, ref bool fromStore, ref bool isNewScore, ref bool skipNewScoreInitalDelay)
         {
+            if (SceneManager.GetActiveScene().name == "CustomLevel") return;
+            
             if (!NeonLite.CommunityMedals_enable.Value)
             {
                 __instance.devTime.color = new Color(0.420f, 0.015f, 0.043f);
@@ -162,6 +165,8 @@ namespace NeonWhiteQoL
 
         public static void PostSetLevelData(MenuButtonLevel __instance, ref LevelData ld, ref int displayIndex)
         {
+            if (SceneManager.GetActiveScene().name == "CustomLevel") return;
+            
             if (!NeonLite.CommunityMedals_enable.Value)
                 return;
 
