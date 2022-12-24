@@ -6,6 +6,8 @@ namespace NeonWhiteQoL
     public class NeonLite : MelonMod
     {
         public static new HarmonyLib.Harmony Harmony { get; private set; }
+
+        [Obsolete]
         public override void OnApplicationLateStart()
         {
             GameObject modObject = new GameObject();
@@ -67,6 +69,7 @@ namespace NeonWhiteQoL
         //add customization options for session timer/level timer (this bugs with the whole mod so i'll figure this out later)
         //allow people to customize PB tracker color(?), ext fov slider custom values(?) and/or toggle
 
+        [Obsolete]
         public override void OnApplicationStart()
         {
             neonLite_config = MelonPreferences.CreateCategory("NeonLite Settings");
