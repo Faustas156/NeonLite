@@ -10,10 +10,7 @@ namespace NeonWhiteQoL
 {
     public class CheaterBanlist : MonoBehaviour
     {
-        //private static readonly FieldInfo _leaderboadsRefInfo = typeof(LeaderboardIntegrationSteam).GetField("leaderboardsRef", BindingFlags.NonPublic | BindingFlags.Static);
-        //private static MethodInfo OnLoadComplete = typeof(LeaderboardIntegrationSteam).GetMethod("OnLoadComplete2", BindingFlags.NonPublic | BindingFlags.Static);
         private static FieldInfo currentLeaderboardEntriesGlobal = typeof(LeaderboardIntegrationSteam).GetField("currentLeaderboardEntriesGlobal", BindingFlags.NonPublic | BindingFlags.Static);
-        //private static FieldInfo globalNeonRankingsRequest = typeof(LeaderboardIntegrationSteam).GetField("globalNeonRankingsRequest", BindingFlags.NonPublic | BindingFlags.Static);
         public static bool isLoaded = false;
         public static bool? friendsOnly = null;
         public static List<int> cheaters = new();
@@ -22,9 +19,6 @@ namespace NeonWhiteQoL
         public static ulong[] bannedIDs;
         public static string test = string.Empty;
 
-
-        //use as reference later
-        //GetScoreDataAtGlobalRank displays your current rank value (might be able to get steamIDs?)
         //if you wanna do visual stuff, make sure to check the Leaderboards class -> SetModeGlobalNeonScore
 
         public void Start()
@@ -42,10 +36,6 @@ namespace NeonWhiteQoL
             target = typeof(LeaderboardScore).GetMethod("SetScore");
             patch = new(typeof(CheaterBanlist).GetMethod("PostSetScore"));
             NeonLite.Harmony.Patch(target, null, patch);
-
-            //MethodInfo target = typeof(LeaderboardIntegrationSteam).GetMethod("OnLeaderboardScoreDownloadGlobalResult2");
-            //HarmonyMethod patch = new(typeof(CheaterBanlist).GetMethod("GlobalResults"));
-            //NeonLite.Harmony.Patch(target, patch);
         }
 
         public IEnumerator DownloadCheaters()
@@ -95,12 +85,10 @@ namespace NeonWhiteQoL
             }
             friendsOnly = null;
 
-            //__result = NativeMethods.ISteamUserStats_GetDownloadedLeaderboardEntry(CSteamAPIContext.GetSteamUserStats(), hSteamLeaderboardEntries, index, out pLeaderboardEntry, pDetails, cDetailsMax);
         }
 
         public static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
-            //LeaderboardEntry_t leaderboardEntry_t;
             SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
             Debug.Log(leaderboardEntry_t.m_steamIDUser.m_SteamID + " " + leaderboardEntry_t.m_nGlobalRank);
             if (!cheaters.Contains(newData._ranking)) return;

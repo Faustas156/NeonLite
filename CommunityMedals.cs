@@ -48,6 +48,7 @@ namespace NeonWhiteQoL
                 return;
             }
 
+            // Get default mikey stamp
             if (mikeyOriginal == null)
             {
                 GameObject mikeyStamp = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/");
@@ -60,18 +61,10 @@ namespace NeonWhiteQoL
 
             if (!levelStats.GetCompleted()) return;
 
-            //if (level.isSidequest)
-            //{
-            //    __instance._levelMedal.sprite = gameData.GetSpriteForMedal(levelStats.GetMedalAchieved());
-            //    __instance._levelMedal.gameObject.SetActive(true);
-            //}
-
-
             var communityTimes = CommunityMedalTimes[level.levelID];
 
             string AmethystMedalTime = Game.GetTimerFormattedMillisecond(communityTimes.Item2);
             string EmeraldMedalTime = Game.GetTimerFormattedMillisecond(communityTimes.Item1);
-            //Utils.LongToTime(communityTimes.Item1, "#0:00.000");
 
 
             if (levelStats._timeBestMicroseconds < communityTimes.Item2)
@@ -130,7 +123,7 @@ namespace NeonWhiteQoL
                     stamps[2].sprite = mikeyEmerald;
                 }
             }
-            else if (!level.isSidequest)
+            else if (!level.isSidequest) // TODO Double stamp bug is propably in the following lines
             {
                 __instance.devTime.SetText(EmeraldMedalTime);
                 __instance.devTime.color = new Color(0.388f, 0.8f, 0.388f);
@@ -156,6 +149,7 @@ namespace NeonWhiteQoL
                 stamps[2].sprite = mikeyOriginal;
             }
         }
+
         //        amethyst medal time (0.674f, 0.313f, 0.913f);
         //        emerald medal time (99,204,99), (0.388f, 0.8f, 0.388f)
         //        original medal color (107,4,11) (0.420f, 0.015f, 0.043f)
@@ -169,12 +163,6 @@ namespace NeonWhiteQoL
 
             LevelStats levelStats = GameDataRef.GetLevelStats(ld.levelID);
             var communityTimes = CommunityMedalTimes[ld.levelID];
-
-            //if (ld.isSidequest)
-            //{
-            //    __instance._medalHolder.SetActive(true);
-            //    __instance._medalBG.sprite = __instance._iconBGFull;
-            //}
 
             if (levelStats._timeBestMicroseconds < communityTimes.Item2)
             {
@@ -195,6 +183,7 @@ namespace NeonWhiteQoL
             }
         }
 
+        // Levelname -> (emerald medal time, purple medal time)
 
         private static readonly Dictionary<string, (long, long)> CommunityMedalTimes = new()
         {
