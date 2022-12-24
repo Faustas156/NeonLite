@@ -14,8 +14,7 @@ namespace NeonWhiteQoL
 
         public static void RemoveApocalypse(MenuScreenMapAesthetics __instance)
         {
-            if (NeonLite.Apocalypse_display.Value)
-                __instance.SetApocalypse(false);
+            __instance.SetApocalypse(!NeonLite.Apocalypse_display.Value);
         }
     }
 }
