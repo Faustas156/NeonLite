@@ -10,7 +10,7 @@ namespace NeonWhiteQoL
     {
         private static GameObject bossName = null;
         private static GameObject bossHealth = null;
-        private static FieldInfo _lastEnemyHealth = null;
+        private static FieldInfo _lastEnemyHealth = typeof(BossUI).GetType().GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static void Initialize()
         {
@@ -23,8 +23,6 @@ namespace NeonWhiteQoL
             if (!NeonLite.GreenHP_display.Value)
                 return;
 
-            if (_lastEnemyHealth == null)
-                _lastEnemyHealth = __instance.GetType().GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
             int bossHP = (int)_lastEnemyHealth.GetValue(__instance);
 
             if (bossName == null)
@@ -41,7 +39,7 @@ namespace NeonWhiteQoL
                 bossHealth.SetActive(true);
             }
             TextMeshPro text = bossHealth.GetComponent<TextMeshPro>();
-            text.SetText(bossHP + "");
+            text.SetText(bossHP.ToString());
 
         }
     }
