@@ -10,6 +10,10 @@ namespace NeonWhiteQoL
     {
         private static Game game;
         public static string resulttime = "";
+        private static FieldInfo _currentPlaythrough = game.GetType().GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static FieldInfo timerBuilderInfo = typeof(PlayerUI).GetField("timerBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
+
+
         public static void Initialize()
         {
             game = Singleton<Game>.Instance;
@@ -28,18 +32,15 @@ namespace NeonWhiteQoL
             if (!NeonLite.IGTimer_display.Value)
                 return;
 
-            long microsecondTimer;
-
-            FieldInfo fi = game.GetType().GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
-            LevelPlaythrough currentPlaythrough = (LevelPlaythrough)fi.GetValue(game);
-            microsecondTimer = currentPlaythrough.GetCurrentTimeMicroseconds();
+            LevelPlaythrough currentPlaythrough = (LevelPlaythrough)_currentPlaythrough.GetValue(game);
+            long microsecondTimer = currentPlaythrough.GetCurrentTimeMicroseconds();
 
 
             long millisecondTimer = microsecondTimer / 1000;
 
             TimeSpan t = TimeSpan.FromMilliseconds(millisecondTimer);
 
-            resulttime = String.Format("{0:0}:{1:00}.{2:000}",
+            resulttime = string.Format("{0:0}:{1:00}.{2:000}",
                                                 t.Minutes,
                                                 t.Seconds,
                                                 t.Milliseconds);
@@ -50,16 +51,12 @@ namespace NeonWhiteQoL
             text.SetText(resulttime);
             LevelStats levelStats = GameDataManager.levelStats[game.GetCurrentLevel().levelID];
             text.color = levelStats.IsNewBest() ? Color.green : Color.white;
-
-
         }
         public static bool PreUpdateTimerText(PlayerUI __instance)
         {
             if (!NeonLite.IGTimer_display.Value)
                 return true;
 
-            FieldInfo timerBuilderInfo = typeof(PlayerUI).GetField("timerBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
-            FieldInfo timerColor = typeof(PlayerUI).GetField("timerHolder");
             StringBuilder timerBuilder = (StringBuilder)timerBuilderInfo.GetValue(__instance);
 
             long currentLevelTimerMilliseconds = Singleton<Game>.Instance.GetCurrentLevelTimerMicroseconds() / 1000;
@@ -83,7 +80,6 @@ namespace NeonWhiteQoL
             timerBuilder.Append((char)(num3 % 10 + 48));
             __instance.timerText.color = NeonLite.IGTimer_color.Value;
             __instance.timerText.text = timerBuilder.ToString();
-
 
             return false;
         }
