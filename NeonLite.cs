@@ -11,7 +11,7 @@ namespace NeonWhiteQoL
         public override void OnApplicationLateStart()
         {
             GameObject modObject = new GameObject();
-            GameObject.DontDestroyOnLoad(modObject);
+            UnityEngine.Object.DontDestroyOnLoad(modObject);
 
             Harmony = new HarmonyLib.Harmony("NeonLite");
             PBtracker.Initialize();

@@ -10,6 +10,9 @@ namespace NeonWhiteQoL
         private static Game game;
         private static string delta = string.Empty;
         private static bool newbest;
+
+        private static FieldInfo _currentPlaythrough = game.GetType().GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
+
         public static void Initialize()
         {
             game = Singleton<Game>.Instance;
@@ -84,8 +87,7 @@ namespace NeonWhiteQoL
             { // Normal level
                 LevelInformation levelInformation = game.GetGameData().GetLevelInformation(game.GetCurrentLevel());
                 besttime = GameDataManager.levelStats[levelInformation.levelID].GetTimeBestMicroseconds();
-                FieldInfo fi = game.GetType().GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
-                LevelPlaythrough currentPlaythrough = (LevelPlaythrough)fi.GetValue(game);
+                LevelPlaythrough currentPlaythrough = (LevelPlaythrough)_currentPlaythrough.GetValue(game);
                 newtime = currentPlaythrough.GetCurrentTimeMicroseconds();
             }
             else
