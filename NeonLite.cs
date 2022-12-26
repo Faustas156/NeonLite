@@ -14,19 +14,32 @@ namespace NeonWhiteQoL
             UnityEngine.Object.DontDestroyOnLoad(modObject);
 
             Harmony = new HarmonyLib.Harmony("NeonLite");
+
+            int i = 0;
+
             PBtracker.Initialize();
+            Debug.Log("Initialization " + ++i);
             GreenHP.Initialize();
+            Debug.Log("Initialization " + ++i);
             SkipIntro.Initialize();
+            Debug.Log("Initialization " + ++i);
             RemoveMission.Initialize();
+            Debug.Log("Initialization " + ++i);
             LeaderboardFix.Initialize();
+            Debug.Log("Initialization " + ++i);
             CommunityMedals.Initialize();
+            Debug.Log("Initialization " + ++i);
             ShowcaseBypass.Initialize();
+            Debug.Log("Initialization " + ++i);
             IGTimer.Initialize();
+            Debug.Log("Initialization " + ++i);
             BegoneApocalypse.Initialize();
+            Debug.Log("Initialization " + ++i);
             BossfightGhost.Initialize();
             //GameObject text = new GameObject("Text", typeof(Text));
             GameObject timer = new GameObject("SessionTimer", typeof(SessionTimer));
             modObject.AddComponent<CheaterBanlist>();
+            Debug.Log("Initialization " + ++i);
 
             Debug.Log("Initialization complete.");
         }
