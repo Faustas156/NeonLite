@@ -10,7 +10,7 @@ namespace NeonWhiteQoL
     {
         private static Game game;
         public static string resulttime = "";
-        private static FieldInfo _currentPlaythrough = game.GetType().GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static FieldInfo _currentPlaythrough = typeof(Game).GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
         private static FieldInfo timerBuilderInfo = typeof(PlayerUI).GetField("timerBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
 
 

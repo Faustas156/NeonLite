@@ -11,7 +11,7 @@ namespace NeonWhiteQoL
         private static string delta = string.Empty;
         private static bool newbest;
 
-        private static FieldInfo _currentPlaythrough = game.GetType().GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static FieldInfo _currentPlaythrough = typeof(Game).GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static void Initialize()
         {
