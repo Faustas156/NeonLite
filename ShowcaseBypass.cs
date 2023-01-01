@@ -11,6 +11,18 @@ namespace NeonWhiteQoL
             HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(ShowcaseBypass).GetMethod("PreSetItemShowcaseCard"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(MainMenu).GetMethod("SetItemShowcaseCard");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+        }
 
         public static bool PreSetItemShowcaseCard(MainMenu __instance, ref PlayerCardData cardData, ref Action callback)
         {
