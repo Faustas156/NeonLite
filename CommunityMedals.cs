@@ -32,6 +32,21 @@ namespace NeonWhiteQoL
             harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetLevelData"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(LevelInfo).GetMethod("SetLevel");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Postfix);
+            
+            method = typeof(MenuButtonLevel).GetMethod("SetLevelData");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Postfix);
+        }
 
         private static Sprite LoadSprite(byte[] image)
         {
