@@ -6,7 +6,11 @@ namespace NeonWhiteQoL
     public class NeonLite : MelonMod
     {
         public static new HarmonyLib.Harmony Harmony { get; private set; }
-        public override void OnApplicationLateStart()
+        
+        public bool useSessionTimer = true;
+        public bool waitForTitle;
+        
+        public override void OnInitializeMelon()
         {
             GameObject modObject = new GameObject();
             GameObject.DontDestroyOnLoad(modObject);
@@ -25,8 +29,30 @@ namespace NeonWhiteQoL
             //GameObject text = new GameObject("Text", typeof(Text));
             GameObject timer = new GameObject("SessionTimer", typeof(SessionTimer));
             modObject.AddComponent<CheaterBanlist>();
+            
+            SettingsHandler.GetFirstSettings();
 
             Debug.Log("Initialization complete.");
+        }
+        
+        public void UpdateSettings()
+        {
+            if (waitForTitle) return;
+            SettingsHandler.CheckUpdateConfig();
+            waitForTitle = true;
+        }
+        
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            ModMenuHandler.onSettingsChanged += () => DoPog();
+        }
+        
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        {
+            base.OnSceneWasLoaded(buildIndex, sceneName);
+            if (sceneName == "Menu") waitForTitle = false;    
         }
 
         //public override void OnUpdate()
