@@ -25,6 +25,24 @@ namespace NeonWhiteQoL
             patch = new(typeof(LeaderboardFix).GetMethod("PreOnRightArrowPressed"));
             harmony.Patch(target, patch);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(LeaderboardIntegrationSteam).GetMethod("DownloadEntries");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+            
+            method = typeof(Leaderboards).GetMethod("OnLeftArrowPressed");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+            
+            method = typeof(Leaderboards).GetMethod("OnRightArrowPressed");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+        }
 
         public static bool PreOnLeftArrowPressed(Leaderboards __instance)
         {
