@@ -27,7 +27,7 @@ namespace NeonWhiteQoL
 
         void OnGUI()
         {
-            if (NeonLite.SessionTimer_display.Value)
+            if (NeonLite.useSessionTimer)
                 GUI.Label(new Rect(10, 0, 100, 70), Utils.FloatToTime(Time.realtimeSinceStartup, "#00:00"), style);
         }
     }
