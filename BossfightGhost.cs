@@ -16,6 +16,21 @@ namespace NeonWhiteQoL
             harmonyMethod = new HarmonyMethod(typeof(BossfightGhost).GetMethod("PreLateUpdate"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(GhostRecorder).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+            
+            method = typeof(GhostPlayback).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+        }
 
         public static bool RecordGhost(GhostRecorder __instance)
         {
