@@ -48,11 +48,11 @@ namespace NeonWhiteQoL
             //NeonLite.Harmony.Patch(target, patch);
         }
         
-        public static void ToggleMod(int value)
+        public void ToggleMod(int value)
         {
             if (value == 0) 
             {
-                Initialize();
+                Start();
                 return;
             }
             
