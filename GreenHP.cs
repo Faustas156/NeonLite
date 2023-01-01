@@ -18,6 +18,19 @@ namespace NeonWhiteQoL
             HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(GreenHP).GetMethod("OnPostUpdateBossUI"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(BossUI).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Postfix);
+        }
+        
         public static void OnPostUpdateBossUI(BossUI __instance)
         {
             if (!NeonLite.GreenHP_display.Value)
