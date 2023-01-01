@@ -47,6 +47,24 @@ namespace NeonWhiteQoL
             //HarmonyMethod patch = new(typeof(CheaterBanlist).GetMethod("GlobalResults"));
             //NeonLite.Harmony.Patch(target, patch);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(LeaderboardIntegrationSteam).GetMethod("GetScoreDataAtGlobalRank", BindingFlags.Static | BindingFlags.Public);
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+            
+            method = typeof(SteamUserStats).GetMethod("GetDownloadedLeaderboardEntry", BindingFlags.Static | BindingFlags.Public);
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Postfix);
+            
+            method = typeof(LeaderboardScore).GetMethod("SetScore");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Postfix);
+        }
 
         public IEnumerator DownloadCheaters()
         {
