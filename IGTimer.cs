@@ -22,6 +22,21 @@ namespace NeonWhiteQoL
             harmonyMethod = new HarmonyMethod(typeof(IGTimer).GetMethod("PreUpdateTimerText"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Postfix);
+            
+            method = typeof(PlayerUI).GetMethod("UpdateTimerText", BindingFlags.NonPublic | BindingFlags.Instance);
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+        }
 
         public static void PostOnSetVisible()
         {
