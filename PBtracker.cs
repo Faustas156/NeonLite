@@ -22,6 +22,21 @@ namespace NeonWhiteQoL
             harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PostOnSetVisible"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
+        
+        public static void ToggleMod(int value)
+        {
+            if (value == 0) 
+            {
+                Initialize();
+                return;
+            }
+            
+            MethodInfo method = typeof(Game).GetMethod("OnLevelWin");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Prefix);
+            
+            method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
+            NeonLite.Harmony.Unpatch(method, HarmonyPatchType.Postfix);
+        }
 
         public static bool PreOnLevelWin()
         {
