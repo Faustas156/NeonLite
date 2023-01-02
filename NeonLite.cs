@@ -37,7 +37,7 @@ namespace NeonWhiteQoL
             Debug.Log("Initialization " + ++i);
             BossfightGhost.Initialize();
             //GameObject text = new GameObject("Text", typeof(Text));
-            GameObject timer = new GameObject("SessionTimer", typeof(SessionTimer));
+            _ = new GameObject("SessionTimer", typeof(SessionTimer));
             modObject.AddComponent<CheaterBanlist>();
             Debug.Log("Initialization " + ++i);
 
@@ -66,7 +66,7 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> PBtracker_display;
         public static MelonPreferences_Entry<bool> SessionTimer_display;
         //public static MelonPreferences_Entry<int> SessionTimer_fontSize;
-       // public static MelonPreferences_Entry<Color> SessionTimer_color;
+        // public static MelonPreferences_Entry<Color> SessionTimer_color;
         public static MelonPreferences_Entry<bool> LevelTimer_display;
         //public static MelonPreferences_Entry<Color> LevelTimer_color;
         //public static MelonPreferences_Entry<int> LevelTimer_fontSize;
