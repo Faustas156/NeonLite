@@ -21,9 +21,7 @@ namespace NeonWhiteQoL
         {
             RM.ghostRecorder = __instance;
             if (LevelRush.IsHellRush())
-            {
                 m_dontRecord.SetValue(__instance, true);
-            }
             return false;
         }
 

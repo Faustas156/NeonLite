@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Steamworks;
 using System.Collections;
-using System.Data.SqlClient;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -11,15 +10,12 @@ namespace NeonWhiteQoL
 {
     public class CheaterBanlist : MonoBehaviour
     {
-        private static FieldInfo currentLeaderboardEntriesGlobal = typeof(LeaderboardIntegrationSteam).GetField("currentLeaderboardEntriesGlobal", BindingFlags.NonPublic | BindingFlags.Static);
         public static bool isLoaded = false;
         public static bool? friendsOnly = null;
         public static int globalRank;
         public static List<int> cheaters = new();
         public static ulong[] bannedIDs;
         public static string test = string.Empty;
-
-        //if you wanna do visual stuff, make sure to check the Leaderboards class -> SetModeGlobalNeonScore
 
         public void Start()
         {
@@ -84,74 +80,21 @@ namespace NeonWhiteQoL
         public static void PostGetDownloadedLeaderboardEntry(ref SteamLeaderboardEntries_t hSteamLeaderboardEntries, ref int index, LeaderboardEntry_t pLeaderboardEntry, ref int[] pDetails, ref int cDetailsMax, ref bool __result)
         {
             if (friendsOnly != null && pLeaderboardEntry.m_steamIDUser.m_SteamID != 0 && bannedIDs.Contains(pLeaderboardEntry.m_steamIDUser.m_SteamID))
-            {
-                var x = (bool)friendsOnly ? globalRank : pLeaderboardEntry.m_nGlobalRank;
-                cheaters.Add(x);//(bool)friendsOnly ? globalRank : pLeaderboardEntry.m_nGlobalRank);
-                Debug.Log("Flagging " + pLeaderboardEntry.m_steamIDUser.m_SteamID + " at pos " + x);
-            }
+                cheaters.Add((bool)friendsOnly ? globalRank : pLeaderboardEntry.m_nGlobalRank);
             friendsOnly = null;
-            once = true;
         }
-
-        public static bool once = true;
 
         public static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
             //SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
             //Debug.Log(newData._ranking);
             if (!cheaters.Contains(newData._ranking)) return;
-            foreach (var item in cheaters)
-            {
-                if (once)
-                {
-                    Debug.Log(item + "");
-                    once = false;
-                }
-            }
 
             __instance._ranking.color = Color.red;
             __instance._username.color = Color.red;
             __instance._scoreValue.color = Color.red;
         }
 
-        public static void PostDisplayScores_AsyncRecieve()
-        {
-            cheaters.Clear();
-        }
-
-
-        // below all these comments is where you could remove certain people from the leaderboard, unfortunately this is too complex to program in, can cause long term issues, so for now, this has been left out, may be reworked in the future (hopefully).
-
-        //specific reasons involve: steamapi issues, it's hard coded, no way to figure out, if you were to load in the first page, you could figure out the amount of cheaters and place yourself in the #4 (if you were #6 originally), but you could not figure out where to be placed if you were around #50 - #60
-        //if we were to simply delete the cheaters instead, we would have empty gaps in the leaderboards, which would make it look ugly, and would be basically counterintuitive since the original proposed idea in my eyes was to remove cheaters + sort the players properly
-        //if you request too many entries (to download entries) this could cause strain on both your pc and the steamapi servers (worst case scenario could break the leaderboards ENTIRELY), so we've avoided dealing with this for now
-        //i really hope we can figure out the issue and solution for this. in the mean time, i am sorry. i hope that this current addition above won't be too disappointing.
-
-        //public static bool GlobalResults(ref LeaderboardScoresDownloaded_t pCallback, ref bool bIOFailure) 
-        //{
-        //    if (bIOFailure)
-        //    {
-        //        OnLoadComplete.Invoke(null, new object[] { false, false, false });
-        //        Debug.LogError("Failure downloading leaderboard scores.");
-        //        return false;
-        //    }
-
-        //    currentLeaderboardEntriesGlobal.SetValue(null, pCallback.m_hSteamLeaderboardEntries);
-        //    ScoreData[] array = new ScoreData[10];
-        //    bool flag = false;
-        //    for (int i = 0; i < array.Length; i++)
-        //    {
-        //        array[i] = LeaderboardIntegrationSteam.GetScoreDataAtGlobalRank(i + 1, false, (bool)globalNeonRankingsRequest.GetValue(null));
-        //        if (array[i]._init)
-        //            flag = true;
-        //        Debug.Log(array[i]._username);
-        //    }
-        //    var x = LeaderboardIntegrationSteam.GetScoreDataAtGlobalRank(11, false, (bool)globalNeonRankingsRequest.GetValue(null));
-        //    Debug.Log("out of bounds: " + x._username);
-        //    Debug.LogError("loaded");
-        //    ((Leaderboards)_leaderboadsRefInfo.GetValue(null)).DisplayScores_AsyncRecieve(array, flag);
-
-        //    return false;
-        //}
+        public static void PostDisplayScores_AsyncRecieve() => cheaters.Clear();
     }
 }

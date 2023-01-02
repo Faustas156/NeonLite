@@ -12,9 +12,6 @@ namespace NeonWhiteQoL
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
 
-        public static void RemoveApocalypse(MenuScreenMapAesthetics __instance)
-        {
-            __instance.SetApocalypse(!NeonLite.Apocalypse_display.Value);
-        }
+        public static void RemoveApocalypse(MenuScreenMapAesthetics __instance) => __instance.SetApocalypse(!NeonLite.Apocalypse_display.Value);
     }
 }
