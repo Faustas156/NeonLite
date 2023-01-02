@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Steamworks;
 using System.Collections;
+using System.Data.SqlClient;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -15,7 +16,6 @@ namespace NeonWhiteQoL
         public static bool? friendsOnly = null;
         public static int globalRank;
         public static List<int> cheaters = new();
-        public static int counter = 0;
         public static ulong[] bannedIDs;
         public static string test = string.Empty;
 
@@ -35,6 +35,10 @@ namespace NeonWhiteQoL
 
             target = typeof(LeaderboardScore).GetMethod("SetScore");
             patch = new(typeof(CheaterBanlist).GetMethod("PostSetScore"));
+            NeonLite.Harmony.Patch(target, null, patch);
+
+            target = typeof(Leaderboards).GetMethod("DisplayScores_AsyncRecieve");
+            patch = new(typeof(CheaterBanlist).GetMethod("PostDisplayScores_AsyncRecieve"));
             NeonLite.Harmony.Patch(target, null, patch);
         }
 
@@ -86,22 +90,33 @@ namespace NeonWhiteQoL
                 Debug.Log("Flagging " + pLeaderboardEntry.m_steamIDUser.m_SteamID + " at pos " + x);
             }
             friendsOnly = null;
+            once = true;
         }
+
+        public static bool once = true;
 
         public static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
             //SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
+            //Debug.Log(newData._ranking);
             if (!cheaters.Contains(newData._ranking)) return;
+            foreach (var item in cheaters)
+            {
+                if (once)
+                {
+                    Debug.Log(item + "");
+                    once = false;
+                }
+            }
 
             __instance._ranking.color = Color.red;
             __instance._username.color = Color.red;
             __instance._scoreValue.color = Color.red;
+        }
 
-            Debug.Log((counter + 1) + " / " + cheaters.Count);
-
-            if (++counter >= cheaters.Count) return;
+        public static void PostDisplayScores_AsyncRecieve()
+        {
             cheaters.Clear();
-            counter = 0;
         }
 
 
