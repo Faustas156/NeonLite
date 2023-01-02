@@ -24,7 +24,7 @@ namespace NeonWhiteQoL
         public void Start()
         {
             StartCoroutine(DownloadCheaters());
-            
+
             MethodInfo target = typeof(LeaderboardIntegrationSteam).GetMethod("GetScoreDataAtGlobalRank", BindingFlags.Static | BindingFlags.Public);
             HarmonyMethod patch = new(typeof(CheaterBanlist).GetMethod("PreGetScoreDataAtGlobalRank"));
             NeonLite.Harmony.Patch(target, patch);
