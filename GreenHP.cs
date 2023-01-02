@@ -10,7 +10,7 @@ namespace NeonWhiteQoL
     {
         private static GameObject bossName = null;
         private static GameObject bossHealth = null;
-        private static FieldInfo _lastEnemyHealth = typeof(BossUI).GetType().GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static FieldInfo _lastEnemyHealth = typeof(BossUI).GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static void Initialize()
         {
