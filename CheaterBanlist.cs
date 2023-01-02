@@ -13,8 +13,8 @@ namespace NeonWhiteQoL
         private static FieldInfo currentLeaderboardEntriesGlobal = typeof(LeaderboardIntegrationSteam).GetField("currentLeaderboardEntriesGlobal", BindingFlags.NonPublic | BindingFlags.Static);
         public static bool isLoaded = false;
         public static bool? friendsOnly = null;
-        public static List<int> cheaters = new();
         public static int globalRank;
+        public static List<int> cheaters = new();
         public static int counter = 0;
         public static ulong[] bannedIDs;
         public static string test = string.Empty;
@@ -24,7 +24,7 @@ namespace NeonWhiteQoL
         public void Start()
         {
             StartCoroutine(DownloadCheaters());
-
+            
             MethodInfo target = typeof(LeaderboardIntegrationSteam).GetMethod("GetScoreDataAtGlobalRank", BindingFlags.Static | BindingFlags.Public);
             HarmonyMethod patch = new(typeof(CheaterBanlist).GetMethod("PreGetScoreDataAtGlobalRank"));
             NeonLite.Harmony.Patch(target, patch);
@@ -79,25 +79,27 @@ namespace NeonWhiteQoL
 
         public static void PostGetDownloadedLeaderboardEntry(ref SteamLeaderboardEntries_t hSteamLeaderboardEntries, ref int index, LeaderboardEntry_t pLeaderboardEntry, ref int[] pDetails, ref int cDetailsMax, ref bool __result)
         {
-            if (friendsOnly != null && bannedIDs.Contains(pLeaderboardEntry.m_steamIDUser.m_SteamID))
+            if (friendsOnly != null && pLeaderboardEntry.m_steamIDUser.m_SteamID != 0 && bannedIDs.Contains(pLeaderboardEntry.m_steamIDUser.m_SteamID))
             {
-                cheaters.Add((bool)friendsOnly ? globalRank : pLeaderboardEntry.m_nGlobalRank);
+                var x = (bool)friendsOnly ? globalRank : pLeaderboardEntry.m_nGlobalRank;
+                cheaters.Add(x);//(bool)friendsOnly ? globalRank : pLeaderboardEntry.m_nGlobalRank);
+                Debug.Log("Flagging " + pLeaderboardEntry.m_steamIDUser.m_SteamID + " at pos " + x);
             }
             friendsOnly = null;
-
         }
 
         public static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
-            SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
-            Debug.Log(leaderboardEntry_t.m_steamIDUser.m_SteamID + " " + leaderboardEntry_t.m_nGlobalRank);
+            //SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
             if (!cheaters.Contains(newData._ranking)) return;
 
             __instance._ranking.color = Color.red;
             __instance._username.color = Color.red;
             __instance._scoreValue.color = Color.red;
 
-            if (++counter != cheaters.Count) return;
+            Debug.Log((counter + 1) + " / " + cheaters.Count);
+
+            if (++counter >= cheaters.Count) return;
             cheaters.Clear();
             counter = 0;
         }
