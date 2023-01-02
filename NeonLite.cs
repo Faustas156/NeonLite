@@ -1,5 +1,6 @@
 ﻿using MelonLoader;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace NeonWhiteQoL
 {
@@ -10,8 +11,11 @@ namespace NeonWhiteQoL
         [Obsolete]
         public override void OnApplicationLateStart()
         {
+            Game game = Singleton<Game>.Instance;
             GameObject modObject = new GameObject();
             UnityEngine.Object.DontDestroyOnLoad(modObject);
+
+            game.OnLevelLoadComplete += OnLevelLoadComplete;
 
             Harmony = new HarmonyLib.Harmony("NeonLite");
 
@@ -42,6 +46,14 @@ namespace NeonWhiteQoL
             Debug.Log("Initialization " + ++i);
 
             Debug.Log("Initialization complete.");
+        }
+
+        private void OnLevelLoadComplete()
+        {
+            if (SceneManager.GetActiveScene().name.Equals("Heaven_Environment"))
+                return;
+
+            GameObject.Find("HUD").AddComponent<HUDManager>();
         }
 
         //public override void OnUpdate()
@@ -79,6 +91,16 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> InsightScreen_enable;
         public static MelonPreferences_Entry<bool> BossGhost_recorder;
 
+        public static MelonPreferences_Category neonLite_visuals;
+        public static MelonPreferences_Entry<bool> playerUIportrait_display;
+        public static MelonPreferences_Entry<bool> backstory_display;
+        public static MelonPreferences_Entry<bool> bottombar_display;
+        public static MelonPreferences_Entry<bool> damageOverlay_display;
+        public static MelonPreferences_Entry<bool> boostOverlay_display;
+        public static MelonPreferences_Entry<bool> shockerOverlay_display;
+        public static MelonPreferences_Entry<bool> telefragOverlay_display;
+        public static MelonPreferences_Entry<bool> uiScreenFader_display;
+
         //add customization options for session timer/level timer (this bugs with the whole mod so i'll figure this out later)
         //allow people to customize PB tracker color(?), ext fov slider custom values(?) and/or toggle
 
@@ -102,6 +124,16 @@ namespace NeonWhiteQoL
             InsightScreen_enable = neonLite_config.CreateEntry("Insight Screen Remover", true, description: "No longer displays the \"Insight Crystal Dust (Empty)\" screen after finishing a sidequest level.");
             Apocalypse_display = neonLite_config.CreateEntry("Begone Apocalypse", true, description: "Get rid of the Apocalyptic view and replace it with the blue skies.");
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
+
+            neonLite_visuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
+            playerUIportrait_display = neonLite_visuals.CreateEntry("Disable Player's portrait", false);
+            backstory_display = neonLite_visuals.CreateEntry("Disable backstory", false);
+            bottombar_display = neonLite_visuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
+            damageOverlay_display = neonLite_visuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
+            boostOverlay_display = neonLite_visuals.CreateEntry("Disable boost overlay", false, description: "Removes the overlay around your screen when you are getting a speed boost.");
+            shockerOverlay_display = neonLite_visuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
+            telefragOverlay_display = neonLite_visuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
+            uiScreenFader_display = neonLite_visuals.CreateEntry("Disable white screen fader", false, description: "Use in combination with shocker/book of life overlay!");
         }
     }
 }
