@@ -102,7 +102,7 @@ namespace NeonWhiteQoL
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
 
             neonLite_visuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
-            playerUIportrait_display = neonLite_visuals.CreateEntry("Disable Player's portrait", false);
+            playerUIportrait_display = neonLite_visuals.CreateEntry("Disable the Player portrait", false);
             backstory_display = neonLite_visuals.CreateEntry("Disable backstory", false);
             bottombar_display = neonLite_visuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
             damageOverlay_display = neonLite_visuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
