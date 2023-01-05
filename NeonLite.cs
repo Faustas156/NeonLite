@@ -75,6 +75,7 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> Apocalypse_display;
         public static MelonPreferences_Entry<bool> InsightScreen_enable;
         public static MelonPreferences_Entry<bool> BossGhost_recorder;
+        public static MelonPreferences_Entry<bool> ambience_disabled;
 
         public static MelonPreferences_Category neonLite_visuals;
         public static MelonPreferences_Entry<bool> playerUIportrait_display;
@@ -102,6 +103,7 @@ namespace NeonWhiteQoL
             InsightScreen_enable = neonLite_config.CreateEntry("Insight Screen Remover", true, description: "No longer displays the \"Insight Crystal Dust (Empty)\" screen after finishing a sidequest level.");
             Apocalypse_display = neonLite_config.CreateEntry("Begone Apocalypse", true, description: "Get rid of the Apocalyptic view and replace it with the blue skies.");
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
+            ambience_disabled = neonLite_config.CreateEntry("Ambience Remover", false, description: "Is the game too LOUD while muted ? This will remove the ambience from the game.");
 
             neonLite_visuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
             playerUIportrait_display = neonLite_visuals.CreateEntry("Disable the Player portrait", false);

@@ -1,13 +1,16 @@
-﻿using UnityEngine;
+﻿using ClockStone;
+using UnityEngine;
 
 namespace NeonWhiteQoL
 {
     internal class HUDManager : MonoBehaviour
     {
         private GameObject PlayerUIPortrait, Backstory, DamageOverlay, BoostOverlay, ShockerOverlay, TelefragOverlay, BottomBar, UIScreenFader, White;
+        private AudioController audioController;
         private float stopWatch = 1;
         void Start()
         {
+            audioController = SingletonMonoBehaviour<AudioController>.Instance;
             PlayerUIPortrait = transform.Find("Player/PlayerAnchor/PlayerUIPortrait").gameObject;
             Backstory = transform.Find("Player/PlayerAnchor/Backstory").gameObject;
             BottomBar = transform.Find("Overlays/BottomBar").gameObject;
@@ -24,6 +27,8 @@ namespace NeonWhiteQoL
             stopWatch += Time.deltaTime;
             if (stopWatch < 0.5f) return;
             stopWatch = 0;
+
+            audioController.ambienceSoundEnabled = !NeonLite.ambience_disabled.Value;
             PlayerUIPortrait.SetActive(!NeonLite.playerUIportrait_display.Value);
             Backstory.SetActive(!NeonLite.backstory_display.Value);
             BottomBar.SetActive(!NeonLite.bottombar_display.Value);
