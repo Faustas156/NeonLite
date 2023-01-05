@@ -89,7 +89,7 @@ namespace NeonWhiteQoL
         public static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
             SteamUserStats.GetDownloadedLeaderboardEntry((SteamLeaderboardEntries_t)currentLeaderboardEntriesGlobal.GetValue(null), (newData._ranking - 1) % 10, out LeaderboardEntry_t leaderboardEntry_t, new int[1], 1);
-            Debug.Log(newData._ranking);
+            Debug.Log(leaderboardEntry_t.m_steamIDUser.m_SteamID + " " + newData._ranking);
             if (!cheaters.Contains(newData._ranking)) return;
 
             __instance._ranking.color = Color.red;

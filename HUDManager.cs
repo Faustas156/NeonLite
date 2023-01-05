@@ -4,7 +4,7 @@ namespace NeonWhiteQoL
 {
     internal class HUDManager : MonoBehaviour
     {
-        private GameObject PlayerUIPortrait, Backstory, DamageOverlay, BoostOverlay, ShockerOverlay, TelefragOverlay, BottomBar, UIScreenFader;
+        private GameObject PlayerUIPortrait, Backstory, DamageOverlay, BoostOverlay, ShockerOverlay, TelefragOverlay, BottomBar, UIScreenFader, White;
         private float stopWatch = 1;
         void Start()
         {
@@ -16,6 +16,7 @@ namespace NeonWhiteQoL
             ShockerOverlay = transform.Find("Overlays/ShockerOverlay").gameObject;
             TelefragOverlay = transform.Find("Overlays/TelefragOverlay").gameObject;
             UIScreenFader = transform.Find("Overlays/UIScreenFader").gameObject;
+            //White = transform.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Results Panel/LevelCompleteScreen/LevelCompleteAnim/White").gameObject;
         }
 
         void Update()
@@ -31,6 +32,7 @@ namespace NeonWhiteQoL
             ShockerOverlay.SetActive(!NeonLite.shockerOverlay_display.Value);
             TelefragOverlay.SetActive(!NeonLite.telefragOverlay_display.Value);
             UIScreenFader.SetActive(!NeonLite.uiScreenFader_display.Value);
+            //White.SetActive(!NeonLite.whiteResult_display.Value);
         }
     }
 }

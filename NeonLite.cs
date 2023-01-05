@@ -35,13 +35,14 @@ namespace NeonWhiteQoL
 
             Debug.Log("Initialization complete.");
         }
-
+        
         private void OnLevelLoadComplete()
         {
             if (SceneManager.GetActiveScene().name.Equals("Heaven_Environment"))
                 return;
 
             GameObject.Find("HUD").AddComponent<HUDManager>();
+            //GameObject.Find("Main Menu").AddComponent<HUDManager>();
         }
 
         //Load a custom medal - for testing new medals ;)
@@ -84,6 +85,7 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> shockerOverlay_display;
         public static MelonPreferences_Entry<bool> telefragOverlay_display;
         public static MelonPreferences_Entry<bool> uiScreenFader_display;
+        //public static MelonPreferences_Entry<bool> whiteResult_display;
 
         [Obsolete]
         public override void OnApplicationStart()
@@ -110,6 +112,7 @@ namespace NeonWhiteQoL
             shockerOverlay_display = neonLite_visuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
             telefragOverlay_display = neonLite_visuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
             uiScreenFader_display = neonLite_visuals.CreateEntry("Disable white screen fader", false, description: "Use in combination with shocker/book of life overlay!");
+            //whiteResult_display = neonLite_visuals.CreateEntry("Disable white on result screen", false, description: "Gets rid of Neon White during the level completion screen.");
         }
     }
 }
