@@ -29,6 +29,9 @@ Still currently a work in progress and thus it only features a limited amount of
   * Uses an online banlist to highlight cheaters in red (Automatically updated, does not require downloading any updates).
 * Apocalypse, begone!
   * Changes the visual aspects of the central heaven, making it more beautiful.
+* HUD Manager
+  * Allows you to remove visual changes to the game, such as overlays and portraits in-game!
+  * Was the ambience in the game TOO LOUD ??? Now you can toggle to remove it! (thanks to steel for suggesting this!)
 
 ## Installation & Usage
 
@@ -37,6 +40,7 @@ Still currently a work in progress and thus it only features a limited amount of
 3. Download the **Mono** version of [Melon Preferences Manager](https://github.com/sinai-dev/MelonPreferencesManager/releases/latest), and put the .dlls from that zip into the `mods` folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White\Mods`)
     * The IL2CPP version **WILL NOT WORK**; you **must** download `MelonPreferencesManager.Mono.zip`. 
 4. Download the `NeonLite.dll` from the [Releases page](https://github.com/Faustas156/NeonLite/releases/) and drop it in the mods folder.
+5. Once it's all working, press F5 in-game to change the settings for the mod.
 
 ## SPECIAL CREDITS:
 
