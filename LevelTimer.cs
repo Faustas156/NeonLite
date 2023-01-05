@@ -22,15 +22,8 @@ namespace NeonWhiteQoL
             LevelSessionTimer = 0f;
         }
 
-        void Update()
-        {
-            LevelSessionTimer += Time.deltaTime;
-        }
+        void Update() => LevelSessionTimer += Time.deltaTime;
 
-        void OnGUI()
-        {
-            GUI.Label(new Rect(10, 20, 100, 70), Utils.FloatToTime(LevelSessionTimer, "#00:00"), style);
-        }
-
+        void OnGUI() => GUI.Label(new Rect(10, 20, 100, 70), Utils.FloatToTime(LevelSessionTimer, "#00:00"), style);
     }
 }

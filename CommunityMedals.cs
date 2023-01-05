@@ -126,7 +126,7 @@ namespace NeonWhiteQoL
                     stamps[2].sprite = mikeyEmerald;
                 }
             }
-            else if (!level.isSidequest) // TODO Double stamp bug is propably in the following lines
+            else if (!level.isSidequest) // TODO Double stamp bug is probably in the following lines
             {
                 __instance.devTime.SetText(EmeraldMedalTime);
                 __instance.devTime.color = new Color(0.388f, 0.8f, 0.388f);
@@ -312,7 +312,7 @@ namespace NeonWhiteQoL
             ["GRID_GLASSPATH3"] = (24534980L, 23937999L), // Glass Path 3 (Razor), 24.534, 23.937
             ["SIDEQUEST_ALL_SEEING_EYE"] = (27899976L, 27355999L), // All Seeing Eye, 27.899, 27.355
             ["SIDEQUEST_RESIDENTSAWB"] = (17299871L, 16699999L), // Resident Saw I, 17.299, 16.699
-            ["SIDEQUEST_RESIDENTSAW"] = (16399999L, 16359999L) // Resident Saw II, 16.399, 16.359
+            ["SIDEQUEST_RESIDENTSAW"] = (16429999L, 16359999L) // Resident Saw II, 16.429, 16.359
         };
     }
 }
