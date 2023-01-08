@@ -218,7 +218,7 @@ namespace NeonWhiteQoL
             ["TUT_BOMB"] = (12912954L, 12299999L), // Dash Tower, 12.912 , 12.299
             ["GRID_DESCEND"] = (9999671L, 9499999L), // Descent, 9.999 , 9.499
             ["GRID_STAMPEROUT"] = (11199381L, 10879999L), // Driller, 11.199, 10.879
-            ["GRID_CRUISE"] = (16972199L, 14655999L), // Canals, 16.972, 14.655
+            ["GRID_CRUISE"] = (16972199L, 14085999L), // Canals, 16.972, 14.085
             ["GRID_SPRINT"] = (16539524L, 15978499L), // Sprint, 16.539, 15.978
             ["GRID_MOUNTAIN"] = (17751583L, 15924999L), // Mountain, 17.751, 15.924
             ["GRID_SUPERKINETIC"] = (16299711L, 15064999L), // Superkinetic 16.299, 15.064
