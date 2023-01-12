@@ -29,6 +29,7 @@ namespace NeonWhiteQoL
             IGTimer.Initialize();
             BegoneApocalypse.Initialize();
             BossfightGhost.Initialize();
+            HUDManager.Initialize();
             //GameObject text = new GameObject("Text", typeof(Text));
             _ = new GameObject("SessionTimer", typeof(SessionTimer));
             modObject.AddComponent<CheaterBanlist>();
@@ -99,8 +100,8 @@ namespace NeonWhiteQoL
             IGTimer_display = neonLite_config.CreateEntry("Display in-depth in-game timer", true, description: "Allows the modification of the timer and lets you display milliseconds.");
             IGTimer_color = neonLite_config.CreateEntry("In-game Timer Color", Color.white, description: "Customization settings for the in-game timer, does not apply to result screen time.");
             GreenHP_display = neonLite_config.CreateEntry("Enable Neon Green HP", true, description: "Displays the HP of Neon Green in Text Form.");
-            RemoveMission_display = neonLite_config.CreateEntry("Remove Start Mission button in Job Archive", true, description: "Sick and tired of the big, bulky \"Start Mission\" button that appears? Now you can get rid of it, forever!");
-            InsightScreen_enable = neonLite_config.CreateEntry("Insight Screen Remover", true, description: "No longer displays the \"Insight Crystal Dust (Empty)\" screen after finishing a sidequest level.");
+            RemoveMission_display = neonLite_config.CreateEntry("Remove Start Mission button in Job Archive", false, description: "Sick and tired of the big, bulky \"Start Mission\" button that appears? Now you can get rid of it, forever!");
+            InsightScreen_enable = neonLite_config.CreateEntry("Insight Screen Remover", false, description: "No longer displays the \"Insight Crystal Dust (Empty)\" screen after finishing a sidequest level.");
             Apocalypse_display = neonLite_config.CreateEntry("Begone Apocalypse", true, description: "Get rid of the Apocalyptic view and replace it with the blue skies.");
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
             ambience_disabled = neonLite_config.CreateEntry("Ambience Remover", false, description: "Is the game too LOUD while muted ? This will remove the ambience from the game.");

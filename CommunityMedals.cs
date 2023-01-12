@@ -23,6 +23,7 @@ namespace NeonWhiteQoL
             purpleCrystal = LoadSprite(Properties.Resources.uiCrystal_Amethyst);
             mikeyEmerald = LoadSprite(Properties.Resources.mikeysealEmerald);
             mikeyAmethyst = LoadSprite(Properties.Resources.mikeysealAmethyst);
+            mikeyOriginal = LoadSprite(Properties.Resources.uiMedal_MikeyStamp);
 
             MethodInfo method = typeof(LevelInfo).GetMethod("SetLevel");
             HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetLevel"));
@@ -52,12 +53,12 @@ namespace NeonWhiteQoL
             }
 
             // Get default mikey stamp
-            if (mikeyOriginal == null)
-            {
-                GameObject mikeyStamp = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/");
-                if (mikeyStamp.activeSelf)
-                    mikeyOriginal = mikeyStamp.transform.Find("MikeyStampGraphic").gameObject.GetComponent<Image>().sprite;
-            }
+            //if (mikeyOriginal == null)
+            //{
+            //    GameObject mikeyStamp = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Inventory Inspector/Inventory Inspector Holder/Panels/Leaderboards And LevelInfo/Level Panel/Info Holder/Stats/Normal Level Stats/Layout Right/Medal Info/Holder/MikeyStamp/");
+            //    if (mikeyStamp.activeSelf)
+            //        mikeyOriginal = mikeyStamp.transform.Find("MikeyStampGraphic").gameObject.GetComponent<Image>().sprite;
+            //}
 
             GameData gameData = Singleton<Game>.Instance.GetGameData();
             LevelStats levelStats = gameData.GetLevelStats(level.levelID);
@@ -296,7 +297,7 @@ namespace NeonWhiteQoL
             ["SIDEQUEST_OBSTACLE_UZI2"] = (39228861L, 38284878L), // Stomp Obstacle Course 1 (Stomp Traversal), 39.228, 38.284
             ["SIDEQUEST_OBSTACLE_SHOTGUN"] = (35470132L, 33999999L), // Expel Obstacle Course 2 (Fireball Traversal), 35.470, 33.999
             ["SIDEQUEST_OBSTACLE_ROCKETLAUNCHER"] = (39699294L, 37548999L), // Rocket Obstacle Course 2 (Dominion Traversal), 39.699, 37.548
-            ["SIDEQUEST_RAPTURE_QUEST"] = (1549748L, 1399999L), // Telefrag Challenge (Book of Life Traversal), 1.549, 1.399
+            ["SIDEQUEST_RAPTURE_QUEST"] = (1749748L, 1469999L), // Telefrag Challenge (Book of Life Traversal), 1.749, 1.469
             ["SIDEQUEST_SUNSET_FLIP_POWERBOMB"] = (36924825L, 36479899L), // Sunset Flip Powerbomb, 36.924, 36.479 // maybe?
             ["GRID_BALLOONLAIR"] = (19774182L, 19579999L), // Balloon Climber (Balloon Mountain), 19.774, 19.579
             ["SIDEQUEST_BARREL_CLIMB"] = (36874889L, 35959999L), // Barrel Climb (Climbing Gym), 36.874, 35.959

@@ -1,13 +1,29 @@
 ﻿using ClockStone;
+using System.Reflection;
 using UnityEngine;
+using HarmonyLib;
 
 namespace NeonWhiteQoL
 {
     internal class HUDManager : MonoBehaviour
     {
-        private GameObject PlayerUIPortrait, Backstory, DamageOverlay, BoostOverlay, ShockerOverlay, TelefragOverlay, BottomBar, UIScreenFader, White;
+        private static GameObject PlayerUIPortrait, Backstory, DamageOverlay, BoostOverlay, ShockerOverlay, TelefragOverlay, BottomBar, UIScreenFader;
         private AudioController audioController;
         private float stopWatch = 1;
+
+        public static void Initialize()
+        {
+            MethodInfo method = typeof(EnvironmentPortalTrigger).GetMethod("OnTriggerEnter", BindingFlags.Instance | BindingFlags.NonPublic);
+            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(HUDManager).GetMethod("UIScreenFaderFix"));
+            NeonLite.Harmony.Patch(method, harmonyMethod);
+        }
+
+        public static void UIScreenFaderFix()
+        {
+            UIScreenFader.SetActive(true);
+            return;
+        }
+
         void Start()
         {
             audioController = SingletonMonoBehaviour<AudioController>.Instance;

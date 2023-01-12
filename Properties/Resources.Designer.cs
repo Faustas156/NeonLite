@@ -113,6 +113,16 @@ namespace NeonWhiteQoL.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] uiMedal_MikeyStamp {
+            get {
+                object obj = ResourceManager.GetObject("uiMedal_MikeyStamp", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] uiMedal_Purple {
             get {
                 object obj = ResourceManager.GetObject("uiMedal_Purple", resourceCulture);

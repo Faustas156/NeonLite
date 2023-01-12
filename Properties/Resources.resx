@@ -133,6 +133,9 @@
   <data name="uiMedal_Emerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\uiMedal_Emerald.png;System.Byte[]</value>
   </data>
+  <data name="uiMedal_MikeyStamp" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\uiMedal_MikeyStamp.png;System.Byte[]</value>
+  </data>
   <data name="uiMedal_Purple" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\uiMedal_Purple.png;System.Byte[]</value>
   </data>
