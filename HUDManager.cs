@@ -13,15 +13,20 @@ namespace NeonWhiteQoL
 
         public static void Initialize()
         {
-            MethodInfo method = typeof(EnvironmentPortalTrigger).GetMethod("OnTriggerEnter", BindingFlags.Instance | BindingFlags.NonPublic);
+            MethodInfo method = typeof(UIScreenFader).GetMethod("FadeScreen", BindingFlags.Instance | BindingFlags.Public);
             HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(HUDManager).GetMethod("UIScreenFaderFix"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
 
-        public static void UIScreenFaderFix()
+        public static bool UIScreenFaderFix(ref Action onComplete)
         {
-            UIScreenFader.SetActive(true);
-            return;
+            if (NeonLite.uiScreenFader_display.Value)
+            {
+                if (onComplete != null)
+                    onComplete();
+                return false;
+            }
+            return true;
         }
 
         void Start()
