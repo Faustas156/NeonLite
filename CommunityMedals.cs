@@ -193,13 +193,13 @@ namespace NeonWhiteQoL
 
         private static readonly Dictionary<string, (long, long)> CommunityMedalTimes = new()
         {
-            ["TUT_MOVEMENT"] = (18209999L, 17840999L), // Movement, 18.209 , 17.840
+            ["TUT_MOVEMENT"] = (18209999L, 17882999L), // Movement, 18.209 , 17.882
             ["TUT_SHOOTINGRANGE"] = (7249999L, 6799999L), // Pummel, 7.249 , 6.799
             ["SLUGGER"] = (7513650L, 7026999L), // Gunner, 7.513 , 7.026 
             ["TUT_FROG"] = (9474999L, 9139999L), // Cascade, 9.474 , 9.139
-            ["TUT_JUMP"] = (15384180L, 14899999L), // Elevate, 15.384 ,  14.899
+            ["TUT_JUMP"] = (15384180L, 14825999L), // Elevate, 15.384 ,  14.825
             ["GRID_TUT_BALLOON"] = (16233228L, 15705999L), // Bounce, 16.233 , 15.705
-            ["TUT_BOMB2"] = (8759372L, 8437999L), // Purify, 8.759 , 8.437
+            ["TUT_BOMB2"] = (8759372L, 8388999L), // Purify, 8.759 , 8.388
             ["TUT_BOMBJUMP"] = (10950999L, 10630999L), // Climb, 10.950 , 10.630
             ["TUT_FASTTRACK"] = (21766666L, 20999999L), // Fasttrack, 21.766 , 20.999
             ["GRID_PORT"] = (22200999L, 19849999L), // Glass Port, 22.200 , 19.849 
@@ -207,15 +207,15 @@ namespace NeonWhiteQoL
             ["TUT_RIFLE"] = (5968789L, 5950999L), // Godspeed 5.968 , 5.950
             ["TUT_RIFLEJOCK"] = (9567365L, 9099999L), // Dasher, 9.567 , 9.099
             ["TUT_DASHENEMY"] = (11842663L, 11512999L), // Thrasher, 11.842 , 11.512
-            ["GRID_JUMPDASH"] = (9931733L, 9599999L), // Outstretched, 9.931 , 9.599
+            ["GRID_JUMPDASH"] = (9931733L, 9499999L), // Outstretched, 9.931 , 9.499
             ["GRID_SMACKDOWN"] = (9975487L, 9789999L), // Smackdown 9.975 , 9.789
             ["GRID_MEATY_BALLOONS"] = (13800655L, 13648999L), // Catwalk, 13.800 , 13.648
-            ["GRID_FAST_BALLOON"] = (21949799L, 21599999L), // Fastlane 21.949 , 21.599
+            ["GRID_FAST_BALLOON"] = (21949799L, 21629999L), // Fastlane 21.949 , 21.629
             ["GRID_DRAGON2"] = (15320626L, 15133999L), // Distinguish, 15.320 , 15.133
-            ["GRID_DASHDANCE"] = (16192999L, 15999999L), // Dancer, 16.192 , 15.999
+            ["GRID_DASHDANCE"] = (16192999L, 15728999L), // Dancer, 16.192 , 15.728
             ["TUT_GUARDIAN"] = (20529077L, 19678999L), // Guardian, 20.529 , 19.678
             ["TUT_UZI"] = (14694806L, 13889999L), // Stomp, 14.694 , 13.889
-            ["TUT_JUMPER"] = (13599682L, 12999999L), // Jumper, 13.599 , 12.999
+            ["TUT_JUMPER"] = (13599682L, 12555999L), // Jumper, 13.599 , 12.555
             ["TUT_BOMB"] = (12912954L, 12299999L), // Dash Tower, 12.912 , 12.299
             ["GRID_DESCEND"] = (9999671L, 9499999L), // Descent, 9.999 , 9.499
             ["GRID_STAMPEROUT"] = (11199381L, 10879999L), // Driller, 11.199, 10.879
@@ -226,7 +226,7 @@ namespace NeonWhiteQoL
             ["GRID_ARRIVAL"] = (21579773L, 20999999L), // Arrival, 21.579, 20.999
             ["FLOATING"] = (27918134L, 24570999L), // Floating City (Forgotten City), 27.918, 24.570
             ["GRID_BOSS_YELLOW"] = (36569550L, 33899999L), // The Clocktower, 36.569, 33.899
-            ["GRID_HOPHOP"] = (16787970L, 16544999L), // Expel (Fireball), 16.787, 16.544
+            ["GRID_HOPHOP"] = (16849970L, 16544999L), // Expel (Fireball), 16.849, 16.544
             ["GRID_RINGER_TUTORIAL"] = (13999808L, 12859989L), // Ringer, 13.999, 12.859
             ["GRID_RINGER_EXPLORATION"] = (12999938L, 11648999L), // Cleaner, 12.999, 11.648
             ["GRID_HOPSCOTCH"] = (11753942L, 11179785L), // Warehouse, 11.753, 11.179
@@ -238,7 +238,7 @@ namespace NeonWhiteQoL
             ["GRID_APARTMENT"] = (15382634L, 12879999L), // Apartment, 15.382, 12.879
             ["TUT_TRIPWIRE"] = (23009999L, 22104999L), // Hanging Gardens, 23.009, 22.104
             ["GRID_TANGLED"] = (13458910L, 12520999L), // Tangled, 13.458, 12.520
-            ["GRID_HUNT"] = (20275598L, 19799999L), // Waterworks, 20.275, 19.799
+            ["GRID_HUNT"] = (20275598L, 19499999L), // Waterworks, 20.275, 19.499
             ["GRID_CANNONS"] = (25262354L, 24227999L), // Killswitch, 25.262, 24.227
             ["GRID_FALLING"] = (20452457L, 19464999L), // Falling, 20.452, 19.464
             ["TUT_SHOCKER2"] = (28277797L, 27289999L), // Shocker, 28.277, 27.289
@@ -248,8 +248,8 @@ namespace NeonWhiteQoL
             ["GRID_RACE"] = (23074515L, 22247999L), // Race 23.074, 22.247
             ["TUT_FORCEFIELD2"] = (16165925L, 14420825L), // Bubble 16.165, 14.420
             ["GRID_SHIELD"] = (16771907L, 15748999L), // Shield 16.771, 15.748
-            ["SA L VAGE2"] = (13340509L, 12554509L), // Overlook 13.340, 12.554
-            ["GRID_VERTICAL"] = (24673282L, 23949999L), // Pop, 24.673, 23.949
+            ["SA L VAGE2"] = (13340509L, 12411509L), // Overlook 13.340, 12.411
+            ["GRID_VERTICAL"] = (24673282L, 23863999L), // Pop, 24.673, 23.863
             ["GRID_MINEFIELD"] = (12999097L, 11699999L), // Minefield, 12.999,  11.699
             ["TUT_MIMIC"] = (9735374L, 9325247L), // Mimic, 9.735, 9.325
             ["GRID_MIMICPOP"] = (20076717L, 18999999L), // Trigger, 20.076, 18.999
@@ -263,7 +263,7 @@ namespace NeonWhiteQoL
             ["GRID_CRASHLAND"] = (28464362L, 26679999L), // Crash, 28.464, 26.679
             ["GRID_ESCALATE"] = (25564361L, 22499999L), // Ascent, 25.564, 22.499
             ["GRID_SPIDERCLAUS"] = (39555414L, 37999999L), // Straightaway, 39.555, 37.999
-            ["GRID_FIRECRACKER_2"] = (34527753L, 30999999L), // Firecracker, 34.527, 30.999 
+            ["GRID_FIRECRACKER_2"] = (34527753L, 30563999L), // Firecracker, 34.527, 30.563
             ["GRID_SPIDERMAN"] = (25074568L, 21678999L), // Streak, 25.074, 21.678
             ["GRID_DESTRUCTION"] = (27966018L, 24999999L), // Mirror, 27.966, 24.999
             ["GRID_HEAT"] = (25890879L, 23999999L), // Escalation, 25.890, 23.999
@@ -286,12 +286,12 @@ namespace NeonWhiteQoL
             ["GRID_SKIP"] = (12899935L, 11889999L), // Switch, 12.899, 11.889
             ["GRID_CEILING"] = (16457145L, 14755999L), // Access, 16.457, 14.755
             ["GRID_BOOP"] = (24899987L, 23599999L), // Congregation 24.899, 23.599
-            ["GRID_TRIPRAP"] = (10699891L, 9799999L), // Sequence, 10.699, 9.799
+            ["GRID_TRIPRAP"] = (10999891L, 9799999L), // Sequence, 10.999, 9.799
             ["GRID_ZIPRAP"] = (15299903L, 12999999L), // Marathon, 15.299, 12.999
-            ["TUT_ORIGIN"] = (66999999L, 63750999L), // Sacrifice 1:06.999, 1:03.750
+            ["TUT_ORIGIN"] = (66999999L, 62794999L), // Sacrifice 1:06.999, 1:02.794
             ["GRID_BOSS_RAPTURE"] = (85999999L, 78999999L), // Absolution, 1:25.999, 1:18.999
             ["SIDEQUEST_OBSTACLE_PISTOL"] = (14899888L, 14419999L), // Elevate Obstacle Course 1 (Elevate Traversal I), 14.899, 14.419
-            ["SIDEQUEST_OBSTACLE_PISTOL_SHOOT"] = (25699684L, 24999999L), // Elevate Obstacle Course 2 (Elevate Traversal II), 25.699, 24.999
+            ["SIDEQUEST_OBSTACLE_PISTOL_SHOOT"] = (25699684L, 24599999L), // Elevate Obstacle Course 2 (Elevate Traversal II), 25.699, 24.599
             ["SIDEQUEST_OBSTACLE_MACHINEGUN"] = (31912929L, 30787999L), // Purify Obstacle Course 2 (Purify Traversal), 31.912, 30.787
             ["SIDEQUEST_OBSTACLE_RIFLE_2"] = (13094596L, 12569999L), // Godspeed Obstacle Course 1 (Godspeed Traversal), 13.094, 12.569
             ["SIDEQUEST_OBSTACLE_UZI2"] = (39228861L, 38284878L), // Stomp Obstacle Course 1 (Stomp Traversal), 39.228, 38.284
@@ -299,7 +299,7 @@ namespace NeonWhiteQoL
             ["SIDEQUEST_OBSTACLE_ROCKETLAUNCHER"] = (40499294L, 37548999L), // Rocket Obstacle Course 2 (Dominion Traversal), 40.499, 37.548
             ["SIDEQUEST_RAPTURE_QUEST"] = (1749748L, 1469999L), // Telefrag Challenge (Book of Life Traversal), 1.749, 1.469
             ["SIDEQUEST_SUNSET_FLIP_POWERBOMB"] = (36924825L, 36479899L), // Sunset Flip Powerbomb, 36.924, 36.479 // maybe?
-            ["GRID_BALLOONLAIR"] = (19774182L, 19579999L), // Balloon Climber (Balloon Mountain), 19.774, 19.579
+            ["GRID_BALLOONLAIR"] = (19794182L, 19579999L), // Balloon Climber (Balloon Mountain), 19.794, 19.579
             ["SIDEQUEST_BARREL_CLIMB"] = (36874889L, 35959999L), // Barrel Climb (Climbing Gym), 36.874, 35.959
             ["SIDEQUEST_FISHERMAN_SUPLEX"] = (41596839L, 37989899L), // Fisherman Suplex, 41.596, 37.989
             ["SIDEQUEST_STF"] = (17899359L, 16842999L), // STF, 17.899, 16.842
@@ -309,7 +309,7 @@ namespace NeonWhiteQoL
             ["SIDEQUEST_DODGER"] = (19899937L, 18789999L), // Dodger (Doghouse), 19.899, 18.789
             ["GRID_GLASSPATH"] = (24678795L, 24399999L), // Glass Path 1 (Choker), 24.678, 24.399
             ["GRID_GLASSPATH2"] = (19199999L, 18639999L), // Glass Path 2 (Chain), 19.199, 18.639
-            ["GRID_HELLVATOR"] = (21720813L, 21299999L), // Hellvator (Hellevator), 21.720, 21.299
+            ["GRID_HELLVATOR"] = (21827813L, 21299999L), // Hellvator (Hellevator), 21.827, 21.299
             ["GRID_GLASSPATH3"] = (24534980L, 23937999L), // Glass Path 3 (Razor), 24.534, 23.937
             ["SIDEQUEST_ALL_SEEING_EYE"] = (27899976L, 27355999L), // All Seeing Eye, 27.899, 27.355
             ["SIDEQUEST_RESIDENTSAWB"] = (17299871L, 16699999L), // Resident Saw I, 17.299, 16.699
