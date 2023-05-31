@@ -24,19 +24,23 @@ namespace NeonWhiteQoL
             SkipIntro.Initialize();
             RemoveMission.Initialize();
             LeaderboardFix.Initialize();
-            CommunityMedals.Initialize();
+            //CommunityMedals.Initialize();
             ShowcaseBypass.Initialize();
             IGTimer.Initialize();
             BegoneApocalypse.Initialize();
             BossfightGhost.Initialize();
             HUDManager.Initialize();
+            LevelRushHelper.Initialize();
+            RestartCounter.Initialize();
+            //LevelRushHelper.Initialize();
             //GameObject text = new GameObject("Text", typeof(Text));
             _ = new GameObject("SessionTimer", typeof(SessionTimer));
             modObject.AddComponent<CheaterBanlist>();
+            modObject.AddComponent<CommunityMedals>();
 
             Debug.Log("Initialization complete.");
         }
-        
+
         private void OnLevelLoadComplete()
         {
             if (SceneManager.GetActiveScene().name.Equals("Heaven_Environment"))
@@ -44,6 +48,7 @@ namespace NeonWhiteQoL
 
             GameObject.Find("HUD").AddComponent<HUDManager>();
             //GameObject.Find("Main Menu").AddComponent<HUDManager>();
+            new GameObject("RestartCounter").AddComponent<RestartCounter>();
         }
 
         //Load a custom medal - for testing new medals ;)
@@ -63,6 +68,8 @@ namespace NeonWhiteQoL
         //        CommunityMedals.emeraldMedal = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
         //    }
         //}
+
+        #region EntryDefinitions
 
         public static MelonPreferences_Category neonLite_config;
         public static MelonPreferences_Entry<bool> CommunityMedals_enable;
@@ -88,6 +95,8 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> telefragOverlay_display;
         public static MelonPreferences_Entry<bool> uiScreenFader_display;
         //public static MelonPreferences_Entry<bool> whiteResult_display;
+
+        #endregion
 
         [Obsolete]
         public override void OnApplicationStart()

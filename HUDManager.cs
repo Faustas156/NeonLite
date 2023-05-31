@@ -1,7 +1,7 @@
 ﻿using ClockStone;
+using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
-using HarmonyLib;
 
 namespace NeonWhiteQoL
 {

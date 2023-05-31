@@ -6,30 +6,44 @@ namespace NeonWhiteQoL
 {
     internal class RestartCounter : MonoBehaviour
     {
-        Game game = Singleton<Game>.Instance;
-        private Dictionary<String, int> dict = new();
+        private static Dictionary<string, int> dict;
+        private static string currentLevel;
+        private static int restarts;
 
-        void Start()
+        private Game game = Singleton<Game>.Instance;
+
+        private GUIStyle style = new GUIStyle()
         {
-            game.OnLevelLoadComplete += OnLevelLoaded;
-            SaveToFile();
+            font = Resources.Load("fonts/nova_mono/novamono") as Font,
+            fontSize = 20
+        };
+
+        public static void Initialize()
+        {
+            if (!SteamManager.Initialized)
+            {
+                return;
+            }
+
+            string path = Application.persistentDataPath + "\\" + SteamUser.GetSteamID().m_SteamID.ToString() + "\\restartcounter.txt";
+
+            if (!File.Exists(path))
+            {
+                dict = new();
+                SaveToFile();
+                return;
+            }
+
+            Stream stream = File.Open(path, FileMode.Open);
+
+            DataContractJsonSerializer serializer = new(typeof(Dictionary<string, int>));
+            dict = (Dictionary<string, int>)serializer.ReadObject(stream);
+
+            stream.Close();
+
         }
 
-        private void OnLevelLoaded()
-        {
-            string currentLevel = game.GetCurrentLevel().levelID;
-
-            if (dict.ContainsKey(currentLevel))
-            {
-                dict[currentLevel] += 1;
-            }
-            else
-            {
-                dict[currentLevel] = 1;
-            }
-            SaveToFile();
-        }
-        private void SaveToFile()
+        private static void SaveToFile()
         {
             if (!SteamManager.Initialized)
             {
@@ -39,12 +53,42 @@ namespace NeonWhiteQoL
             string path = Application.persistentDataPath + "\\" + SteamUser.GetSteamID().m_SteamID.ToString() + "\\restartcounter.txt";
             Stream stream = File.Open(path, FileMode.Create);
 
-            Debug.Log(path);
+
             DataContractJsonSerializer serializer = new(typeof(Dictionary<string, int>));
             serializer.WriteObject(stream, dict);
 
             stream.Close();
-            Debug.Log("closed");
+
+        }
+
+        void Start()
+        {
+            style.normal.textColor = Color.white;
+            string newLevel = game.GetCurrentLevel().levelID;
+
+            if (currentLevel != newLevel)
+            {
+                currentLevel = newLevel;
+                restarts = 0;
+            }
+
+            restarts++;
+
+            if (dict.ContainsKey(currentLevel))
+            {
+                dict[currentLevel] = dict[currentLevel] + 1;
+            }
+            else
+            {
+                dict[currentLevel] = 1;
+            }
+            SaveToFile();
+        }
+
+        void OnGUI()
+        {
+            GUI.Label(new Rect(10, 40, 100, 70), "Total Restarts: " + dict[currentLevel], style);
+            GUI.Label(new Rect(10, 60, 100, 70), "Restarts: " + restarts, style);
         }
 
     }
