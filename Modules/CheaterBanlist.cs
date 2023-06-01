@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class CheaterBanlist : MonoBehaviour
     {

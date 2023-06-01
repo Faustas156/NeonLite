@@ -1,4 +1,5 @@
 ﻿using MelonLoader;
+using NeonWhiteQoL.Modules;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -33,6 +34,7 @@ namespace NeonWhiteQoL
             HUDManager.Initialize();
             LevelRushHelper.Initialize();
             RestartCounter.Initialize();
+            DnfTime.Initialize();
             //LevelRushHelper.Initialize();
             //GameObject text = new GameObject("Text", typeof(Text));
             _ = new GameObject("SessionTimer", typeof(SessionTimer));
@@ -40,6 +42,12 @@ namespace NeonWhiteQoL
             modObject.AddComponent<CommunityMedals>();
 
             Debug.Log("Initialization complete.");
+        }
+
+        public override void OnUpdate()
+        {
+            if (Keyboard.current.f7Key.wasPressedThisFrame)
+                RM.acceptInput = !RM.acceptInput;
         }
 
         private void OnLevelLoadComplete()

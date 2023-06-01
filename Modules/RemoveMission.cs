@@ -1,14 +1,14 @@
 ﻿using HarmonyLib;
 using System.Reflection;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class RemoveMission
     {
         public static void Initialize()
         {
             MethodInfo method = typeof(MenuScreenLocation).GetMethod("CreateActionButton");
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(RemoveMission).GetMethod("PreCreateActionButton"));
+            HarmonyMethod harmonyMethod = new (typeof(RemoveMission).GetMethod("PreCreateActionButton"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
 

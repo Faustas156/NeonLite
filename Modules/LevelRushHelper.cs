@@ -3,7 +3,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
 
     //things i want added:
@@ -29,11 +29,11 @@ namespace NeonWhiteQoL
     public class LevelRushHelper : MonoBehaviour
     {
         private static int restarts = 0;
-        private Color color = new Color(1, 1, 1, 0.5f);
-        private Rect boxRect = new Rect(0, 200, 375, 700);
-        private Rect labelRect = new Rect(10, 600, 1000, 700);
+        private Color color = new (1, 1, 1, 0.5f);
+        private Rect boxRect = new (0, 200, 375, 700);
+        private Rect labelRect = new (10, 600, 1000, 700);
 
-        private readonly GUIStyle style = new GUIStyle()
+        private readonly GUIStyle style = new ()
         {
             font = Resources.Load("fonts/nova_mono/novamono") as Font,
             fontSize = 20
@@ -42,11 +42,11 @@ namespace NeonWhiteQoL
         public static void Initialize()
         {
             MethodInfo method = typeof(LevelRush).GetMethod("ClearLevelRushStats", BindingFlags.Public | BindingFlags.Static);
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(LevelRushHelper).GetMethod("PostClearLevelRushStats"));
+            HarmonyMethod harmonyMethod = new (typeof(LevelRushHelper).GetMethod("PostClearLevelRushStats"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
             method = typeof(MenuScreenLevelRush).GetMethod("StartLevelRush");
-            harmonyMethod = new HarmonyMethod(typeof(LevelRushHelper).GetMethod("PostStartLevelRush"));
+            harmonyMethod = new (typeof(LevelRushHelper).GetMethod("PostStartLevelRush"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
             Singleton<Game>.Instance.OnLevelLoadComplete += DisplayHelper;

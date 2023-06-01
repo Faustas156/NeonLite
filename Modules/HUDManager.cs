@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     internal class HUDManager : MonoBehaviour
     {
@@ -14,7 +14,7 @@ namespace NeonWhiteQoL
         public static void Initialize()
         {
             MethodInfo method = typeof(UIScreenFader).GetMethod("FadeScreen", BindingFlags.Instance | BindingFlags.Public);
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(HUDManager).GetMethod("UIScreenFaderFix"));
+            HarmonyMethod harmonyMethod = new (typeof(HUDManager).GetMethod("UIScreenFaderFix"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
 
@@ -22,8 +22,7 @@ namespace NeonWhiteQoL
         {
             if (NeonLite.uiScreenFader_display.Value)
             {
-                if (onComplete != null)
-                    onComplete();
+                onComplete?.Invoke();
                 return false;
             }
             return true;

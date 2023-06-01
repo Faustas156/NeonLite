@@ -1,14 +1,14 @@
 ﻿using HarmonyLib;
 using System.Reflection;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     internal class ShowcaseBypass
     {
         public static void Initialize()
         {
             MethodInfo method = typeof(MainMenu).GetMethod("SetItemShowcaseCard");
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(ShowcaseBypass).GetMethod("PreSetItemShowcaseCard"));
+            HarmonyMethod harmonyMethod = new (typeof(ShowcaseBypass).GetMethod("PreSetItemShowcaseCard"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
 
@@ -17,7 +17,7 @@ namespace NeonWhiteQoL
             if (!NeonLite.InsightScreen_enable.Value)
                 return true;
 
-            if (callback != null) callback();
+            callback?.Invoke();
             return false;
         }
     }

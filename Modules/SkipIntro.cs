@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using System.Reflection;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class SkipIntro
     {
@@ -9,7 +9,7 @@ namespace NeonWhiteQoL
         public static void Initialize()
         {
             MethodInfo method = typeof(IntroCards).GetMethod("SetState", BindingFlags.NonPublic | BindingFlags.Instance);
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(SkipIntro).GetMethod("SkippingIntro"));
+            HarmonyMethod harmonyMethod = new (typeof(SkipIntro).GetMethod("SkippingIntro"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
 

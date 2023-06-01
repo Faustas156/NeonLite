@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using System.Reflection;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class LeaderboardFix
     {
@@ -44,12 +44,12 @@ namespace NeonWhiteQoL
         public static bool PreDownloadEntries(ref int start, ref int end, ref bool friend, ref bool globalNeonRankings)
         {
             if (!friend) return true;
-
+            
             if (!SteamManager.Initialized) return false;
 
             ScoreData[] array = new ScoreData[10];
             for (int i = 0; i < array.Length; i++)
-                array[i] = LeaderboardIntegrationSteam.GetScoreDataAtGlobalRank(i + 1 + (page * 10), true, globalNeonRankings);
+                array[i] = LeaderboardIntegrationSteam.GetScoreDataAtGlobalRank(i + 1 + page * 10, true, globalNeonRankings);
 
             Leaderboards leaderboard = (Leaderboards)_leaderboadsRefInfo.GetValue(null);
             leaderboard.DisplayScores_AsyncRecieve(array, true);

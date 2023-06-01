@@ -9,7 +9,7 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class CommunityMedals : MonoBehaviour
     {
@@ -32,9 +32,7 @@ namespace NeonWhiteQoL
             Stream stream = File.Open(path, FileMode.Create);
 
 
-            DataContractJsonSerializerSettings Settings =
-            new DataContractJsonSerializerSettings
-            { UseSimpleDictionaryFormat = true };
+            DataContractJsonSerializerSettings Settings = new() { UseSimpleDictionaryFormat = true };
             var writer = JsonReaderWriterFactory.CreateJsonWriter(stream, Encoding.UTF8, true, true, "  ");
 
             DataContractJsonSerializer serializer = new(typeof(Dictionary<string, long[]>), Settings);
@@ -52,11 +50,11 @@ namespace NeonWhiteQoL
             mikeyOriginal = LoadSprite(Properties.Resources.uiMedal_MikeyStamp);
 
             MethodInfo method = typeof(LevelInfo).GetMethod("SetLevel");
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetLevel"));
+            HarmonyMethod harmonyMethod = new (typeof(CommunityMedals).GetMethod("PostSetLevel"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
             method = typeof(MenuButtonLevel).GetMethod("SetLevelData");
-            harmonyMethod = new HarmonyMethod(typeof(CommunityMedals).GetMethod("PostSetLevelData"));
+            harmonyMethod = new (typeof(CommunityMedals).GetMethod("PostSetLevelData"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
 
@@ -222,29 +220,27 @@ namespace NeonWhiteQoL
 
         public IEnumerator DownloadMedals()
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get("https://raw.githubusercontent.com/Faustas156/NeonLiteBanList/main/communitymedals.json"))
+            using UnityWebRequest webRequest = UnityWebRequest.Get("https://raw.githubusercontent.com/Faustas156/NeonLiteBanList/main/communitymedals.json");
+            yield return webRequest.SendWebRequest();
+
+            switch (webRequest.result)
             {
-                yield return webRequest.SendWebRequest();
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError("Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError("HTTP Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.Success:
+                    string timestext = webRequest.downloadHandler.text;
+                    DataContractJsonSerializerSettings Settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
+                    DataContractJsonSerializer deserializer = new(typeof(Dictionary<string, long[]>), Settings);
 
-                switch (webRequest.result)
-                {
-                    case UnityWebRequest.Result.ConnectionError:
-                    case UnityWebRequest.Result.DataProcessingError:
-                        Debug.LogError("Error: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.ProtocolError:
-                        Debug.LogError("HTTP Error: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.Success:
-                        string timestext = webRequest.downloadHandler.text;
-                        DataContractJsonSerializerSettings Settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
-                        DataContractJsonSerializer deserializer = new(typeof(Dictionary<string, long[]>), Settings);
-
-                        CommunityMedalTimes = (Dictionary<string, long[]>)deserializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(timestext)));
-                        Debug.Log(CommunityMedalTimes.Count + " hello");
-                        Initialize();
-                        break;
-                }
+                    CommunityMedalTimes = (Dictionary<string, long[]>)deserializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(timestext)));
+                    Debug.Log(CommunityMedalTimes.Count + " hello");
+                    Initialize();
+                    break;
             }
         }
 
