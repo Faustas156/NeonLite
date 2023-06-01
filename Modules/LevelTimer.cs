@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     internal class LevelTimer : MonoBehaviour
     {
         public static float LevelSessionTimer { get; set; } = 0f;
         private static string levelID = "";
 
-        GUIStyle style = new GUIStyle()
+        private readonly GUIStyle style = new ()
         {
             font = Resources.Load("fonts/nova_mono/novamono") as Font,
             fontSize = 20

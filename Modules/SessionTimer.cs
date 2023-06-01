@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class SessionTimer : MonoBehaviour
     {
-        GUIStyle style = new GUIStyle()
+        private readonly GUIStyle style = new ()
         {
             font = Resources.Load("fonts/nova_mono/novamono") as Font,
             fontSize = 20

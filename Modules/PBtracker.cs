@@ -3,7 +3,7 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class PBtracker
     {
@@ -11,18 +11,18 @@ namespace NeonWhiteQoL
         private static string delta = string.Empty;
         private static bool newbest;
 
-        private static FieldInfo _currentPlaythrough = typeof(Game).GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo _currentPlaythrough = typeof(Game).GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static void Initialize()
         {
             game = Singleton<Game>.Instance;
 
             MethodInfo method = typeof(Game).GetMethod("OnLevelWin");
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PreOnLevelWin"));
+            HarmonyMethod harmonyMethod = new (typeof(PBtracker).GetMethod("PreOnLevelWin"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
 
             method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
-            harmonyMethod = new HarmonyMethod(typeof(PBtracker).GetMethod("PostOnSetVisible"));
+            harmonyMethod = new (typeof(PBtracker).GetMethod("PostOnSetVisible"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
 

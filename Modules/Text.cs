@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     internal class Text : MonoBehaviour
     {
-        private readonly GUIStyle style = new GUIStyle()
+        private readonly GUIStyle style = new ()
         {
             font = Resources.Load("fonts/source code pro/sourcecodepro-medium") as Font,
             fontSize = 18,

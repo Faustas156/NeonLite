@@ -2,7 +2,7 @@
 using System.Runtime.Serialization.Json;
 using UnityEngine;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     internal class RestartCounter : MonoBehaviour
     {
@@ -10,9 +10,9 @@ namespace NeonWhiteQoL
         private static string currentLevel;
         private static int restarts;
 
-        private Game game = Singleton<Game>.Instance;
+        private readonly Game game = Singleton<Game>.Instance;
 
-        private GUIStyle style = new GUIStyle()
+        private readonly GUIStyle style = new()
         {
             font = Resources.Load("fonts/nova_mono/novamono") as Font,
             fontSize = 20
@@ -20,10 +20,7 @@ namespace NeonWhiteQoL
 
         public static void Initialize()
         {
-            if (!SteamManager.Initialized)
-            {
-                return;
-            }
+            if (!SteamManager.Initialized) return;
 
             string path = Application.persistentDataPath + "\\" + SteamUser.GetSteamID().m_SteamID.ToString() + "\\restartcounter.txt";
 
@@ -45,20 +42,14 @@ namespace NeonWhiteQoL
 
         private static void SaveToFile()
         {
-            if (!SteamManager.Initialized)
-            {
-                return;
-            }
+            if (!SteamManager.Initialized) return;
 
             string path = Application.persistentDataPath + "\\" + SteamUser.GetSteamID().m_SteamID.ToString() + "\\restartcounter.txt";
+
             Stream stream = File.Open(path, FileMode.Create);
-
-
             DataContractJsonSerializer serializer = new(typeof(Dictionary<string, int>));
             serializer.WriteObject(stream, dict);
-
             stream.Close();
-
         }
 
         void Start()
@@ -75,13 +66,9 @@ namespace NeonWhiteQoL
             restarts++;
 
             if (dict.ContainsKey(currentLevel))
-            {
                 dict[currentLevel] = dict[currentLevel] + 1;
-            }
             else
-            {
                 dict[currentLevel] = 1;
-            }
             SaveToFile();
         }
 

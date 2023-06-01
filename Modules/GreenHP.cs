@@ -4,18 +4,18 @@ using TMPro;
 using UnityEngine;
 
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     public class GreenHP
     {
         private static GameObject bossName = null;
         private static GameObject bossHealth = null;
-        private static FieldInfo _lastEnemyHealth = typeof(BossUI).GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo _lastEnemyHealth = typeof(BossUI).GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static void Initialize()
         {
             MethodInfo method = typeof(BossUI).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(GreenHP).GetMethod("OnPostUpdateBossUI"));
+            HarmonyMethod harmonyMethod = new (typeof(GreenHP).GetMethod("OnPostUpdateBossUI"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
         public static void OnPostUpdateBossUI(BossUI __instance)

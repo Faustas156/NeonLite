@@ -4,14 +4,14 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     internal class IGTimer
     {
         private static Game game;
         public static string resulttime = "";
-        private static FieldInfo _currentPlaythrough = typeof(Game).GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
-        private static FieldInfo timerBuilderInfo = typeof(PlayerUI).GetField("timerBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo _currentPlaythrough = typeof(Game).GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo timerBuilderInfo = typeof(PlayerUI).GetField("timerBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
 
 
         public static void Initialize()
@@ -19,11 +19,11 @@ namespace NeonWhiteQoL
             game = Singleton<Game>.Instance;
 
             MethodInfo method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(IGTimer).GetMethod("PostOnSetVisible"));
+            HarmonyMethod harmonyMethod = new (typeof(IGTimer).GetMethod("PostOnSetVisible"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
             method = typeof(PlayerUI).GetMethod("UpdateTimerText", BindingFlags.NonPublic | BindingFlags.Instance);
-            harmonyMethod = new HarmonyMethod(typeof(IGTimer).GetMethod("PreUpdateTimerText"));
+            harmonyMethod = new (typeof(IGTimer).GetMethod("PreUpdateTimerText"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
 
@@ -62,7 +62,7 @@ namespace NeonWhiteQoL
             long currentLevelTimerMilliseconds = Singleton<Game>.Instance.GetCurrentLevelTimerMicroseconds() / 1000;
             int num = (int)(currentLevelTimerMilliseconds / 60000L);
             int num2 = (int)(currentLevelTimerMilliseconds / 1000L) % 60;
-            int num3 = (int)(currentLevelTimerMilliseconds - (long)(num * 60000) - (long)(num2 * 1000));
+            int num3 = (int)(currentLevelTimerMilliseconds - num * 60000 - num2 * 1000);
             timerBuilder.Clear();
             if (num > 99)
             {

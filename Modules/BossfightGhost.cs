@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using System.Reflection;
 
-namespace NeonWhiteQoL
+namespace NeonWhiteQoL.Modules
 {
     internal class BossfightGhost
     {
@@ -9,11 +9,11 @@ namespace NeonWhiteQoL
         public static void Initialize()
         {
             MethodInfo method = typeof(GhostRecorder).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
-            HarmonyMethod harmonyMethod = new HarmonyMethod(typeof(BossfightGhost).GetMethod("RecordGhost"));
+            HarmonyMethod harmonyMethod = new (typeof(BossfightGhost).GetMethod("RecordGhost"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
 
             method = typeof(GhostPlayback).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
-            harmonyMethod = new HarmonyMethod(typeof(BossfightGhost).GetMethod("PreLateUpdate"));
+            harmonyMethod = new (typeof(BossfightGhost).GetMethod("PreLateUpdate"));
             NeonLite.Harmony.Patch(method, harmonyMethod);
         }
 
@@ -25,7 +25,7 @@ namespace NeonWhiteQoL
             return false;
         }
 
-        public static bool PreLateUpdate(GhostPlayback __instance)
+        public static bool PreLateUpdate()
         {
             if (NeonLite.BossGhost_recorder.Value)
                 return true;
