@@ -1,5 +1,6 @@
 ﻿using MelonLoader;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace NeonWhiteQoL
@@ -52,22 +53,22 @@ namespace NeonWhiteQoL
         }
 
         //Load a custom medal - for testing new medals ;)
-        //public override void OnUpdate()
-        //{
-        //    if (!Keyboard.current.hKey.wasPressedThisFrame) return;
-        //    Texture2D Tex2D;
-        //    byte[] FileData;
-        //    string FilePath = "C:\\Users\\faust\\Desktop\\medal testing\\medal.png";
+        public override void OnUpdate()
+        {
+            if (!Keyboard.current.hKey.wasPressedThisFrame) return;
+            Texture2D Tex2D;
+            byte[] FileData;
+            string FilePath = "C:\\Users\\faust\\Desktop\\medal testing\\medal.png";
 
-        //    if (File.Exists(FilePath))
-        //    {
-        //        FileData = File.ReadAllBytes(FilePath);
-        //        Tex2D = new Texture2D(2, 2);
-        //        Tex2D.LoadImage(FileData);
-        //        Texture2D SpriteTexture = Tex2D;
-        //        CommunityMedals.emeraldMedal = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
-        //    }
-        //}
+            if (File.Exists(FilePath))
+            {
+                FileData = File.ReadAllBytes(FilePath);
+                Tex2D = new Texture2D(2, 2);
+                Tex2D.LoadImage(FileData);
+                Texture2D SpriteTexture = Tex2D;
+                CommunityMedals.emeraldMedal = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
+            }
+        }
 
         #region EntryDefinitions
 
@@ -84,6 +85,7 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> InsightScreen_enable;
         public static MelonPreferences_Entry<bool> BossGhost_recorder;
         public static MelonPreferences_Entry<bool> ambience_disabled;
+        public static MelonPreferences_Entry<bool> skipintro_enabler;
 
         public static MelonPreferences_Category neonLite_visuals;
         public static MelonPreferences_Entry<bool> playerUIportrait_display;
@@ -114,6 +116,7 @@ namespace NeonWhiteQoL
             Apocalypse_display = neonLite_config.CreateEntry("Begone Apocalypse", true, description: "Get rid of the Apocalyptic view and replace it with the blue skies.");
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
             ambience_disabled = neonLite_config.CreateEntry("Ambience Remover", false, description: "Is the game too LOUD while muted ? This will remove the ambience from the game.");
+            skipintro_enabler = neonLite_config.CreateEntry("Disable Intro", true, description: "Never hear the fabled \"We're called neons.\" speech when you start up your game. (REQUIRES RESTART)");
 
             neonLite_visuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
             playerUIportrait_display = neonLite_visuals.CreateEntry("Disable the Player portrait", false);

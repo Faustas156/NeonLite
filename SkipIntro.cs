@@ -15,6 +15,9 @@ namespace NeonWhiteQoL
 
         public static void SkippingIntro(IntroCards __instance)
         {
+            if (!NeonLite.skipintro_enabler.Value)
+                return;
+
             if (ran) return;
             __instance.introCards = new IntroCard[0];
             ran = true;
