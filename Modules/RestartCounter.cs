@@ -74,8 +74,8 @@ namespace NeonWhiteQoL.Modules
 
         void OnGUI()
         {
-            GUI.Label(new Rect(10, 40, 100, 70), "Total Restarts: " + dict[currentLevel], style);
-            GUI.Label(new Rect(10, 60, 100, 70), "Restarts: " + restarts, style);
+            GUI.Label(new Rect(10, 40, 100, 70), "Total Attempts: " + dict[currentLevel], style);
+            GUI.Label(new Rect(10, 60, 100, 70), "Attempts: " + restarts, style);
         }
 
     }
