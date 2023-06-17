@@ -83,6 +83,16 @@ namespace NeonWhiteQoL.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] mikeysealTopaz {
+            get {
+                object obj = ResourceManager.GetObject("mikeysealTopaz", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] uiCrystal_Amethyst {
             get {
                 object obj = ResourceManager.GetObject("uiCrystal_Amethyst", resourceCulture);
@@ -96,6 +106,16 @@ namespace NeonWhiteQoL.Properties {
         internal static byte[] uiCrystal_Emerald {
             get {
                 object obj = ResourceManager.GetObject("uiCrystal_Emerald", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] uiCrystal_Topaz {
+            get {
+                object obj = ResourceManager.GetObject("uiCrystal_Topaz", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -126,6 +146,16 @@ namespace NeonWhiteQoL.Properties {
         internal static byte[] uiMedal_Purple {
             get {
                 object obj = ResourceManager.GetObject("uiMedal_Purple", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] uiMedal_Topaz {
+            get {
+                object obj = ResourceManager.GetObject("uiMedal_Topaz", resourceCulture);
                 return ((byte[])(obj));
             }
         }

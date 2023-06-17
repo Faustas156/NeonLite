@@ -32,6 +32,10 @@ Still currently a work in progress and thus it only features a limited amount of
 * HUD Manager
   * Allows you to remove visual changes to the game, such as overlays and portraits in-game!
   * Was the ambience in the game TOO LOUD ??? Now you can toggle to remove it!
+* DidNotFinish Timer
+  * If you're an avid enjoyer of short levels, this mod will show you what your time would have been, if you had finished said run!
+* Attempt Counter
+  * Displays how many attempts you've spent on a certain levels.
 
 ## Installation & Usage
 

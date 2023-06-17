@@ -124,11 +124,17 @@
   <data name="mikeysealEmerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\mikeysealEmerald.png;System.Byte[]</value>
   </data>
+  <data name="mikeysealTopaz" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\mikeysealTopaz.png;System.Byte[]</value>
+  </data>
   <data name="uiCrystal_Amethyst" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\uiCrystal_Amethyst.png;System.Byte[]</value>
   </data>
   <data name="uiCrystal_Emerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\uiCrystal_Emerald.png;System.Byte[]</value>
+  </data>
+  <data name="uiCrystal_Topaz" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\uiCrystal_Topaz.png;System.Byte[]</value>
   </data>
   <data name="uiMedal_Emerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\uiMedal_Emerald.png;System.Byte[]</value>
@@ -138,5 +144,8 @@
   </data>
   <data name="uiMedal_Purple" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\uiMedal_Purple.png;System.Byte[]</value>
+  </data>
+  <data name="uiMedal_Topaz" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\uiMedal_Topaz.png;System.Byte[]</value>
   </data>
 </root>

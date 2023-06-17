@@ -13,7 +13,7 @@ namespace NeonWhiteQoL.Modules
 {
     public class CommunityMedals : MonoBehaviour
     {
-        public static Sprite emeraldMedal, purpleMedal, emeraldCrystal, purpleCrystal, mikeyEmerald, mikeyAmethyst, mikeyOriginal;
+        public static Sprite emeraldMedal, purpleMedal, emeraldCrystal, purpleCrystal, mikeyEmerald, mikeyAmethyst, mikeyOriginal, topazMedal, topazCrystal, mikeyTopaz;
         public static string displaytime = "";
         private static Dictionary<string, long[]> CommunityMedalTimes;
 
@@ -43,10 +43,13 @@ namespace NeonWhiteQoL.Modules
 
             emeraldMedal = LoadSprite(Properties.Resources.uiMedal_Emerald);
             purpleMedal = LoadSprite(Properties.Resources.uiMedal_Purple);
+            topazMedal = LoadSprite(Properties.Resources.uiMedal_Topaz);
             emeraldCrystal = LoadSprite(Properties.Resources.uiCrystal_Emerald);
             purpleCrystal = LoadSprite(Properties.Resources.uiCrystal_Amethyst);
+            topazCrystal = LoadSprite(Properties.Resources.uiCrystal_Topaz);
             mikeyEmerald = LoadSprite(Properties.Resources.mikeysealEmerald);
             mikeyAmethyst = LoadSprite(Properties.Resources.mikeysealAmethyst);
+            mikeyTopaz = LoadSprite(Properties.Resources.mikeysealTopaz);
             mikeyOriginal = LoadSprite(Properties.Resources.uiMedal_MikeyStamp);
 
             MethodInfo method = typeof(LevelInfo).GetMethod("SetLevel");
@@ -91,15 +94,44 @@ namespace NeonWhiteQoL.Modules
 
             var communityTimes = CommunityMedalTimes[level.levelID];
 
+            string TopazMedalTime = Game.GetTimerFormattedMillisecond(communityTimes[2]);
             string AmethystMedalTime = Game.GetTimerFormattedMillisecond(communityTimes[1]);
             string EmeraldMedalTime = Game.GetTimerFormattedMillisecond(communityTimes[0]);
 
+            if (levelStats._timeBestMicroseconds < communityTimes[2])
+            {
+                __instance._levelMedal.sprite = topazMedal;
+                __instance.devTime.SetText(TopazMedalTime);
+                __instance.devTime.color = new Color(0.976f, 0.341f, 0f);
 
-            if (levelStats._timeBestMicroseconds < communityTimes[1])
+                if (level.isSidequest)
+                {
+                    __instance._medalInfoHolder.SetActive(true);
+                    __instance.devStamp.SetActive(true);
+
+                    __instance._crystalHolderFilledImage.sprite = topazCrystal;
+
+                    Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                    if (stamps.Length < 3) return;
+
+                    stamps[1].sprite = mikeyTopaz;
+                    stamps[2].sprite = mikeyTopaz;
+                }
+                else
+                {
+                    Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+                    if (stamps.Length < 3) return;
+
+                    stamps[1].sprite = mikeyTopaz;
+                    stamps[2].sprite = mikeyTopaz;
+                }
+            }
+
+            else if (levelStats._timeBestMicroseconds < communityTimes[1])
             {
                 __instance._levelMedal.sprite = purpleMedal;
-                __instance.devTime.SetText(AmethystMedalTime);
-                __instance.devTime.color = new Color(0.674f, 0.313f, 0.913f);
+                __instance.devTime.SetText(TopazMedalTime);
+                __instance.devTime.color = new Color(0.976f, 0.341f, 0f);
 
                 if (level.isSidequest)
                 {
@@ -151,7 +183,7 @@ namespace NeonWhiteQoL.Modules
                     stamps[2].sprite = mikeyEmerald;
                 }
             }
-            else if (!level.isSidequest) // TODO Double stamp bug is probably in the following lines
+            else if (!level.isSidequest)
             {
                 __instance.devTime.SetText(EmeraldMedalTime);
                 __instance.devTime.color = new Color(0.388f, 0.8f, 0.388f);
@@ -178,6 +210,7 @@ namespace NeonWhiteQoL.Modules
             }
         }
 
+        //        topaz medal time (249, 87, 0), (0.976f, 0.341f, 0f)
         //        amethyst medal time (0.674f, 0.313f, 0.913f);
         //        emerald medal time (99,204,99), (0.388f, 0.8f, 0.388f)
         //        original medal color (107,4,11) (0.420f, 0.015f, 0.043f)
@@ -194,7 +227,16 @@ namespace NeonWhiteQoL.Modules
             LevelStats levelStats = GameDataRef.GetLevelStats(ld.levelID);
             var communityTimes = CommunityMedalTimes[ld.levelID];
 
-            if (levelStats._timeBestMicroseconds < communityTimes[1])
+            if (levelStats._timeBestMicroseconds < communityTimes[2])
+            {
+                __instance._medal.sprite = topazMedal;
+                if (ld.isSidequest)
+                {
+                    __instance._imageLoreFilled.sprite = topazCrystal;
+                }
+            }
+
+            else if (levelStats._timeBestMicroseconds < communityTimes[1])
             {
                 __instance._medal.sprite = purpleMedal;
                 if (ld.isSidequest)

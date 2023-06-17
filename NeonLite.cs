@@ -60,19 +60,19 @@ namespace NeonWhiteQoL
             if (Keyboard.current.f7Key.wasPressedThisFrame)
                 RM.acceptInput = !RM.acceptInput;
 
-            //if (!Keyboard.current.hKey.wasPressedThisFrame) return;
-            //Texture2D Tex2D;
-            //byte[] FileData;
-            //string FilePath = "C:\\Users\\faust\\Desktop\\medal testing\\medal.png";
+            if (!Keyboard.current.hKey.wasPressedThisFrame) return;
+            Texture2D Tex2D;
+            byte[] FileData;
+            string FilePath = "C:\\Users\\faust\\Desktop\\medal testing\\medal.png";
 
-            //if (File.Exists(FilePath))
-            //{
-            //    FileData = File.ReadAllBytes(FilePath);
-            //    Tex2D = new Texture2D(2, 2);
-            //    Tex2D.LoadImage(FileData);
-            //    Texture2D SpriteTexture = Tex2D;
-            //    CommunityMedals.emeraldMedal = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
-            //}
+            if (File.Exists(FilePath))
+            {
+                FileData = File.ReadAllBytes(FilePath);
+                Tex2D = new Texture2D(2, 2);
+                Tex2D.LoadImage(FileData);
+                Texture2D SpriteTexture = Tex2D;
+                CommunityMedals.emeraldMedal = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
+            }
         }
 
         #region EntryDefinitions
