@@ -74,8 +74,10 @@ namespace NeonWhiteQoL.Modules
 
         void OnGUI()
         {
-            GUI.Label(new Rect(10, 40, 100, 70), "Total Attempts: " + dict[currentLevel], style);
-            GUI.Label(new Rect(10, 60, 100, 70), "Attempts: " + restarts, style);
+            if (NeonLite.restarts_total.Value)
+                GUI.Label(new Rect(10, 40, 100, 70), "Total Attempts: " + dict[currentLevel], style);
+            if (NeonLite.restarts_session.Value)
+                GUI.Label(new Rect(10, 60, 100, 70), "Attempts: " + restarts, style);
         }
 
     }

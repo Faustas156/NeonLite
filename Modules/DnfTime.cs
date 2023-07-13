@@ -19,7 +19,7 @@ namespace NeonWhiteQoL.Modules
 
         public static void PostOnTriggerStay(ref LevelGate __instance)
         {
-            if (__instance.Unlocked || timeFrozen) return;
+            if (__instance.Unlocked || timeFrozen || !NeonLite.dnf_enabler.Value) return;
 
             timeFrozen = true;
             GameObject frozenTime = UnityEngine.Object.Instantiate(RM.ui.timerText.gameObject, RM.ui.timerText.transform);

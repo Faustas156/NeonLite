@@ -32,10 +32,9 @@ namespace NeonWhiteQoL
             BegoneApocalypse.Initialize();
             BossfightGhost.Initialize();
             HUDManager.Initialize();
-            LevelRushHelper.Initialize();
+            //LevelRushHelper.Initialize();
             RestartCounter.Initialize();
             DnfTime.Initialize();
-            //LevelRushHelper.Initialize();
             //GameObject text = new GameObject("Text", typeof(Text));
             _ = new GameObject("SessionTimer", typeof(SessionTimer));
             modObject.AddComponent<CheaterBanlist>();
@@ -57,8 +56,8 @@ namespace NeonWhiteQoL
         //Load a custom medal - for testing new medals ;)
         public override void OnUpdate()
         {
-            if (Keyboard.current.f7Key.wasPressedThisFrame)
-                RM.acceptInput = !RM.acceptInput;
+            //if (Keyboard.current.f7Key.wasPressedThisFrame)
+            //    RM.acceptInput = !RM.acceptInput;
 
             if (!Keyboard.current.hKey.wasPressedThisFrame) return;
             Texture2D Tex2D;
@@ -91,6 +90,9 @@ namespace NeonWhiteQoL
         public static MelonPreferences_Entry<bool> BossGhost_recorder;
         public static MelonPreferences_Entry<bool> ambience_disabled;
         public static MelonPreferences_Entry<bool> skipintro_enabler;
+        public static MelonPreferences_Entry<bool> dnf_enabler;
+        public static MelonPreferences_Entry<bool> restarts_total;
+        public static MelonPreferences_Entry<bool> restarts_session;
 
         public static MelonPreferences_Category neonLite_visuals;
         public static MelonPreferences_Entry<bool> playerUIportrait_display;
@@ -105,7 +107,6 @@ namespace NeonWhiteQoL
 
         #endregion
 
-        [Obsolete]
         public override void OnApplicationStart()
         {
             neonLite_config = MelonPreferences.CreateCategory("NeonLite Settings");
@@ -122,6 +123,9 @@ namespace NeonWhiteQoL
             BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
             ambience_disabled = neonLite_config.CreateEntry("Ambience Remover", false, description: "Is the game too LOUD while muted ? This will remove the ambience from the game.");
             skipintro_enabler = neonLite_config.CreateEntry("Disable Intro", true, description: "Never hear the fabled \"We're called neons.\" speech when you start up your game. (REQUIRES RESTART)");
+            dnf_enabler = neonLite_config.CreateEntry("DNF", true, description: "Shows your potential time if you didn't finish the level.");
+            restarts_total = neonLite_config.CreateEntry("Show total Restarts", true, description: "Shows the total amout of restarts for a level.");
+            restarts_session = neonLite_config.CreateEntry("Show session restarts", true, description: "Shows the amout of restarts for a level during the current session.");
 
             neonLite_visuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
             playerUIportrait_display = neonLite_visuals.CreateEntry("Disable the Player portrait", false);
