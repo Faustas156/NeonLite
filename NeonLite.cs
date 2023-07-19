@@ -32,12 +32,12 @@ namespace NeonWhiteQoL
             BegoneApocalypse.Initialize();
             BossfightGhost.Initialize();
             HUDManager.Initialize();
-            LevelRushHelper.Initialize();
+            //LevelRushHelper.Initialize();
             RestartCounter.Initialize();
             DnfTime.Initialize();
-            //LevelRushHelper.Initialize();
             //GameObject text = new GameObject("Text", typeof(Text));
             _ = new GameObject("SessionTimer", typeof(SessionTimer));
+            _ = new GameObject("BestRun", typeof(BestRun));
             modObject.AddComponent<CheaterBanlist>();
             modObject.AddComponent<CommunityMedals>();
 

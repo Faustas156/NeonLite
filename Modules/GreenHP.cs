@@ -10,7 +10,7 @@ namespace NeonWhiteQoL.Modules
     {
         private static GameObject bossName = null;
         private static GameObject bossHealth = null;
-        private static readonly FieldInfo _lastEnemyHealth = typeof(BossUI).GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static FieldInfo _lastEnemyHealth = typeof(BossUI).GetField("_lastEnemyHealth", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static void Initialize()
         {
@@ -33,7 +33,7 @@ namespace NeonWhiteQoL.Modules
 
             if (bossHealth == null)
             {
-                bossHealth = UnityEngine.Object.Instantiate(bossName, bossName.transform.parent);
+                bossHealth = UnityEngine.Object.Instantiate(bossName, bossName.transform.parent); //this causes a memory leak, it does not get destroyed and is still running 
                 bossHealth.name = "Boss Health Text";
                 bossHealth.transform.localPosition += new Vector3(3, 0, 0);
                 bossHealth.SetActive(true);
