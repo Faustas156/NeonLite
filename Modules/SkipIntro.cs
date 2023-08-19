@@ -1,26 +1,22 @@
 ﻿using HarmonyLib;
-using System.Reflection;
+using MelonLoader;
 
-namespace NeonWhiteQoL.Modules
+namespace NeonLite.Modules
 {
-    public class SkipIntro
+    [HarmonyPatch]
+    public class SkipIntro : Module
     {
-        private static bool ran = false;
-        public static void Initialize()
-        {
-            MethodInfo method = typeof(IntroCards).GetMethod("SetState", BindingFlags.NonPublic | BindingFlags.Instance);
-            HarmonyMethod harmonyMethod = new (typeof(SkipIntro).GetMethod("SkippingIntro"));
-            NeonLite.Harmony.Patch(method, harmonyMethod);
-        }
+        private static MelonPreferences_Entry<bool> skipintro_enabler;
 
-        public static void SkippingIntro(IntroCards __instance)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(IntroCards), "Start")]
+        private static void SkipIntroCards(ref int ___m_state)
         {
-            if (!NeonLite.skipintro_enabler.Value)
-                return;
+            //Must be assigned here because intro is starting too early
+            skipintro_enabler = NeonLite.neonLite_config.CreateEntry("Disable Intro", true, description: "Never hear the fabled \"We're called neons.\" speech when you start up your game. (REQUIRES RESTART)");
 
-            if (ran) return;
-            __instance.introCards = new IntroCard[0];
-            ran = true;
+            if (skipintro_enabler.Value)
+                ___m_state = 2;
         }
     }
 }

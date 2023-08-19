@@ -1,5 +1,4 @@
 using MelonLoader;
-using NeonWhiteQoL;
 using System.Runtime.InteropServices;
 
 // In SDK-style projects such as this one, several assembly attributes that were historically
@@ -18,4 +17,4 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("5f33956d-d43c-45a5-acad-c6e5ace98a5b")]
 
-[assembly: MelonInfo(typeof(NeonLite), "NeonLite", "1.4.2", "Faustas & MOPSKATER")]
+[assembly: MelonInfo(typeof(NeonLite.NeonLite), "NeonLite", "1.4.2", "Faustas & MOPSKATER")]

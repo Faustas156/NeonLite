@@ -1,86 +1,71 @@
 ﻿using HarmonyLib;
-using System.Reflection;
+using MelonLoader;
 using System.Text;
-using TMPro;
 using UnityEngine;
 
-namespace NeonWhiteQoL.Modules
+namespace NeonLite.Modules
 {
-    internal class IGTimer
+    [HarmonyPatch]
+    internal class IGTimer : Module
     {
-        private static Game game;
-        public static string resulttime = "";
-        private static readonly FieldInfo _currentPlaythrough = typeof(Game).GetField("_currentPlaythrough", BindingFlags.Instance | BindingFlags.NonPublic);
-        private static readonly FieldInfo timerBuilderInfo = typeof(PlayerUI).GetField("timerBuilder", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static MelonPreferences_Entry<bool> IGTimer_display;
+        private static MelonPreferences_Entry<Color> IGTimer_color;
 
 
-        public static void Initialize()
+        private static readonly StringBuilder timerBuilder = new();
+
+        public IGTimer()
         {
-            game = Singleton<Game>.Instance;
-
-            MethodInfo method = typeof(MenuScreenResults).GetMethod("OnSetVisible");
-            HarmonyMethod harmonyMethod = new (typeof(IGTimer).GetMethod("PostOnSetVisible"));
-            NeonLite.Harmony.Patch(method, null, harmonyMethod);
-
-            method = typeof(PlayerUI).GetMethod("UpdateTimerText", BindingFlags.NonPublic | BindingFlags.Instance);
-            harmonyMethod = new (typeof(IGTimer).GetMethod("PreUpdateTimerText"));
-            NeonLite.Harmony.Patch(method, harmonyMethod);
+            IGTimer_display = NeonLite.neonLite_config.CreateEntry("Display in-depth in-game timer", true, description: "Allows the modification of the timer and lets you display milliseconds.");
+            IGTimer_color = NeonLite.neonLite_config.CreateEntry("In-game Timer Color", Color.white, description: "Customization settings for the in-game timer, does not apply to result screen time.");
         }
 
-        public static void PostOnSetVisible()
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MenuScreenResults), "OnSetVisible")]
+        private static void PostOnSetVisible(ref MenuScreenResults __instance)
         {
-            if (!NeonLite.IGTimer_display.Value)
-                return;
+            if (!IGTimer_display.Value) return;
 
-            LevelPlaythrough currentPlaythrough = (LevelPlaythrough)_currentPlaythrough.GetValue(game);
-            long microsecondTimer = currentPlaythrough.GetCurrentTimeMicroseconds();
+            long millisecondTimer = NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000;
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(millisecondTimer);
 
+            string resulttime = string.Format("{0:0}:{1:00}.{2:000}",
+                                                timeSpan.Minutes,
+                                                timeSpan.Seconds,
+                                                timeSpan.Milliseconds);
 
-            long millisecondTimer = microsecondTimer / 1000;
-
-            TimeSpan t = TimeSpan.FromMilliseconds(millisecondTimer);
-
-            resulttime = string.Format("{0:0}:{1:00}.{2:000}",
-                                                t.Minutes,
-                                                t.Seconds,
-                                                t.Milliseconds);
-
-            GameObject centiseconds = GameObject.Find("Main Menu/Canvas/Ingame Menu/Menu Holder/Results Panel/Level Time Text");
-
-            TextMeshProUGUI text = centiseconds.GetComponent<TextMeshProUGUI>();
-            text.SetText(resulttime);
-            LevelStats levelStats = GameDataManager.levelStats[game.GetCurrentLevel().levelID];
-            text.color = levelStats.IsNewBest() ? Color.green : Color.white;
+            __instance._resultsScreenLevelTime.SetText(resulttime);
         }
-        public static bool PreUpdateTimerText(PlayerUI __instance)
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerUI), "UpdateTimerText")]
+        private static bool PreUpdateTimerText(ref PlayerUI __instance)
         {
-            if (!NeonLite.IGTimer_display.Value)
-                return true;
+            if (!IGTimer_display.Value) return true;
 
-            StringBuilder timerBuilder = (StringBuilder)timerBuilderInfo.GetValue(__instance);
+            long currentLevelTimerMilliseconds = NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000;
+            timerBuilder.Clear();
 
-            long currentLevelTimerMilliseconds = Singleton<Game>.Instance.GetCurrentLevelTimerMicroseconds() / 1000;
             int num = (int)(currentLevelTimerMilliseconds / 60000L);
             int num2 = (int)(currentLevelTimerMilliseconds / 1000L) % 60;
-            int num3 = (int)(currentLevelTimerMilliseconds - num * 60000 - num2 * 1000);
-            timerBuilder.Clear();
-            if (num > 99)
-            {
-                timerBuilder.Append((char)(num / 100 + 48));
-            }
-            timerBuilder.Append((char)(num / 10 + 48));
-            timerBuilder.Append((char)(num % 10 + 48));
-            timerBuilder.Append(':');
-            timerBuilder.Append((char)(num2 / 10 + 48));
-            timerBuilder.Append((char)(num2 % 10 + 48));
-            timerBuilder.Append(':');
-            timerBuilder.Append((char)(num3 / 100 + 48));
-            num3 %= 100;
-            timerBuilder.Append((char)(num3 / 10 + 48));
-            timerBuilder.Append((char)(num3 % 10 + 48));
-            __instance.timerText.color = NeonLite.IGTimer_color.Value;
-            __instance.timerText.text = timerBuilder.ToString();
+            int num3 = (int)(currentLevelTimerMilliseconds - (num * 60000) - (num2 * 1000));
 
+            if (num > 99)
+                timerBuilder.Append((char)((num / 100) + 48));
+
+            timerBuilder.Append((char)((num / 10) + 48));
+            timerBuilder.Append((char)((num % 10) + 48));
+            timerBuilder.Append(':');
+            timerBuilder.Append((char)((num2 / 10) + 48));
+            timerBuilder.Append((char)((num2 % 10) + 48));
+            timerBuilder.Append(':');
+            timerBuilder.Append((char)((num3 / 100) + 48));
+            num3 %= 100;
+            timerBuilder.Append((char)((num3 / 10) + 48));
+            timerBuilder.Append((char)((num3 % 10) + 48));
+
+            __instance.timerText.color = IGTimer_color.Value;
+            __instance.timerText.text = timerBuilder.ToString();
             return false;
         }
     }

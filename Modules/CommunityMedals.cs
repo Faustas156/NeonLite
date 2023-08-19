@@ -9,7 +9,7 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace NeonWhiteQoL.Modules
+namespace NeonLite.Modules
 {
     public class CommunityMedals : MonoBehaviour
     {
@@ -19,14 +19,10 @@ namespace NeonWhiteQoL.Modules
 
         // to do:
         // FIX SIDEQUEST STAMPS, THEY ARE LITERALLY COPY PASTED . I WAS WORKING ON THEM AT 2 AM .
-        // fix bug where if you select sidequest stamps first --> go to main levels, the stamps will not work properly if selecting a level with a default red ace medal
 
         public static void Initialize()
         {
-            if (!SteamManager.Initialized)
-            {
-                return;
-            }
+            if (!SteamManager.Initialized) return;
 
             string path = Application.persistentDataPath + "\\" + SteamUser.GetSteamID().m_SteamID.ToString() + "\\communitymedals.json ";
             Stream stream = File.Open(path, FileMode.Create);
@@ -53,11 +49,11 @@ namespace NeonWhiteQoL.Modules
             mikeyOriginal = LoadSprite(Properties.Resources.uiMedal_MikeyStamp);
 
             MethodInfo method = typeof(LevelInfo).GetMethod("SetLevel");
-            HarmonyMethod harmonyMethod = new (typeof(CommunityMedals).GetMethod("PostSetLevel"));
+            HarmonyMethod harmonyMethod = new(typeof(CommunityMedals).GetMethod("PostSetLevel"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
 
             method = typeof(MenuButtonLevel).GetMethod("SetLevelData");
-            harmonyMethod = new (typeof(CommunityMedals).GetMethod("PostSetLevelData"));
+            harmonyMethod = new(typeof(CommunityMedals).GetMethod("PostSetLevelData"));
             NeonLite.Harmony.Patch(method, null, harmonyMethod);
         }
 
@@ -255,14 +251,12 @@ namespace NeonWhiteQoL.Modules
             }
         }
 
-        void Start()
-        {
+        private void Start() =>
             StartCoroutine(DownloadMedals());
-        }
 
         public IEnumerator DownloadMedals()
         {
-            using UnityWebRequest webRequest = UnityWebRequest.Get("https://raw.githubusercontent.com/Faustas156/NeonLiteBanList/main/communitymedals.json");
+            using UnityWebRequest webRequest = UnityWebRequest.Get("https://raw.githubusercontent.com/MOPSKATER/NeonLite/main/Resources/communitymedals.json");
             yield return webRequest.SendWebRequest();
 
             switch (webRequest.result)
@@ -276,11 +270,10 @@ namespace NeonWhiteQoL.Modules
                     break;
                 case UnityWebRequest.Result.Success:
                     string timestext = webRequest.downloadHandler.text;
-                    DataContractJsonSerializerSettings Settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
+                    DataContractJsonSerializerSettings Settings = new() { UseSimpleDictionaryFormat = true };
                     DataContractJsonSerializer deserializer = new(typeof(Dictionary<string, long[]>), Settings);
 
                     CommunityMedalTimes = (Dictionary<string, long[]>)deserializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(timestext)));
-                    Debug.Log(CommunityMedalTimes.Count + " hello");
                     Initialize();
                     break;
             }

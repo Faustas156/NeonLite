@@ -1,25 +1,28 @@
 ﻿using HarmonyLib;
-using System.Reflection;
+using MelonLoader;
 using TMPro;
 using UnityEngine;
 
-namespace NeonWhiteQoL.Modules
+namespace NeonLite.Modules
 {
-    internal class DnfTime
+    [HarmonyPatch]
+    internal class DnfTime : Module
     {
         private static bool timeFrozen = false;
-        public static void Initialize()
-        {
-            Singleton<Game>.Instance.OnLevelLoadComplete += () => timeFrozen = false;
+        private static MelonPreferences_Entry<bool> dnf_enabler;
 
-            MethodInfo method = typeof(LevelGate).GetMethod("OnTriggerStay", BindingFlags.NonPublic | BindingFlags.Instance);
-            HarmonyMethod harmonyMethod = new (typeof(DnfTime).GetMethod("PostOnTriggerStay"));
-            NeonLite.Harmony.Patch(method, null, harmonyMethod);
+
+        public DnfTime()
+        {
+            dnf_enabler = NeonLite.neonLite_config.CreateEntry("DNF", true, description: "Shows your potential time if you didn't finish the level.");
+            Singleton<Game>.Instance.OnLevelLoadComplete += () => timeFrozen = false;
         }
 
-        public static void PostOnTriggerStay(ref LevelGate __instance)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(LevelGate), "OnTriggerStay")]
+        private static void PostOnTriggerStay(ref LevelGate __instance)
         {
-            if (__instance.Unlocked || timeFrozen || !NeonLite.dnf_enabler.Value) return;
+            if (!__instance.Unlocked || timeFrozen || !dnf_enabler.Value) return;
 
             timeFrozen = true;
             GameObject frozenTime = UnityEngine.Object.Instantiate(RM.ui.timerText.gameObject, RM.ui.timerText.transform);

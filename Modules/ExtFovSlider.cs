@@ -1,6 +1,7 @@
-﻿namespace NeonWhiteQoL.Modules
+﻿namespace NeonLite.Modules
 {
     internal class ExtFovSlider
     {
+        //TODO
     }
 }

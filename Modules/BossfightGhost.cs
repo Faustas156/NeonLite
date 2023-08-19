@@ -1,38 +1,31 @@
 ﻿using HarmonyLib;
-using System.Reflection;
+using MelonLoader;
 
-namespace NeonWhiteQoL.Modules
+namespace NeonLite.Modules
 {
-    internal class BossfightGhost
+    [HarmonyPatch]
+    internal class BossfightGhost : Module
     {
-        private static readonly FieldInfo m_dontRecord = typeof(GhostRecorder).GetField("m_dontRecord", BindingFlags.Instance | BindingFlags.NonPublic);
-        public static void Initialize()
-        {
-            MethodInfo method = typeof(GhostRecorder).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
-            HarmonyMethod harmonyMethod = new (typeof(BossfightGhost).GetMethod("RecordGhost"));
-            NeonLite.Harmony.Patch(method, harmonyMethod);
+        private static MelonPreferences_Entry<bool> BossGhost_recorder;
 
-            method = typeof(GhostPlayback).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
-            harmonyMethod = new (typeof(BossfightGhost).GetMethod("PreLateUpdate"));
-            NeonLite.Harmony.Patch(method, harmonyMethod);
+        public BossfightGhost() =>
+            BossGhost_recorder = NeonLite.neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
+
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GhostRecorder), "Start")]
+        private static void PostStart(ref bool ___m_dontRecord)
+        {
+            if (BossGhost_recorder.Value)
+                ___m_dontRecord = true;
         }
 
-        public static bool RecordGhost(GhostRecorder __instance)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GhostPlayback), "Start")]
+        private static bool PreStart()
         {
-            RM.ghostRecorder = __instance;
-            if (LevelRush.IsHellRush())
-                m_dontRecord.SetValue(__instance, true);
-            return false;
-        }
-
-        public static bool PreLateUpdate()
-        {
-            if (NeonLite.BossGhost_recorder.Value)
-                return true;
-
             if (Singleton<Game>.Instance.GetCurrentLevel().isBossFight || LevelRush.IsHellRush())
-                return false;
-
+                return BossGhost_recorder.Value;
             return true;
         }
     }

@@ -1,17 +1,19 @@
 ﻿using HarmonyLib;
-using System.Reflection;
+using MelonLoader;
 
-namespace NeonWhiteQoL.Modules
+namespace NeonLite.Modules
 {
-    internal class BegoneApocalypse
+    [HarmonyPatch]
+    internal class BegoneApocalypse : Module
     {
-        public static void Initialize()
-        {
-            MethodInfo method = typeof(MenuScreenMapAesthetics).GetMethod("Start", BindingFlags.Instance | BindingFlags.NonPublic);
-            HarmonyMethod harmonyMethod = new (typeof(BegoneApocalypse).GetMethod("RemoveApocalypse"));
-            NeonLite.Harmony.Patch(method, null, harmonyMethod);
-        }
+        private static MelonPreferences_Entry<bool> Apocalypse_display;
 
-        public static void RemoveApocalypse(MenuScreenMapAesthetics __instance) => __instance.SetApocalypse(!NeonLite.Apocalypse_display.Value);
+        public BegoneApocalypse() =>
+            Apocalypse_display = NeonLite.neonLite_config.CreateEntry("Begone Apocalypse", true, description: "Get rid of the Apocalyptic view and replace it with the blue skies.");
+
+        [HarmonyPostfix()]
+        [HarmonyPatch(typeof(MenuScreenMapAesthetics), "Start")]
+        private static void RemoveApocalypse(MenuScreenMapAesthetics __instance) =>
+            __instance.SetApocalypse(!Apocalypse_display.Value);
     }
 }
