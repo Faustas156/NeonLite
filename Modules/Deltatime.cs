@@ -9,20 +9,20 @@ namespace NeonLite.Modules
     public class Deltatime : Module
     {
         private static GameObject s_deltaTime, s_deltaTimeRush;
-        private static MelonPreferences_Entry<bool> s_PBtracker_display;
+        private static MelonPreferences_Entry<bool> _setting_Deltatime;
 
         private static long _oldPB = -1;
 
         public Deltatime() =>
-            s_PBtracker_display = NeonLite.neonLite_config.CreateEntry("Deltatime", true, description: "Displays a time based on whether or not you got a new personal best.");
+            _setting_Deltatime = NeonLite.Config_NeonLite.CreateEntry("Deltatime", true, description: "Displays a time based on whether or not you got a new personal best.");
 
 
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(LevelStats), "UpdateTimeMicroseconds")]
+        [HarmonyPatch(typeof(Game), "OnLevelWin")]
         public static void PreUpdateTimeMicroseconds()
         {
-            if (!s_PBtracker_display.Value) return;
+            if (!_setting_Deltatime.Value) return;
             LevelStats levelStats = GameDataManager.levelStats[NeonLite.Game.GetCurrentLevel().levelID];
             LevelRushData bestLevelRushData = LevelRush.GetLevelRushDataByType(LevelRush.GetCurrentLevelRushType());
             _oldPB = LevelRush.IsLevelRush() ? (LevelRush.IsHellRush() ? bestLevelRushData.bestTime_HellMicroseconds : bestLevelRushData.bestTime_HeavenMicroseconds) : levelStats.GetTimeBestMicroseconds();
@@ -32,7 +32,7 @@ namespace NeonLite.Modules
         [HarmonyPatch(typeof(MenuScreenResults), "OnSetVisible")]
         public static void PostSetVisible()
         {
-            if (!s_PBtracker_display.Value) return;
+            if (!_setting_Deltatime.Value) return;
 
             bool isLevelRush = LevelRush.IsLevelRush();
             long newTime = isLevelRush ? LevelRush.GetCurrentLevelRushTimerMicroseconds() : NeonLite.Game.GetCurrentLevelTimerMicroseconds();
@@ -47,8 +47,7 @@ namespace NeonLite.Modules
                                                 timeSpan.Seconds,
                                                 timeSpan.Milliseconds);
 
-            Debug.Log(deltaTimeString);
-
+            Debug.Log(bestTime + "   " + newTime);
 
             TextMeshProUGUI text;
             GameObject levelTimeObject;

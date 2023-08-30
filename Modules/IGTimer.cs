@@ -8,23 +8,23 @@ namespace NeonLite.Modules
     [HarmonyPatch]
     internal class IGTimer : Module
     {
-        private static MelonPreferences_Entry<bool> IGTimer_display;
-        private static MelonPreferences_Entry<Color> IGTimer_color;
+        private static MelonPreferences_Entry<bool> _setting_IGTimer;
+        private static MelonPreferences_Entry<Color> _setting_IGTimer_Color;
 
 
         private static readonly StringBuilder timerBuilder = new();
 
         public IGTimer()
         {
-            IGTimer_display = NeonLite.neonLite_config.CreateEntry("Display in-depth in-game timer", true, description: "Allows the modification of the timer and lets you display milliseconds.");
-            IGTimer_color = NeonLite.neonLite_config.CreateEntry("In-game Timer Color", Color.white, description: "Customization settings for the in-game timer, does not apply to result screen time.");
+            _setting_IGTimer = NeonLite.Config_NeonLite.CreateEntry("Display in-depth in-game timer", true, description: "Allows the modification of the timer and lets you display milliseconds.");
+            _setting_IGTimer_Color = NeonLite.Config_NeonLite.CreateEntry("In-game Timer Color", Color.white, description: "Customization settings for the in-game timer, does not apply to result screen time.");
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MenuScreenResults), "OnSetVisible")]
         private static void PostOnSetVisible(ref MenuScreenResults __instance)
         {
-            if (!IGTimer_display.Value) return;
+            if (!_setting_IGTimer.Value) return;
 
             long millisecondTimer = NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000;
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(millisecondTimer);
@@ -37,11 +37,28 @@ namespace NeonLite.Modules
             __instance._resultsScreenLevelTime.SetText(resulttime);
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MenuScreenLevelRushComplete), "OnSetVisible")]
+        private static void PostOnSetVisible(ref MenuScreenLevelRushComplete __instance)
+        {
+            if (!_setting_IGTimer.Value) return;
+
+            long millisecondTimer = NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000;
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(millisecondTimer);
+
+            string resulttime = string.Format("{0:0}:{1:00}.{2:000}",
+                                                timeSpan.Minutes,
+                                                timeSpan.Seconds,
+                                                timeSpan.Milliseconds);
+
+            __instance.timeText.SetText(resulttime);
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerUI), "UpdateTimerText")]
         private static bool PreUpdateTimerText(ref PlayerUI __instance)
         {
-            if (!IGTimer_display.Value) return true;
+            if (!_setting_IGTimer.Value) return true;
 
             long currentLevelTimerMilliseconds = NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000;
             timerBuilder.Clear();
@@ -64,7 +81,7 @@ namespace NeonLite.Modules
             timerBuilder.Append((char)((num3 / 10) + 48));
             timerBuilder.Append((char)((num3 % 10) + 48));
 
-            __instance.timerText.color = IGTimer_color.Value;
+            __instance.timerText.color = _setting_IGTimer_Color.Value;
             __instance.timerText.text = timerBuilder.ToString();
             return false;
         }

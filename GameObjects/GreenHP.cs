@@ -12,7 +12,7 @@ namespace NeonLite.GameObjects
 
         public static void Initialize()
         {
-            if (!NeonLite.GreenHP_display.Value || !NeonLite.Game.GetCurrentLevel().isBossFight) return;
+            if (!NeonLite.s_Setting_GreenHP.Value || !NeonLite.Game.GetCurrentLevel().isBossFight) return;
 
             GameObject bossName = RM.ui.bossUI.nameText.gameObject;
             GameObject bossHealth = Instantiate(bossName, bossName.transform.parent);

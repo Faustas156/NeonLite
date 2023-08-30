@@ -13,7 +13,7 @@ namespace NeonLite.GameObjects
 
         private void Start()
         {
-            if (!NeonLite.SessionTimer_display.Value)
+            if (!NeonLite.s_Setting_SessionTimer.Value)
             {
                 Destroy(this);
                 return;

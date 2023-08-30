@@ -9,11 +9,11 @@ namespace NeonLite.GameObjects
         {
             AudioController audioController = SingletonMonoBehaviour<AudioController>.Instance;
             GameObject WhitePortrait = RM.ui.portraitUI.gameObject;
-            GameObject Backstory = WhitePortrait.transform.parent.gameObject;
+            GameObject Backstory = WhitePortrait.transform.parent.Find("Backstory").gameObject;
 
-            audioController.ambienceSoundEnabled = !NeonLite.ambience_disabled.Value;
-            WhitePortrait.SetActive(!NeonLite.playerUIportrait_display.Value);
-            Backstory.SetActive(!NeonLite.backstory_display.Value);
+            audioController.ambienceSoundEnabled = !NeonLite.s_Setting_DisableAmbiance.Value;
+            WhitePortrait.SetActive(!NeonLite.s_Setting_PlayerPortrait.Value);
+            Backstory.SetActive(!NeonLite.s_Setting_BackstoryDisplay.Value);
         }
     }
 }

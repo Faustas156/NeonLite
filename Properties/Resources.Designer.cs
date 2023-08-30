@@ -83,9 +83,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] mikeysealAmethyst {
+        internal static byte[] CrystalAmethyst {
             get {
-                object obj = ResourceManager.GetObject("mikeysealAmethyst", resourceCulture);
+                object obj = ResourceManager.GetObject("CrystalAmethyst", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -93,9 +93,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] mikeysealEmerald {
+        internal static byte[] CrystalEmerald {
             get {
-                object obj = ResourceManager.GetObject("mikeysealEmerald", resourceCulture);
+                object obj = ResourceManager.GetObject("CrystalEmerald", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -103,9 +103,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] mikeysealTopaz {
+        internal static byte[] CrystalSapphire {
             get {
-                object obj = ResourceManager.GetObject("mikeysealTopaz", resourceCulture);
+                object obj = ResourceManager.GetObject("CrystalSapphire", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -113,9 +113,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] uiCrystal_Amethyst {
+        internal static byte[] CrystalTopaz {
             get {
-                object obj = ResourceManager.GetObject("uiCrystal_Amethyst", resourceCulture);
+                object obj = ResourceManager.GetObject("CrystalTopaz", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -123,9 +123,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] uiCrystal_Emerald {
+        internal static byte[] DiscordDLL {
             get {
-                object obj = ResourceManager.GetObject("uiCrystal_Emerald", resourceCulture);
+                object obj = ResourceManager.GetObject("DiscordDLL", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -133,9 +133,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] uiCrystal_Topaz {
+        internal static byte[] MedalAmethyst {
             get {
-                object obj = ResourceManager.GetObject("uiCrystal_Topaz", resourceCulture);
+                object obj = ResourceManager.GetObject("MedalAmethyst", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -143,9 +143,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] uiMedal_Emerald {
+        internal static byte[] MedalEmerald {
             get {
-                object obj = ResourceManager.GetObject("uiMedal_Emerald", resourceCulture);
+                object obj = ResourceManager.GetObject("MedalEmerald", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -153,9 +153,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] uiMedal_MikeyStamp {
+        internal static byte[] MedalSapphire {
             get {
-                object obj = ResourceManager.GetObject("uiMedal_MikeyStamp", resourceCulture);
+                object obj = ResourceManager.GetObject("MedalSapphire", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -163,9 +163,9 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] uiMedal_Purple {
+        internal static byte[] MedalTopaz {
             get {
-                object obj = ResourceManager.GetObject("uiMedal_Purple", resourceCulture);
+                object obj = ResourceManager.GetObject("MedalTopaz", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -173,9 +173,49 @@ namespace NeonLite.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
         /// </summary>
-        internal static byte[] uiMedal_Topaz {
+        internal static byte[] MikeyAmethyst {
             get {
-                object obj = ResourceManager.GetObject("uiMedal_Topaz", resourceCulture);
+                object obj = ResourceManager.GetObject("MikeyAmethyst", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] MikeyDefault {
+            get {
+                object obj = ResourceManager.GetObject("MikeyDefault", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] MikeyEmerald {
+            get {
+                object obj = ResourceManager.GetObject("MikeyEmerald", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] MikeySapphire {
+            get {
+                object obj = ResourceManager.GetObject("MikeySapphire", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        internal static byte[] MikeyTopaz {
+            get {
+                object obj = ResourceManager.GetObject("MikeyTopaz", resourceCulture);
                 return ((byte[])(obj));
             }
         }

@@ -16,7 +16,7 @@ namespace NeonLite.Modules
 
         public static void Initialize()
         {
-            if (NeonLite.LevelTimer_display.Value && !(LevelRush.IsLevelRush() && LevelRush.IsHellRush()))
+            if (NeonLite.s_Setting_LevelTimer.Value && !(LevelRush.IsLevelRush() && LevelRush.IsHellRush()))
                 new GameObject("LevelTimer", typeof(LevelTimer));
         }
 
