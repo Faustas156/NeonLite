@@ -1,121 +1,124 @@
 ﻿using MelonLoader;
+using NeonLite.GameObjects;
+using NeonLite.Modules;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Module = NeonLite.Modules.Module;
 
-namespace NeonWhiteQoL
+namespace NeonLite
 {
     public class NeonLite : MelonMod
     {
+        public static NeonLite Instance;
+        public static Game Game { get; private set; }
+        public static Module[] Modules { get; private set; }
         public static new HarmonyLib.Harmony Harmony { get; private set; }
 
-        [Obsolete]
+        public static readonly BindingFlags s_publicStatic = BindingFlags.Public | BindingFlags.Static;
+        public static readonly BindingFlags s_privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
+        public static readonly BindingFlags s_privateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
+
+        #region EntryDefinitions
+
+        public static MelonPreferences_Category Config_NeonLite { get; private set; }
+        public static MelonPreferences_Entry<bool> s_Setting_SessionTimer;
+        public static MelonPreferences_Entry<bool> s_Setting_LevelTimer;
+        public static MelonPreferences_Entry<bool> s_Setting_GreenHP;
+        public static MelonPreferences_Entry<bool> s_Setting_DisableAmbiance;
+        public static MelonPreferences_Entry<bool> s_Setting_RestartsTotal;
+        public static MelonPreferences_Entry<bool> s_Setting_RestartsSession;
+
+        public static MelonPreferences_Category Config_NeonLiteVisuals { get; private set; }
+        public static MelonPreferences_Entry<bool> s_Setting_PlayerPortrait;
+        public static MelonPreferences_Entry<bool> s_Setting_BackstoryDisplay;
+        //public static MelonPreferences_Entry<bool> bottombar_display;
+        //public static MelonPreferences_Entry<bool> damageOverlay_display;
+        //public static MelonPreferences_Entry<bool> boostOverlay_display;
+        //public static MelonPreferences_Entry<bool> shockerOverlay_display;
+        //public static MelonPreferences_Entry<bool> telefragOverlay_display;
+
+        #endregion
+
+
+        public override void OnApplicationStart()
+        {
+            Instance = this;
+
+            Config_NeonLite = MelonPreferences.CreateCategory("NeonLite Settings");
+            s_Setting_GreenHP = Config_NeonLite.CreateEntry("Enable Neon Green HP", true, description: "Displays the HP of Neon Green in Text Form.");
+            s_Setting_DisableAmbiance = Config_NeonLite.CreateEntry("Ambience Remover", false, description: "Is the game too LOUD while muted? This will remove the ambience from the game.");
+            s_Setting_SessionTimer = Config_NeonLite.CreateEntry("Display Session Timer", true, description: "Tracks your current play session time. (REQUIRES RESTART)");
+            s_Setting_LevelTimer = Config_NeonLite.CreateEntry("Display Level Timer", true, description: "Tracks the time you've spent on the current level you're playing.");
+            s_Setting_RestartsTotal = Config_NeonLite.CreateEntry("Show total Restarts", true, description: "Shows the total amout of restarts for a level.");
+            s_Setting_RestartsSession = Config_NeonLite.CreateEntry("Show session restarts", true, description: "Shows the amout of restarts for a level during the current session.");
+
+            Config_NeonLiteVisuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
+            s_Setting_PlayerPortrait = Config_NeonLiteVisuals.CreateEntry("Disable the Player portrait", false);
+            s_Setting_BackstoryDisplay = Config_NeonLiteVisuals.CreateEntry("Disable backstory", false);
+
+            //bottombar_display = neonLite_visuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
+            //damageOverlay_display = neonLite_visuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
+            //boostOverlay_display = neonLite_visuals.CreateEntry("Disable boost overlay", false, description: "Removes the overlay around your screen when you are getting a speed boost.");
+            //shockerOverlay_display = neonLite_visuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
+            //telefragOverlay_display = neonLite_visuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
+        }
+
         public override void OnApplicationLateStart()
         {
-            Game game = Singleton<Game>.Instance;
-            GameObject modObject = new GameObject();
-            UnityEngine.Object.DontDestroyOnLoad(modObject);
-
-            game.OnLevelLoadComplete += OnLevelLoadComplete;
+            Game = Singleton<Game>.Instance;
+            Game.OnLevelLoadComplete += OnLevelLoadComplete;
 
             Harmony = new HarmonyLib.Harmony("NeonLite");
 
-            PBtracker.Initialize();
-            GreenHP.Initialize();
-            SkipIntro.Initialize();
-            RemoveMission.Initialize();
-            LeaderboardFix.Initialize();
-            CommunityMedals.Initialize();
-            ShowcaseBypass.Initialize();
-            IGTimer.Initialize();
-            BegoneApocalypse.Initialize();
-            BossfightGhost.Initialize();
-            HUDManager.Initialize();
-            //GameObject text = new GameObject("Text", typeof(Text));
-            _ = new GameObject("SessionTimer", typeof(SessionTimer));
-            modObject.AddComponent<CheaterBanlist>();
+            IEnumerable<Type> types = Assembly.GetAssembly(typeof(Module)).GetTypes().Where(t => t.IsSubclassOf(typeof(Module)) && !t.IsAbstract && t.IsClass);
+            Modules = new Module[types.Count()];
+            for (int i = 0; i < types.Count(); i++)
+                Modules[i] = (Module)Activator.CreateInstance(types.ElementAt(i));
 
-            Debug.Log("Initialization complete.");
+            GameObject modObject = new("Neon Lite");
+            UnityEngine.Object.DontDestroyOnLoad(modObject);
+
+            modObject.AddComponent<SessionTimer>();
+
+            //TODO LevelRush helper
         }
-        
+
         private void OnLevelLoadComplete()
         {
             if (SceneManager.GetActiveScene().name.Equals("Heaven_Environment"))
                 return;
 
-            GameObject.Find("HUD").AddComponent<HUDManager>();
-            //GameObject.Find("Main Menu").AddComponent<HUDManager>();
+            GreenHP.Initialize();
+            HUDManager.Initialize();
+            LevelTimer.Initialize();
+            RestartCounter.Initialize();
+            //RocketHealthIndicator.Initialize(); //On ice cuz of the private ObjectPool.Pool class :/
         }
 
-        //Load a custom medal - for testing new medals ;)
-        //public override void OnUpdate()
-        //{
-        //    if (!Keyboard.current.hKey.wasPressedThisFrame) return;
-        //    Texture2D Tex2D;
-        //    byte[] FileData;
-        //    string FilePath = "C:\\Users\\faust\\Desktop\\medal testing\\medal.png";
+        public override void OnUpdate() => DiscordActivity.DiscordInstance?.RunCallbacks();
 
-        //    if (File.Exists(FilePath))
-        //    {
-        //        FileData = File.ReadAllBytes(FilePath);
-        //        Tex2D = new Texture2D(2, 2);
-        //        Tex2D.LoadImage(FileData);
-        //        Texture2D SpriteTexture = Tex2D;
-        //        CommunityMedals.emeraldMedal = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
-        //    }
-        //}
-
-        public static MelonPreferences_Category neonLite_config;
-        public static MelonPreferences_Entry<bool> CommunityMedals_enable;
-        public static MelonPreferences_Entry<bool> PBtracker_display;
-        public static MelonPreferences_Entry<bool> SessionTimer_display;
-        public static MelonPreferences_Entry<bool> LevelTimer_display;
-        public static MelonPreferences_Entry<bool> IGTimer_display;
-        public static MelonPreferences_Entry<Color> IGTimer_color;
-        public static MelonPreferences_Entry<bool> RemoveMission_display;
-        public static MelonPreferences_Entry<bool> GreenHP_display;
-        public static MelonPreferences_Entry<bool> Apocalypse_display;
-        public static MelonPreferences_Entry<bool> InsightScreen_enable;
-        public static MelonPreferences_Entry<bool> BossGhost_recorder;
-        public static MelonPreferences_Entry<bool> ambience_disabled;
-
-        public static MelonPreferences_Category neonLite_visuals;
-        public static MelonPreferences_Entry<bool> playerUIportrait_display;
-        public static MelonPreferences_Entry<bool> backstory_display;
-        public static MelonPreferences_Entry<bool> bottombar_display;
-        public static MelonPreferences_Entry<bool> damageOverlay_display;
-        public static MelonPreferences_Entry<bool> boostOverlay_display;
-        public static MelonPreferences_Entry<bool> shockerOverlay_display;
-        public static MelonPreferences_Entry<bool> telefragOverlay_display;
-        public static MelonPreferences_Entry<bool> uiScreenFader_display;
-        //public static MelonPreferences_Entry<bool> whiteResult_display;
-
-        [Obsolete]
-        public override void OnApplicationStart()
+        //Dev debug features
+        public override void OnFixedUpdate()
         {
-            neonLite_config = MelonPreferences.CreateCategory("NeonLite Settings");
-            CommunityMedals_enable = neonLite_config.CreateEntry("Enable Community Medals", true, description: "Enables Custom Community Medals that change sprites in the game.");
-            PBtracker_display = neonLite_config.CreateEntry("Enable PB Tracker", true, description: "Displays a time based on whether or not you got a new personal best.");
-            SessionTimer_display = neonLite_config.CreateEntry("Display Session Timer", true, description: "Tracks your current play session time.");
-            LevelTimer_display = neonLite_config.CreateEntry("Display Level Timer", true, description: "Tracks the time you've spent on the current level you're playing.");
-            IGTimer_display = neonLite_config.CreateEntry("Display in-depth in-game timer", true, description: "Allows the modification of the timer and lets you display milliseconds.");
-            IGTimer_color = neonLite_config.CreateEntry("In-game Timer Color", Color.white, description: "Customization settings for the in-game timer, does not apply to result screen time.");
-            GreenHP_display = neonLite_config.CreateEntry("Enable Neon Green HP", true, description: "Displays the HP of Neon Green in Text Form.");
-            RemoveMission_display = neonLite_config.CreateEntry("Remove Start Mission button in Job Archive", false, description: "Sick and tired of the big, bulky \"Start Mission\" button that appears? Now you can get rid of it, forever!");
-            InsightScreen_enable = neonLite_config.CreateEntry("Insight Screen Remover", false, description: "No longer displays the \"Insight Crystal Dust (Empty)\" screen after finishing a sidequest level.");
-            Apocalypse_display = neonLite_config.CreateEntry("Begone Apocalypse", true, description: "Get rid of the Apocalyptic view and replace it with the blue skies.");
-            BossGhost_recorder = neonLite_config.CreateEntry("Boss Recorder", true, description: "Allows you to record and playback a ghost for the boss levels.");
-            ambience_disabled = neonLite_config.CreateEntry("Ambience Remover", false, description: "Is the game too LOUD while muted ? This will remove the ambience from the game.");
+            return;
+            if (Keyboard.current.f7Key.wasPressedThisFrame)
+                RM.acceptInput = !RM.acceptInput;
 
-            neonLite_visuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
-            playerUIportrait_display = neonLite_visuals.CreateEntry("Disable the Player portrait", false);
-            backstory_display = neonLite_visuals.CreateEntry("Disable backstory", false);
-            bottombar_display = neonLite_visuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
-            damageOverlay_display = neonLite_visuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
-            boostOverlay_display = neonLite_visuals.CreateEntry("Disable boost overlay", false, description: "Removes the overlay around your screen when you are getting a speed boost.");
-            shockerOverlay_display = neonLite_visuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
-            telefragOverlay_display = neonLite_visuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
-            uiScreenFader_display = neonLite_visuals.CreateEntry("Disable white screen fader", false, description: "Use in combination with shocker/book of life overlay!");
-            //whiteResult_display = neonLite_visuals.CreateEntry("Disable white on result screen", false, description: "Gets rid of Neon White during the level completion screen.");
+            if (!Keyboard.current.hKey.wasPressedThisFrame) return;
+
+            string FilePath = "C:\\medals\\medal.png";
+            if (File.Exists(FilePath))
+            {
+                Texture2D Tex2D;
+                byte[] FileData;
+                FileData = File.ReadAllBytes(FilePath);
+                Tex2D = new Texture2D(2, 2);
+                Tex2D.LoadImage(FileData);
+                Texture2D SpriteTexture = Tex2D;
+                typeof(CommunityMedals).GetField("emeraldMedal", s_privateStatic).SetValue(null, Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f));
+            }
         }
     }
 }

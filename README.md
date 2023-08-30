@@ -31,20 +31,26 @@ Still currently a work in progress and thus it only features a limited amount of
   * Changes the visual aspects of the central heaven, making it more beautiful.
 * HUD Manager
   * Allows you to remove visual changes to the game, such as overlays and portraits in-game!
-  * Was the ambience in the game TOO LOUD ??? Now you can toggle to remove it! (thanks to steel for suggesting this!)
+  * Was the ambience in the game TOO LOUD ??? Now you can toggle to remove it!
+* DidNotFinish Timer
+  * If you're an avid enjoyer of short levels, this mod will show you what your time would have been, if you had finished said run!
+* Attempt Counter
+  * Displays how many attempts you've spent on a certain levels.
 
 ## Installation & Usage
 
 1. Download [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest) and install it onto your `Neon White.exe`.
 2. Run the game once. This will create required folders; you should see a splash screen if you installed the modloader correctly.
-3. Download this version of [Melon Preferences Manager](https://cdn.discordapp.com/attachments/991005812094799922/1109821695805640744/melonprefsmanager.rar), and put the .dlls from that zip into the `mods` folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White\Mods`)
+3. Download this version of [Melon Preferences Manager](https://cdn.discordapp.com/attachments/991005812094799922/1109821695805640744/melonprefsmanager.rar), and drag all the files from that zip into the root folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White`)
 4. Download the `NeonLite.dll` from the [Releases page](https://github.com/Faustas156/NeonLite/releases/) and drop it in the mods folder.
 5. Once it's all working, press F5 in-game to change the settings for the mod.
 
 ## SPECIAL CREDITS:
 
 * [MOPSKATER](https://github.com/MOPSKATER) for helping with 90% of the mods here. :)
-* [Pandora's Fox](https://github.com/PandorasFox), i borrowed some of her code for the Remove "Start Mission" button mod. 
+* [Makarew](https://github.com/Makarew), helped with custom level issues.
+* [Pandora's Fox](https://github.com/PandorasFox), stole code for the "Remove Mission" mod.
+* [Verrix](https://discord.gg/SFnWweK8r9), help with community medal sprites.
 
 ### Additional Notes
 
