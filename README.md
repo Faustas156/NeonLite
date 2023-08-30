@@ -53,6 +53,7 @@ Still currently a work in progress and thus it only features a limited amount of
 * [Makarew](https://github.com/Makarew), helped with custom level issues.
 * [Pandora's Fox](https://github.com/PandorasFox), stole code for the "Remove Mission" mod.
 * [Verrix](https://discord.gg/SFnWweK8r9), help with community medal sprites.
+* [The Gang](https://github.com/steelLMG), updating the medal times
 
 ### Additional Notes
 
