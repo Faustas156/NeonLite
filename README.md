@@ -28,6 +28,7 @@ Still currently a work in progress and thus it only features a limited amount of
   * Shows how much you deviate from your pb.
 * Discord Integation
   * You want to tell your friends how many time you are wasting on a particular level? Now your status does exactly that for you. (Messages configurable!)
+  * If this feature causes problems, use `-neonlite_disalble_discord` as start argument to disable discord integration entirely
 * DidNotFinish Timer
   * If you're an avid enjoyer of short levels, this mod will show you what your time would have been, if you had finished said run!
 * More Detailed Timers
