@@ -46,10 +46,11 @@ namespace NeonLite.Modules
         {
             foreach (string arg in System.Environment.GetCommandLineArgs())
             {
-                Debug.Log(arg);
-                if (arg == "-neonlite_disalble_discord")
-                    Debug.Log("FOUND!!!");
-                    //return;
+                if (arg == "-neonlite_disable_discord")
+                {
+                    Debug.Log("-neonlite_disable_discord found. Disabling Discord Module");
+                    return;
+                }
             }
 
             PlaceDiscordDLL();
