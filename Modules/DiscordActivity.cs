@@ -3,9 +3,11 @@ using HarmonyLib;
 using I2.Loc;
 using MelonLoader;
 using NeonLite.GameObjects;
+using System.Diagnostics;
 using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 namespace NeonLite.Modules
 {
@@ -43,7 +45,13 @@ namespace NeonLite.Modules
         public DiscordActivity()
         {
             PlaceDiscordDLL();
-            DiscordInstance = new(1143203433067843676L, (ulong)CreateFlags.Default);
+            if (Process.GetProcessesByName("Discord").Length == 0)
+            {
+                Debug.LogError("Discord is not running");
+                return;
+            }
+
+            DiscordInstance = new(1143203433067843676L, (ulong)CreateFlags.NoRequireDiscord);
             if (DiscordInstance == null) return;
 
             _setting_DiscordActivity = Config_Discord.CreateEntry("Discord Activity", true, description: "Shows your current ingame state in Discord");
