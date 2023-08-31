@@ -44,7 +44,16 @@ namespace NeonLite.Modules
 
         public DiscordActivity()
         {
+            foreach (string arg in System.Environment.GetCommandLineArgs())
+            {
+                Debug.Log(arg);
+                if (arg == "-neonlite_disalble_discord")
+                    Debug.Log("FOUND!!!");
+                    //return;
+            }
+
             PlaceDiscordDLL();
+            
             if (Process.GetProcessesByName("Discord").Length == 0)
             {
                 Debug.LogError("Discord is not running");
