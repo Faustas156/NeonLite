@@ -1,7 +1,13 @@
-# NeonLite
+# NeonLite 
  The Quality of Life Mod for All Your Neon White needs!
 
 Still currently a work in progress and thus it only features a limited amount of mods.
+
+This version of NeonLite is currently suspended due to my lack of interest in developing the mod. May come back in the future.. possibly..
+
+New up-to-date version of NeonLite maintained by MOPSKATER (also has helped with development of the mod): [here! NeonLite v2](https://github.com/MOPSKATER/NeonLite)
+
+**[current version: v1.4.2 | dev build version: pre-1.5.0]**
 
 ## Current Mods
 
@@ -31,7 +37,7 @@ Still currently a work in progress and thus it only features a limited amount of
   * Changes the visual aspects of the central heaven, making it more beautiful.
 * HUD Manager
   * Allows you to remove visual changes to the game, such as overlays and portraits in-game!
-  * Was the ambience in the game TOO LOUD ??? Now you can toggle to remove it! (thanks to steel for suggesting this!)
+  * Was the ambience in the game TOO LOUD ??? Now you can toggle to remove it!
 
 ## Installation & Usage
 
