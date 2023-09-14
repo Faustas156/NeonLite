@@ -117,7 +117,10 @@ namespace NeonLite
                 Tex2D = new Texture2D(2, 2);
                 Tex2D.LoadImage(FileData);
                 Texture2D SpriteTexture = Tex2D;
-                typeof(CommunityMedals).GetField("emeraldMedal", s_privateStatic).SetValue(null, Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f));
+                for (int i = 0; i < CommunityMedals.Medals.Length; i++)
+                {
+                    CommunityMedals.Medals[i] = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
+                }
             }
         }
     }
