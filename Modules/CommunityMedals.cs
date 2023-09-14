@@ -179,7 +179,7 @@ namespace NeonLite.Modules
         [HarmonyPatch(typeof(LeaderboardScore), "SetScore")]
         private static void PostSetScore(ref LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
-            if (!_setting_CommunityMedals_enable.Value || globalNeonRankings || newData._medalValue == -1) return;
+            if (!_setting_CommunityMedals_enable.Value || globalNeonRankings) return;
 
             Leaderboards leaderboard = (Leaderboards)leaderboardsRef.GetValue(null);
             LevelData levelData = (LevelData)currentLevelData.GetValue(leaderboard);
@@ -191,6 +191,7 @@ namespace NeonLite.Modules
                 if (newData._scoreValueMilliseconds * 1000 <= timeToCheck)
                 {
                     __instance._medal.sprite = Medals[i];
+                    __instance._medal.gameObject.SetActive(true);
                     return;
                 }
             }
