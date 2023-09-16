@@ -76,8 +76,19 @@ namespace NeonLite.Modules
 
             _setting_SessionTime = Config_Discord.CreateEntry("Show session timer", true);
 
+            SetCallbacks();
+        }
+
+        private void SetCallbacks()
+        {
             SceneManager.activeSceneChanged += UpdateActivity;
             NeonLite.Game.OnLevelLoadComplete += UpdateActivity;
+        }
+
+        public void ClearCallbacks()
+        {
+            SceneManager.activeSceneChanged -= UpdateActivity;
+            NeonLite.Game.OnLevelLoadComplete -= UpdateActivity;
         }
 
         private void UpdateActivity(Scene oldScene, Scene newScene)
@@ -215,6 +226,8 @@ namespace NeonLite.Modules
             }
             return returnText.ToString();
         }
+
+        public static void ClearInstance() => DiscordInstance = null;
 
         private void PlaceDiscordDLL()
         {

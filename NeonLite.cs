@@ -97,7 +97,23 @@ namespace NeonLite
             //RocketHealthIndicator.Initialize(); //On ice cuz of the private ObjectPool.Pool class :/
         }
 
-        public override void OnUpdate() => DiscordActivity.DiscordInstance?.RunCallbacks();
+        public override void OnUpdate()
+        {
+            try
+            {
+                DiscordActivity.DiscordInstance?.RunCallbacks();
+            }
+            catch (Discord.ResultException resultException)
+            {
+                Debug.LogWarning("Failed to run Discord callbacks: " + resultException.Message);
+                DiscordActivity.ClearInstance();
+                foreach(Module module in Modules)
+                {
+                    if (module is DiscordActivity activity)
+                        activity.ClearCallbacks();
+                }
+            }
+        }
 
         //Dev debug features
         public override void OnFixedUpdate()
