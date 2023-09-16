@@ -183,7 +183,10 @@ namespace NeonLite.Modules
 
             Leaderboards leaderboard = (Leaderboards)leaderboardsRef.GetValue(null);
             LevelData levelData = (LevelData)currentLevelData.GetValue(leaderboard);
+
+            if (levelData == null) return;
             long[] communityTimes = _communityMedalTimes[levelData.levelID];
+
 
             for (int i = Medals.Length - 1; i >= 0; i--)
             {
