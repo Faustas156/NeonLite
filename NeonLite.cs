@@ -11,6 +11,7 @@ namespace NeonLite
 {
     public class NeonLite : MelonMod
     {
+        public static readonly bool BETABUILD = true;
         public static NeonLite Instance;
         public static Game Game { get; private set; }
         public static GameObject ModObject { get; private set; }
@@ -85,6 +86,8 @@ namespace NeonLite
 
             Canvas canvas = ModObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            if (BETABUILD)
+                ModObject.AddComponent<Beta>();
             ModObject.AddComponent<SessionTimer>();
             ModObject.AddComponent<CoyoteAssistant>();
 
