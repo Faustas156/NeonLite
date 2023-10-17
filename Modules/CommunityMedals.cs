@@ -37,7 +37,7 @@ namespace NeonLite.Modules
 
                     if (_communityMedalTimes == null || _communityMedalTimes.Count == 0)
                     {
-                        Debug.LogWarning("List of banned IDs empty");
+                        Debug.LogWarning("List of medals empty");
                         return;
                     }
 
