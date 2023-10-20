@@ -148,9 +148,14 @@ namespace NeonLite.Modules
                 }
             }
 
-            nextTime = FindOrCreateNextTime(__instance);
-            nextTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[0]));
-            nextTime.color = TextColors[0];
+            if (levelStats._timeBestMicroseconds <
+                Utils.ConvertSeconds_FloatToMicroseconds(level.GetTimeDev()))
+            {
+                nextTime = FindOrCreateNextTime(__instance);
+                nextTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[0]));
+                nextTime.color = TextColors[0];
+            }
+            
             stamps = __instance.devStamp.GetComponentsInChildren<Image>();
             if (stamps.Length < 3) return;
 
