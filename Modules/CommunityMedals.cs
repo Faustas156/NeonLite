@@ -1,9 +1,11 @@
 ﻿using HarmonyLib;
 using MelonLoader;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace NeonLite.Modules
 {
@@ -95,6 +97,7 @@ namespace NeonLite.Modules
             {
                 //Reset stamp time to red if feature is broken or disables
                 __instance.devTime.color = new Color(0.420f, 0.015f, 0.043f);
+                DestroyNextTime();
                 return;
             }
 
@@ -107,6 +110,7 @@ namespace NeonLite.Modules
             if (communityTimes == null) return;
 
             Image[] stamps;
+            TextMeshProUGUI nextTime;
             for (int i = Medals.Length - 1; i >= 0; i--)
             {
                 long timeToCheck = communityTimes[i];
@@ -115,8 +119,18 @@ namespace NeonLite.Modules
                 {
                     __instance._levelMedal.sprite = Medals[i];
                     int nexIndex = Math.Min(2, i + 1);
-                    __instance.devTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[nexIndex]));
-                    __instance.devTime.color = TextColors[nexIndex];
+                    __instance.devTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[i]));
+                    __instance.devTime.color = TextColors[i];
+                    if (nexIndex != i)
+                    {
+                        nextTime = FindOrCreateNextTime(__instance);
+                        nextTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[nexIndex]));
+                        nextTime.color = TextColors[nexIndex];
+                    }
+                    else
+                    {
+                        DestroyNextTime();
+                    }
 
                     stamps = __instance.devStamp.GetComponentsInChildren<Image>();
                     if (stamps.Length < 3) return;
@@ -134,8 +148,14 @@ namespace NeonLite.Modules
                 }
             }
 
-            __instance.devTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[0]));
-            __instance.devTime.color = TextColors[0];
+            if (levelStats._timeBestMicroseconds <
+                Utils.ConvertSeconds_FloatToMicroseconds(level.GetTimeDev()))
+            {
+                nextTime = FindOrCreateNextTime(__instance);
+                nextTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[0]));
+                nextTime.color = TextColors[0];
+            }
+            
             stamps = __instance.devStamp.GetComponentsInChildren<Image>();
             if (stamps.Length < 3) return;
 
@@ -214,5 +234,31 @@ namespace NeonLite.Modules
 
         public static long[] GetMedalTimes(string level) =>
             (long[])_communityMedalTimes[level].Clone();
+
+        public static TextMeshProUGUI FindOrCreateNextTime(LevelInfo levelInfo)
+        {
+            GameObject nextTimeGameObject = GameObject.Find("NextTimeGoalText");
+            if (nextTimeGameObject == null)
+            {
+                nextTimeGameObject =
+                    Object.Instantiate(levelInfo.devTime.gameObject, levelInfo.devTime.transform.parent);
+                nextTimeGameObject.name = "NextTimeGoalText";
+                nextTimeGameObject.transform.position += new Vector3(1.18f, -0.1f);
+                var rectTransform = nextTimeGameObject.GetComponent<RectTransform>();
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, 45);
+                rectTransform.rotation = Quaternion.identity;
+            }
+
+            return nextTimeGameObject.GetComponent<TextMeshProUGUI>();
+        }
+
+        public static void DestroyNextTime()
+        {
+            GameObject nextTimeGameObject = GameObject.Find("NextTimeGoalText");
+            if (nextTimeGameObject != null)
+            {
+                Object.Destroy(nextTimeGameObject);
+            }
+        }
     }
 }
