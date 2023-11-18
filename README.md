@@ -39,6 +39,8 @@ Still currently a work in progress and thus it only features a limited amount of
 * Skip Intro
   * Never hear the fabled "We're called neons." speech when you start up your game.
 * Sidequest Insight Screen Remover
+* Custom Portrait
+  * Allows for setting a custom in-game portrait
 
 ## Installation & Usage
 
