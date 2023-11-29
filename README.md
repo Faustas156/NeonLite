@@ -57,6 +57,7 @@ Still currently a work in progress and thus it only features a limited amount of
 * [Pandora's Fox](https://github.com/PandorasFox), stole code for the "Remove Mission" mod.
 * [Verrix](https://discord.gg/SFnWweK8r9), help with community medal sprites.
 * [The Gang](https://github.com/steelLMG), updating the medal times
+* [Marbles](https://github.com/MarblesFr), custom portrait feature and updating the mikey stamp for medals
 
 ### Additional Notes
 
