@@ -11,8 +11,10 @@ namespace NeonLite
 {
     public class NeonLite : MelonMod
     {
+        public static readonly bool BETABUILD = true;
         public static NeonLite Instance;
         public static Game Game { get; private set; }
+        public static GameObject ModObject { get; private set; }
         public static Module[] Modules { get; private set; }
         public static new HarmonyLib.Harmony Harmony { get; private set; }
 
@@ -29,6 +31,7 @@ namespace NeonLite
         public static MelonPreferences_Entry<bool> s_Setting_DisableAmbiance;
         public static MelonPreferences_Entry<bool> s_Setting_RestartsTotal;
         public static MelonPreferences_Entry<bool> s_Setting_RestartsSession;
+        public static MelonPreferences_Entry<float> s_Setting_CoyoteAssistant;
 
         public static MelonPreferences_Category Config_NeonLiteVisuals { get; private set; }
         public static MelonPreferences_Entry<bool> s_Setting_PlayerPortrait;
@@ -53,6 +56,7 @@ namespace NeonLite
             s_Setting_LevelTimer = Config_NeonLite.CreateEntry("Display Level Timer", true, description: "Tracks the time you've spent on the current level you're playing.");
             s_Setting_RestartsTotal = Config_NeonLite.CreateEntry("Show total Restarts", true, description: "Shows the total amout of restarts for a level.");
             s_Setting_RestartsSession = Config_NeonLite.CreateEntry("Show session restarts", true, description: "Shows the amout of restarts for a level during the current session.");
+            s_Setting_CoyoteAssistant = Config_NeonLite.CreateEntry("Coyote Assistant", 0.05f, description: "The bigger the value, the earlier Neon Lite tells you to jump. -1 means disabled.\n(You must copy paste values > 0.1)");
 
             Config_NeonLiteVisuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
             s_Setting_PlayerPortrait = Config_NeonLiteVisuals.CreateEntry("Disable the Player portrait", false);
@@ -77,12 +81,20 @@ namespace NeonLite
             for (int i = 0; i < types.Count(); i++)
                 Modules[i] = (Module)Activator.CreateInstance(types.ElementAt(i));
 
-            GameObject modObject = new("Neon Lite");
-            UnityEngine.Object.DontDestroyOnLoad(modObject);
+            ModObject = new("Neon Lite");
+            UnityEngine.Object.DontDestroyOnLoad(ModObject);
 
-            modObject.AddComponent<SessionTimer>();
+            Canvas canvas = ModObject.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            if (BETABUILD)
+                ModObject.AddComponent<Beta>();
+            ModObject.AddComponent<SessionTimer>();
+            ModObject.AddComponent<CoyoteAssistant>();
 
+            //TODO Add self repair if a file corrupts
+            //TODO OBS like input display
             //TODO LevelRush helper
+            //TODO Reimplement the HUD manager stuff
         }
 
         private void OnLevelLoadComplete()
@@ -94,7 +106,6 @@ namespace NeonLite
             HUDManager.Initialize();
             LevelTimer.Initialize();
             RestartCounter.Initialize();
-            //RocketHealthIndicator.Initialize(); //On ice cuz of the private ObjectPool.Pool class :/
         }
 
         public override void OnUpdate()

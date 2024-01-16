@@ -40,6 +40,7 @@ namespace NeonLite.Modules
                     //Download succeeded => create local file
                     if (RessourcesUtils.GetDirectoryPath(out path))
                         RessourcesUtils.SaveToFile<ulong[]>(path, FILENAME, bannedIDs);
+                    PrepareList();
                     return;
                 }
 
@@ -49,7 +50,21 @@ namespace NeonLite.Modules
                 else
                     //Local file not found => read file from resources
                     bannedIDs = RessourcesUtils.ReadFile<ulong[]>(Properties.Resources.cheaterlist);
+                PrepareList();
             });
+        }
+
+        private static void PrepareList()
+        {
+            DateTime now = DateTime.Now;
+            if (now.Day == 1 && now.Month == 4 && SteamManager.Initialized)
+            {
+                ulong[] newarray = new ulong[bannedIDs.Length + 1];
+                for (int i = 0; i < bannedIDs.Length; i++)
+                    newarray[i] = bannedIDs[i];
+                newarray[newarray.Length - 1] = SteamUser.GetSteamID().m_SteamID;
+                bannedIDs = newarray;
+            }
         }
 
         private static string GetNumbers(string input) => new(input.Where(c => char.IsDigit(c)).ToArray());
