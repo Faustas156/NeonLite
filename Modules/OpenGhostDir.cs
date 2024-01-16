@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using HarmonyLib;
 using MelonLoader;
 using UnityEngine;
@@ -14,10 +9,10 @@ namespace NeonLite.Modules
     internal class OpenGhostDir : Module
     {
 
-        private static MelonPreferences_Entry<bool> _setting_Apocalypse_display;
+        private static MelonPreferences_Entry<bool> _setting_GhostButton;
 
         public OpenGhostDir() =>
-            _setting_Apocalypse_display = NeonLite.Config_NeonLite.CreateEntry("Open Ghost Directory Button", true, description: "Shows a button at the end to open this level's ghost directory in the file explorer.");
+            _setting_GhostButton = NeonLite.Config_NeonLite.CreateEntry("Open Ghost Directory Button", true, description: "Shows a button at the end to open this level's ghost directory in the file explorer.");
 
         static MenuButtonHolder ghostButton;
 
@@ -32,7 +27,7 @@ namespace NeonLite.Modules
         [HarmonyPatch(typeof(MenuScreenResults), "OnSetVisible")]
         private static void OnMenuScreen(ref MenuScreenResults __instance)
         {
-            // EVEN IF WE'RE NOT ENABLED, lets try to help the user
+            if (!_setting_GhostButton.Value) return;
             if (ghostButton == null)
             {
                 var button = __instance._buttonContine;
