@@ -46,7 +46,7 @@ Still currently a work in progress and thus it only features a limited amount of
 
 1. Download [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest) and install it onto your `Neon White.exe`.
 2. Run the game once. This will create required folders; you should see a splash screen if you installed the modloader correctly.
-3. Download this version of [Melon Preferences Manager](https://cdn.discordapp.com/attachments/991005812094799922/1109821695805640744/melonprefsmanager.rar), and drag all the files from that zip into the root folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White`)
+3. Download this version of [Melon Preferences Manager](https://github.com/Bluscream/MelonPreferencesManager/releases/download/1.3.1/MelonPrefManager.Mono.dll), and drag all the files from that zip into the root folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White`)
 4. Download the `NeonLite.dll` from the [Releases page](https://github.com/MOPSKATER/NeonLite/releases) and drop it in the mods folder.
 5. Once it's all working, press F5 in-game to change the settings for the mod.
 
