@@ -9,12 +9,12 @@ namespace NeonLite.Modules
     internal class OpenGhostDir : Module
     {
 
+        private static MenuButtonHolder ghostButton;
         private static MelonPreferences_Entry<bool> _setting_GhostButton;
 
         public OpenGhostDir() =>
             _setting_GhostButton = NeonLite.Config_NeonLite.CreateEntry("Open Ghost Directory Button", true, description: "Shows a button at the end to open this level's ghost directory in the file explorer.");
 
-        static MenuButtonHolder ghostButton;
 
         public static string GetGhostDirectory()
         {
@@ -27,7 +27,6 @@ namespace NeonLite.Modules
         [HarmonyPatch(typeof(MenuScreenResults), "OnSetVisible")]
         private static void OnMenuScreen(ref MenuScreenResults __instance)
         {
-            if (!_setting_GhostButton.Value) return;
             if (ghostButton == null)
             {
                 var button = __instance._buttonContine;
@@ -53,7 +52,8 @@ namespace NeonLite.Modules
 
             if (!__instance.buttonsToLoad.Contains(ghostButton))
                 __instance.buttonsToLoad.Add(ghostButton);
-        }
 
+            ghostButton.gameObject.SetActive(_setting_GhostButton.Value);
+        }
     }
 }
