@@ -45,7 +45,7 @@ namespace NeonLite.GameObjects
 
         private void OnGUI()
         {
-            if (NeonLite.s_Setting_RestartsSession.Value)
+            if (NeonLite.s_Setting_SessionPB.Value)
                 GUI.Label(_rectSessionPB, "SessionPB: " + LevelPB[_currentLevel].Item2, _style);
         }
     }
