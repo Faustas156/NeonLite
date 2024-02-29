@@ -91,10 +91,14 @@ namespace NeonLite
             ModObject.AddComponent<SessionTimer>();
             ModObject.AddComponent<CoyoteAssistant>();
 
+            RestartCounter.Initialize();
+
             //TODO Add self repair if a file corrupts
-            //TODO OBS like input display
             //TODO LevelRush helper
             //TODO Reimplement the HUD manager stuff
+            //TODO Session PB
+            //TODO Medals for Rushes
+            //TODO Add Colorblind mode for medals
         }
 
         private void OnLevelLoadComplete()
@@ -105,7 +109,7 @@ namespace NeonLite
             GreenHP.Initialize();
             HUDManager.Initialize();
             LevelTimer.Initialize();
-            RestartCounter.Initialize();
+            new GameObject("RestartCounter").AddComponent<RestartCounter>();
         }
 
         public override void OnUpdate()
@@ -118,7 +122,7 @@ namespace NeonLite
             {
                 Debug.LogWarning("Failed to run Discord callbacks: " + resultException.Message);
                 DiscordActivity.ClearInstance();
-                foreach(Module module in Modules)
+                foreach (Module module in Modules)
                 {
                     if (module is DiscordActivity activity)
                         activity.ClearCallbacks();

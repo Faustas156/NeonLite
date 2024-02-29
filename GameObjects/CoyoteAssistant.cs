@@ -28,11 +28,11 @@ namespace NeonLite.GameObjects
             _jumpText.SetActive(false);
         }
 
-        void LateUpdate()
+        private void LateUpdate()
         {
             if (NeonLite.s_Setting_CoyoteAssistant.Value == -1f || RM.drifter == null) return;
 
-            float timer = (float) _jumpForgivenessTimer.GetValue(RM.drifter);
+            float timer = (float)_jumpForgivenessTimer.GetValue(RM.drifter);
 
             if (_displayDuration <= 0)
                 _jumpText.SetActive(false);
