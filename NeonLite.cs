@@ -11,7 +11,7 @@ namespace NeonLite
 {
     public class NeonLite : MelonMod
     {
-        public static readonly bool BETABUILD = true;
+        public static readonly bool DEVBUILD = true;
         public static NeonLite Instance;
         public static Game Game { get; private set; }
         public static GameObject ModObject { get; private set; }
@@ -85,8 +85,8 @@ namespace NeonLite
 
             Canvas canvas = ModObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            if (BETABUILD)
-                ModObject.AddComponent<Beta>();
+            if (DEVBUILD)
+                ModObject.AddComponent<Dev>();
             ModObject.AddComponent<SessionTimer>();
             ModObject.AddComponent<CoyoteAssistant>();
 
@@ -131,7 +131,7 @@ namespace NeonLite
         //Dev debug features
         public override void OnFixedUpdate()
         {
-            if (!BETABUILD) return;
+            if (!DEVBUILD) return;
 
             if (Keyboard.current.f7Key.wasPressedThisFrame)
                 RM.acceptInput = !RM.acceptInput;

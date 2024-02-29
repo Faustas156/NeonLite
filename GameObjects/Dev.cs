@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NeonLite
 {
-    internal class Beta : MonoBehaviour
+    internal class Dev : MonoBehaviour
     {
         private void Start()
         {
@@ -27,7 +27,7 @@ namespace NeonLite
             text.outlineColor = Color.black;
             text.outlineWidth = 0.15f;
             text.lineSpacing = -30f;
-            text.SetText("BETABUILD");
+            text.SetText("DEVBUILD");
         }
     }
 }
