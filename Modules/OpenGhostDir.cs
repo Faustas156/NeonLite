@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MelonLoader;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace NeonLite.Modules
