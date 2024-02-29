@@ -36,11 +36,11 @@ namespace NeonLite
         public static MelonPreferences_Category Config_NeonLiteVisuals { get; private set; }
         public static MelonPreferences_Entry<bool> s_Setting_PlayerPortrait;
         public static MelonPreferences_Entry<bool> s_Setting_BackstoryDisplay;
-        //public static MelonPreferences_Entry<bool> bottombar_display;
-        //public static MelonPreferences_Entry<bool> damageOverlay_display;
-        //public static MelonPreferences_Entry<bool> boostOverlay_display;
-        //public static MelonPreferences_Entry<bool> shockerOverlay_display;
-        //public static MelonPreferences_Entry<bool> telefragOverlay_display;
+        public static MelonPreferences_Entry<bool> s_Setting_BottombarDisplay;
+
+        public static MelonPreferences_Entry<bool> s_Setting_DamageOverlayDisplay;
+        public static MelonPreferences_Entry<bool> s_Setting_ShockerOverlayDisplay;
+        public static MelonPreferences_Entry<bool> s_Setting_TelefragOverlayDisplay;
 
         #endregion
 
@@ -61,12 +61,10 @@ namespace NeonLite
             Config_NeonLiteVisuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
             s_Setting_PlayerPortrait = Config_NeonLiteVisuals.CreateEntry("Disable the Player portrait", false);
             s_Setting_BackstoryDisplay = Config_NeonLiteVisuals.CreateEntry("Disable backstory", false);
-
-            //bottombar_display = neonLite_visuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
-            //damageOverlay_display = neonLite_visuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
-            //boostOverlay_display = neonLite_visuals.CreateEntry("Disable boost overlay", false, description: "Removes the overlay around your screen when you are getting a speed boost.");
-            //shockerOverlay_display = neonLite_visuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
-            //telefragOverlay_display = neonLite_visuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
+            s_Setting_BottombarDisplay = Config_NeonLiteVisuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
+            s_Setting_DamageOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
+            s_Setting_ShockerOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
+            s_Setting_TelefragOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
         }
 
         public override void OnApplicationLateStart()
@@ -92,13 +90,11 @@ namespace NeonLite
             ModObject.AddComponent<CoyoteAssistant>();
 
             RestartCounter.Initialize();
+            SessionPB.Initialize();
 
-            //TODO Add self repair if a file corrupts
-            //TODO LevelRush helper
-            //TODO Reimplement the HUD manager stuff
-            //TODO Session PB
-            //TODO Medals for Rushes
             //TODO Add Colorblind mode for medals
+            //TODO Medals for Rushes
+            //TODO LevelRush helper - Delayed until there is more demand
         }
 
         private void OnLevelLoadComplete()
@@ -110,6 +106,7 @@ namespace NeonLite
             HUDManager.Initialize();
             LevelTimer.Initialize();
             new GameObject("RestartCounter").AddComponent<RestartCounter>();
+            new GameObject("SessionPB").AddComponent<SessionPB>();
         }
 
         public override void OnUpdate()
@@ -133,7 +130,8 @@ namespace NeonLite
         //Dev debug features
         public override void OnFixedUpdate()
         {
-            return;
+            if (!BETABUILD) return;
+
             if (Keyboard.current.f7Key.wasPressedThisFrame)
                 RM.acceptInput = !RM.acceptInput;
 
