@@ -1,6 +1,4 @@
 ﻿using Steamworks;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using UnityEngine;
 
 namespace NeonLite.GameObjects
@@ -31,18 +29,21 @@ namespace NeonLite.GameObjects
 
             if (LevelRestarts == null)
             {
-                if (transferRestarts())
+                if (File.Exists(_path + _filename))
                 {
-                    if (!File.Exists(_path + _filename))
+                    try
                     {
-                        LevelRestarts = new();
-                        RessourcesUtils.SaveToFile<Dictionary<string, int>>(_path, _filename, LevelRestarts);
-                    }
-                    else
                         LevelRestarts = RessourcesUtils.ReadFile<Dictionary<string, int>>(_path, _filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log(ex);
+                        LevelRestarts = new();
+                    }
                 }
+                else
+                    LevelRestarts = new();
             }
-            new GameObject("RestartCounter").AddComponent<RestartCounter>();
         }
 
         private void Start()
@@ -73,30 +74,6 @@ namespace NeonLite.GameObjects
                 GUI.Label(_rectTotal, "Total Attempts: " + LevelRestarts[_currentLevel], _style);
             if (NeonLite.s_Setting_RestartsSession.Value)
                 GUI.Label(_rectSession, "Attempts: " + CurrentRestarts, _style);
-        }
-
-        [Obsolete]
-        private static bool transferRestarts()
-        {
-            string basePath = Application.persistentDataPath + "/" + SteamUser.GetSteamID().m_SteamID.ToString();
-            string newDirectory = basePath + "/NeonLite";
-
-            if (!File.Exists(basePath + "/restartcounter.txt")) return true;
-            Debug.Log("Old restarts file detected! Moving it");
-
-            if (!Directory.Exists(newDirectory))
-                Directory.CreateDirectory(newDirectory);
-
-            StreamReader streamReader = new(basePath + "/restartcounter.txt", Encoding.UTF8);
-            string data = streamReader.ReadToEnd();
-            DataContractJsonSerializer deserializer = new(typeof(Dictionary<string, int>));
-            MemoryStream stream = new(Encoding.UTF8.GetBytes(data));
-            LevelRestarts = (Dictionary<string, int>)deserializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(data)));
-            stream.Close();
-            streamReader.Close();
-            RessourcesUtils.SaveToFile<Dictionary<string, int>>(_path, _filename, LevelRestarts);
-            File.Delete(basePath + "/restartcounter.txt");
-            return false;
         }
     }
 }

@@ -45,8 +45,18 @@ namespace NeonLite.Modules
                 }
 
                 else if (RessourcesUtils.GetDirectoryPath(out path) && File.Exists(path + FILENAME))
+                {
                     //Download failed => find local file
-                    bannedIDs = RessourcesUtils.ReadFile<ulong[]>(path, FILENAME);
+                    try
+                    {
+                        bannedIDs = RessourcesUtils.ReadFile<ulong[]>(path, FILENAME);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log(ex.Message);
+                        bannedIDs = RessourcesUtils.ReadFile<ulong[]>(Properties.Resources.cheaterlist);
+                    }
+                }
                 else
                     //Local file not found => read file from resources
                     bannedIDs = RessourcesUtils.ReadFile<ulong[]>(Properties.Resources.cheaterlist);

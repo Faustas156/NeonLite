@@ -24,10 +24,15 @@ namespace NeonLite
         {
             Task.Run(() =>
             {
+                string filePath = path + filename;
+
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
-                Stream stream = File.Open(path + filename, FileMode.Create);
+                if (File.Exists(filePath))
+                    File.Move(filePath, filePath + ".bak");
+
+                Stream stream = File.Open(filePath, FileMode.Create);
                 XmlDictionaryWriter writer = JsonReaderWriterFactory.CreateJsonWriter(stream, Encoding.UTF8, true, true, "  ");
                 DataContractJsonSerializer serializer = new(typeof(T), _jsonSettings);
                 serializer.WriteObject(writer, data);
@@ -39,13 +44,41 @@ namespace NeonLite
 
         public static T ReadFile<T>(string path, string filename)
         {
-            StreamReader streamReader = new(path + filename, Encoding.UTF8);
+            string filePath = path + filename;
+            StreamReader streamReader = new(filePath, Encoding.UTF8);
             string data = streamReader.ReadToEnd();
             streamReader.Close();
             DataContractJsonSerializer deserializer = new(typeof(T), _jsonSettings);
             MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(data));
-            T result = (T)deserializer.ReadObject(memoryStream);
-            memoryStream.Close();
+            T result;
+            try
+            {
+                result = (T)deserializer.ReadObject(memoryStream);
+            }
+            catch (Exception)
+            {
+                Debug.Log(filePath + " corrupted. Deleting it...");
+                File.Delete(filePath);
+                string backupFile = filePath + ".bak";
+                if (File.Exists(backupFile))
+                {
+                    try
+                    {
+                        result = ReadFile<T>(path, filename + ".bak");
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        File.Delete(backupFile);
+                        throw new FormatException(backupFile + " corrupted. Deleting it...");
+                    }
+                }
+                else
+                    throw new FileNotFoundException(backupFile + " not found");
+            }
+            finally
+            {
+                memoryStream.Close();
+            }
             return result;
         }
 

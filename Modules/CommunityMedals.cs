@@ -50,8 +50,18 @@ namespace NeonLite.Modules
                 }
 
                 else if (RessourcesUtils.GetDirectoryPath(out path) && File.Exists(path + FILENAME))
+                {
                     //Download failed => find local file
-                    _communityMedalTimes = RessourcesUtils.ReadFile<Dictionary<string, long[]>>(path, FILENAME);
+                    try
+                    {
+                        _communityMedalTimes = RessourcesUtils.ReadFile<Dictionary<string, long[]>>(path, FILENAME);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log(ex.Message);
+                        _communityMedalTimes = RessourcesUtils.ReadFile<Dictionary<string, long[]>>(Properties.Resources.communitymedals);
+                    }
+                }
                 else
                     //Local file not found => read file from resources
                     _communityMedalTimes = RessourcesUtils.ReadFile<Dictionary<string, long[]>>(Properties.Resources.communitymedals);
@@ -81,9 +91,9 @@ namespace NeonLite.Modules
 
             TextColors = new Color[]
             {
-                new Color(0.388f, 0.8f, 0.388f),
-                new Color(0.674f, 0.313f, 0.913f),
-                new Color(0.043f, 0.317f, 0.901f)
+                new(0.388f, 0.8f, 0.388f),
+                new(0.674f, 0.313f, 0.913f),
+                new(0.043f, 0.317f, 0.901f)
             };
         }
 
@@ -155,7 +165,7 @@ namespace NeonLite.Modules
                 nextTime.SetText(Game.GetTimerFormattedMillisecond(communityTimes[0]));
                 nextTime.color = TextColors[0];
             }
-            
+
             stamps = __instance.devStamp.GetComponentsInChildren<Image>();
             if (stamps.Length < 3) return;
 
