@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace NeonLite
 {
-    internal class Beta : MonoBehaviour
+    internal class Dev : MonoBehaviour
     {
-        void Start()
+        private void Start()
         {
             Canvas canvas = gameObject.GetComponent<Canvas>();
-            if(canvas == null)
+            if (canvas == null)
             {
                 Debug.Log("Creating canvas");
                 canvas = gameObject.AddComponent<Canvas>();
@@ -27,7 +27,7 @@ namespace NeonLite
             text.outlineColor = Color.black;
             text.outlineWidth = 0.15f;
             text.lineSpacing = -30f;
-            text.SetText("BETABUILD");
+            text.SetText("DEVBUILD");
         }
     }
 }

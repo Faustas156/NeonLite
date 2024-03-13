@@ -11,7 +11,7 @@ namespace NeonLite
 {
     public class NeonLite : MelonMod
     {
-        public static readonly bool BETABUILD = true;
+        public static readonly bool DEVBUILD = true;
         public static NeonLite Instance;
         public static Game Game { get; private set; }
         public static GameObject ModObject { get; private set; }
@@ -32,15 +32,15 @@ namespace NeonLite
         public static MelonPreferences_Entry<bool> s_Setting_RestartsTotal;
         public static MelonPreferences_Entry<bool> s_Setting_RestartsSession;
         public static MelonPreferences_Entry<float> s_Setting_CoyoteAssistant;
+        public static MelonPreferences_Entry<bool> s_Setting_SessionPB;
 
         public static MelonPreferences_Category Config_NeonLiteVisuals { get; private set; }
         public static MelonPreferences_Entry<bool> s_Setting_PlayerPortrait;
         public static MelonPreferences_Entry<bool> s_Setting_BackstoryDisplay;
-        //public static MelonPreferences_Entry<bool> bottombar_display;
-        //public static MelonPreferences_Entry<bool> damageOverlay_display;
-        //public static MelonPreferences_Entry<bool> boostOverlay_display;
-        //public static MelonPreferences_Entry<bool> shockerOverlay_display;
-        //public static MelonPreferences_Entry<bool> telefragOverlay_display;
+        public static MelonPreferences_Entry<bool> s_Setting_BottombarDisplay;
+        public static MelonPreferences_Entry<bool> s_Setting_DamageOverlayDisplay;
+        public static MelonPreferences_Entry<bool> s_Setting_ShockerOverlayDisplay;
+        public static MelonPreferences_Entry<bool> s_Setting_TelefragOverlayDisplay;
 
         #endregion
 
@@ -57,16 +57,15 @@ namespace NeonLite
             s_Setting_RestartsTotal = Config_NeonLite.CreateEntry("Show total Restarts", true, description: "Shows the total amout of restarts for a level.");
             s_Setting_RestartsSession = Config_NeonLite.CreateEntry("Show session restarts", true, description: "Shows the amout of restarts for a level during the current session.");
             s_Setting_CoyoteAssistant = Config_NeonLite.CreateEntry("Coyote Assistant", 0.05f, description: "The bigger the value, the earlier Neon Lite tells you to jump. -1 means disabled.\n(You must copy paste values > 0.1)");
+            s_Setting_SessionPB = Config_NeonLite.CreateEntry("SessionPB", true, description: "Shows your session pb per level");
 
             Config_NeonLiteVisuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
             s_Setting_PlayerPortrait = Config_NeonLiteVisuals.CreateEntry("Disable the Player portrait", false);
             s_Setting_BackstoryDisplay = Config_NeonLiteVisuals.CreateEntry("Disable backstory", false);
-
-            //bottombar_display = neonLite_visuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
-            //damageOverlay_display = neonLite_visuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
-            //boostOverlay_display = neonLite_visuals.CreateEntry("Disable boost overlay", false, description: "Removes the overlay around your screen when you are getting a speed boost.");
-            //shockerOverlay_display = neonLite_visuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
-            //telefragOverlay_display = neonLite_visuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
+            s_Setting_BottombarDisplay = Config_NeonLiteVisuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
+            s_Setting_DamageOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
+            s_Setting_ShockerOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
+            s_Setting_TelefragOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
         }
 
         public override void OnApplicationLateStart()
@@ -86,15 +85,17 @@ namespace NeonLite
 
             Canvas canvas = ModObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            if (BETABUILD)
-                ModObject.AddComponent<Beta>();
+            if (DEVBUILD)
+                ModObject.AddComponent<Dev>();
             ModObject.AddComponent<SessionTimer>();
             ModObject.AddComponent<CoyoteAssistant>();
 
-            //TODO Add self repair if a file corrupts
-            //TODO OBS like input display
-            //TODO LevelRush helper
-            //TODO Reimplement the HUD manager stuff
+            RestartCounter.Initialize();
+            SessionPB.Initialize();
+
+            //TODO Add Colorblind mode for medals
+            //TODO Medals for Rushes
+            //TODO LevelRush helper - Delayed until there is more demand
         }
 
         private void OnLevelLoadComplete()
@@ -105,7 +106,8 @@ namespace NeonLite
             GreenHP.Initialize();
             HUDManager.Initialize();
             LevelTimer.Initialize();
-            RestartCounter.Initialize();
+            new GameObject("RestartCounter").AddComponent<RestartCounter>();
+            new GameObject("SessionPB").AddComponent<SessionPB>();
         }
 
         public override void OnUpdate()
@@ -118,7 +120,7 @@ namespace NeonLite
             {
                 Debug.LogWarning("Failed to run Discord callbacks: " + resultException.Message);
                 DiscordActivity.ClearInstance();
-                foreach(Module module in Modules)
+                foreach (Module module in Modules)
                 {
                     if (module is DiscordActivity activity)
                         activity.ClearCallbacks();
@@ -129,7 +131,8 @@ namespace NeonLite
         //Dev debug features
         public override void OnFixedUpdate()
         {
-            return;
+            if (!DEVBUILD) return;
+
             if (Keyboard.current.f7Key.wasPressedThisFrame)
                 RM.acceptInput = !RM.acceptInput;
 

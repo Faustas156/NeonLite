@@ -22,7 +22,7 @@ namespace NeonLite.Modules
         {
             if (newState != MainMenu.State.Staging) return;
 
-            if (String.IsNullOrEmpty(_setting_CustomPortrait.Value)) return;
+            if (string.IsNullOrEmpty(_setting_CustomPortrait.Value)) return;
 
             var uiPortrait = RM.ui.portraitUI;
             if (uiPortrait != null)
