@@ -11,7 +11,7 @@ namespace NeonLite
 {
     public class NeonLite : MelonMod
     {
-        public static readonly bool DEVBUILD = true;
+        public static readonly bool DEVBUILD = false;
         public static NeonLite Instance;
         public static Game Game { get; private set; }
         public static GameObject ModObject { get; private set; }
