@@ -46,9 +46,10 @@ Still currently a work in progress and thus it only features a limited amount of
 
 1. Download [MelonLoader](https://github.com/LavaGang/MelonLoader/releases/latest) and install it onto your `Neon White.exe`.
 2. Run the game once. This will create required folders; you should see a splash screen if you installed the modloader correctly.
-3. Download this version of [Melon Preferences Manager](https://github.com/Bluscream/MelonPreferencesManager/releases/download/1.3.1/MelonPrefManager.Mono.dll), and drag all the files from that zip into the root folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White`)
-4. Download the `NeonLite.dll` from the [Releases page](https://github.com/MOPSKATER/NeonLite/releases) and drop it in the mods folder.
-5. Once it's all working, press F5 in-game to change the settings for the mod.
+3. Download this version of [Melon Preferences Manager](https://github.com/Bluscream/MelonPreferencesManager/releases/download/1.3.1/MelonPrefManager.Mono.dll), and move it into the mods folder of your Neon White install (e.g. `SteamLibrary\steamapps\common\Neon White\Mods`)
+4. Download the latest version of [UniverseLib](https://github.com/sinai-dev/UniverseLib/releases/download/1.5.1/UniverseLib.Mono.zip), unpack it and move the .dll file into your Neon White mods folder as in the previous step.
+5. Download the `NeonLite.dll` from the [Releases page](https://github.com/MOPSKATER/NeonLite/releases) and drop it in the mods folder.
+6. Once it's all working, press F5 in-game to change the settings for the mod.
 
 ## SPECIAL CREDITS:
 
