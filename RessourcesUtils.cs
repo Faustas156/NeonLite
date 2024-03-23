@@ -30,7 +30,11 @@ namespace NeonLite
                     Directory.CreateDirectory(path);
 
                 if (File.Exists(filePath))
-                    File.Move(filePath, filePath + ".bak");
+                {
+                    string bakFile = filePath + ".bak";
+                    File.Delete(bakFile);
+                    File.Move(filePath, bakFile);
+                }
 
                 Stream stream = File.Open(filePath, FileMode.Create);
                 XmlDictionaryWriter writer = JsonReaderWriterFactory.CreateJsonWriter(stream, Encoding.UTF8, true, true, "  ");
