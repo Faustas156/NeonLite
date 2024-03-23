@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace NeonLite.Modules
 {
-    [HarmonyPatch]
+    //[HarmonyPatch]
     internal class OpenGhostDir : Module
     {
 
