@@ -14,7 +14,7 @@ namespace NeonLite.Modules
 
         public CustomPortrait() =>
             _setting_CustomPortrait = NeonLite.Config_NeonLite.CreateEntry("Custom Portrait", "",
-                description: "Set a custom in-game portrait by entering the path to a local image.");
+                description: "Set a custom in-game portrait by entering the path to a local image (512x512).");
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MainMenu), "SetState")]

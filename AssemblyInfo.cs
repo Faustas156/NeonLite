@@ -17,4 +17,4 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("5f33956d-d43c-45a5-acad-c6e5ace98a5b")]
 
-[assembly: MelonInfo(typeof(NeonLite.NeonLite), "NeonLite", "2.2.0", "MOPSKATER")]
+[assembly: MelonInfo(typeof(NeonLite.NeonLite), "NeonLite", "2.2.1", "MOPSKATER")]

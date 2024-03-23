@@ -28,28 +28,28 @@ namespace NeonLite.GameObjects
             _jumpText.SetActive(false);
         }
 
-        private void LateUpdate()
-        {
-            if (NeonLite.s_Setting_CoyoteAssistant.Value == -1f || RM.drifter == null) return;
+        //private void LateUpdate()
+        //{
+        //    if (NeonLite.s_Setting_CoyoteAssistant.Value == -1f || RM.drifter == null) return;
 
-            float timer = (float)_jumpForgivenessTimer.GetValue(RM.drifter);
+        //    float timer = (float)_jumpForgivenessTimer.GetValue(RM.drifter);
 
-            if (_displayDuration <= 0)
-                _jumpText.SetActive(false);
-            else
-                _displayDuration -= Time.deltaTime;
+        //    if (_displayDuration <= 0)
+        //        _jumpText.SetActive(false);
+        //    else
+        //        _displayDuration -= Time.deltaTime;
 
-            if (timer <= 0f) return;
+        //    if (timer <= 0f) return;
 
-            if (timer <= NeonLite.s_Setting_CoyoteAssistant.Value && !_triggered)
-            {
-                _triggered = true;
-                _displayDuration = 0.1f;
-                _jumpText.SetActive(true);
-            }
-            else
-                _triggered = false;
+        //    if (timer <= NeonLite.s_Setting_CoyoteAssistant.Value && !_triggered)
+        //    {
+        //        _triggered = true;
+        //        _displayDuration = 0.1f;
+        //        _jumpText.SetActive(true);
+        //    }
+        //    else
+        //        _triggered = false;
 
-        }
+        //}
     }
 }
