@@ -33,6 +33,7 @@ namespace NeonLite
         public static MelonPreferences_Entry<bool> s_Setting_RestartsSession;
         //public static MelonPreferences_Entry<float> s_Setting_CoyoteAssistant;
         public static MelonPreferences_Entry<bool> s_Setting_SessionPB;
+        public static MelonPreferences_Entry<bool> s_Setting_GhostButton;
 
         public static MelonPreferences_Category Config_NeonLiteVisuals { get; private set; }
         public static MelonPreferences_Entry<bool> s_Setting_PlayerPortrait;
@@ -58,6 +59,8 @@ namespace NeonLite
             s_Setting_RestartsSession = Config_NeonLite.CreateEntry("Show session restarts", true, description: "Shows the amout of restarts for a level during the current session.");
             //s_Setting_CoyoteAssistant = Config_NeonLite.CreateEntry("Coyote Assistant", 0.05f, description: "The bigger the value, the earlier Neon Lite tells you to jump. -1 means disabled.\n(You must copy paste values > 0.1)");
             s_Setting_SessionPB = Config_NeonLite.CreateEntry("SessionPB", true, description: "Shows your session pb per level");
+            s_Setting_GhostButton = Config_NeonLite.CreateEntry("Open Ghost Directory Button", true, description: "Shows a button at the end to open this level's ghost directory in the file explorer.");
+
 
             Config_NeonLiteVisuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
             s_Setting_PlayerPortrait = Config_NeonLiteVisuals.CreateEntry("Disable the Player portrait", false);
@@ -101,7 +104,9 @@ namespace NeonLite
         private void OnLevelLoadComplete()
         {
             if (SceneManager.GetActiveScene().name.Equals("Heaven_Environment"))
-                return;
+            {
+                OpenGhostDir.Initialize();
+            }
 
             GreenHP.Initialize();
             HUDManager.Initialize();
