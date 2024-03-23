@@ -106,6 +106,7 @@ namespace NeonLite
             if (SceneManager.GetActiveScene().name.Equals("Heaven_Environment"))
             {
                 OpenGhostDir.Initialize();
+                return;
             }
 
             GreenHP.Initialize();
