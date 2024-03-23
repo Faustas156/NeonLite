@@ -31,7 +31,7 @@ namespace NeonLite
         public static MelonPreferences_Entry<bool> s_Setting_DisableAmbiance;
         public static MelonPreferences_Entry<bool> s_Setting_RestartsTotal;
         public static MelonPreferences_Entry<bool> s_Setting_RestartsSession;
-        public static MelonPreferences_Entry<float> s_Setting_CoyoteAssistant;
+        //public static MelonPreferences_Entry<float> s_Setting_CoyoteAssistant;
         public static MelonPreferences_Entry<bool> s_Setting_SessionPB;
 
         public static MelonPreferences_Category Config_NeonLiteVisuals { get; private set; }
@@ -56,7 +56,7 @@ namespace NeonLite
             s_Setting_LevelTimer = Config_NeonLite.CreateEntry("Display Level Timer", true, description: "Tracks the time you've spent on the current level you're playing.");
             s_Setting_RestartsTotal = Config_NeonLite.CreateEntry("Show total Restarts", true, description: "Shows the total amout of restarts for a level.");
             s_Setting_RestartsSession = Config_NeonLite.CreateEntry("Show session restarts", true, description: "Shows the amout of restarts for a level during the current session.");
-            s_Setting_CoyoteAssistant = Config_NeonLite.CreateEntry("Coyote Assistant", 0.05f, description: "The bigger the value, the earlier Neon Lite tells you to jump. -1 means disabled.\n(You must copy paste values > 0.1)");
+            //s_Setting_CoyoteAssistant = Config_NeonLite.CreateEntry("Coyote Assistant", 0.05f, description: "The bigger the value, the earlier Neon Lite tells you to jump. -1 means disabled.\n(You must copy paste values > 0.1)");
             s_Setting_SessionPB = Config_NeonLite.CreateEntry("SessionPB", true, description: "Shows your session pb per level");
 
             Config_NeonLiteVisuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
@@ -88,7 +88,7 @@ namespace NeonLite
             if (DEVBUILD)
                 ModObject.AddComponent<Dev>();
             ModObject.AddComponent<SessionTimer>();
-            ModObject.AddComponent<CoyoteAssistant>();
+            //ModObject.AddComponent<CoyoteAssistant>();
 
             RestartCounter.Initialize();
             SessionPB.Initialize();
