@@ -7,7 +7,7 @@ namespace NeonLite.GameObjects
     internal class SessionPB : MonoBehaviour
     {
         private static string _currentLevel;
-        public static Dictionary<string, (long, string)> LevelPB { get; private set; } = [];
+        public static Dictionary<string, (long, string)> LevelPB { get; private set; } = new();
 
         private readonly Rect _rectSessionPB = new(10, 80, 100, 70);
         private readonly GUIStyle _style = new()

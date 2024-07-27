@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace NeonLite
 {
-    static internal class RessourcesUtils
+    static internal class ResourcesUtils
     {
         private static readonly DataContractJsonSerializerSettings _jsonSettings = new() { UseSimpleDictionaryFormat = true };
 

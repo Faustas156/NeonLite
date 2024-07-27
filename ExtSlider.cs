@@ -3,7 +3,7 @@
 namespace NeonLite
 {
     [HarmonyPatch]
-    internal class ExtFovSlider
+    internal class ExtSlider
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SliderUIPrefab), "Initialise")]
@@ -11,6 +11,8 @@ namespace NeonLite
         {
             if (localisationKey == "Interface/OPTIONS_01_FOV")
                 optionEntry.SliderMaximum = 160;
+            if (localisationKey == "Interface/OPTIONS_02_MOUSESEN")
+                optionEntry.StepSize = 0.01f;
         }
     }
 }

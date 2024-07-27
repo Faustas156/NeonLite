@@ -10,7 +10,7 @@ namespace NeonLite.Modules
     public class CheaterBanlist : Module
     {
         private const string FILENAME = "cheaterlist.json";
-        private const string URL = "https://raw.githubusercontent.com/MOPSKATER/NeonLite/main/Resources/cheaterlist.json";
+        private const string URL = "https://raw.githubusercontent.com/Faustas156/NeonLite/main/Resources/cheaterlist.json";
         private static MelonPreferences_Entry<bool> _setting_Banlist;
 
         // the private static attribute below is used for debugging purposes and getting steamids lol
@@ -24,7 +24,7 @@ namespace NeonLite.Modules
         {
             _setting_Banlist = NeonLite.Config_NeonLite.CreateEntry("Enable Cheater Banlist", true, description: "Cheaters will be displayed red");
 
-            RessourcesUtils.DownloadRessource<ulong[]>(URL, result =>
+            ResourcesUtils.DownloadRessource<ulong[]>(URL, result =>
             {
                 string path;
                 if (result.success)
@@ -38,28 +38,28 @@ namespace NeonLite.Modules
                     }
 
                     //Download succeeded => create local file
-                    if (RessourcesUtils.GetDirectoryPath(out path))
-                        RessourcesUtils.SaveToFile<ulong[]>(path, FILENAME, bannedIDs);
+                    if (ResourcesUtils.GetDirectoryPath(out path))
+                        ResourcesUtils.SaveToFile<ulong[]>(path, FILENAME, bannedIDs);
                     PrepareList();
                     return;
                 }
 
-                else if (RessourcesUtils.GetDirectoryPath(out path) && File.Exists(path + FILENAME))
+                else if (ResourcesUtils.GetDirectoryPath(out path) && File.Exists(path + FILENAME))
                 {
                     //Download failed => find local file
                     try
                     {
-                        bannedIDs = RessourcesUtils.ReadFile<ulong[]>(path, FILENAME);
+                        bannedIDs = ResourcesUtils.ReadFile<ulong[]>(path, FILENAME);
                     }
                     catch (Exception ex)
                     {
                         Debug.Log(ex.Message);
-                        bannedIDs = RessourcesUtils.ReadFile<ulong[]>(Properties.Resources.cheaterlist);
+                        bannedIDs = ResourcesUtils.ReadFile<ulong[]>(Properties.Resources.cheaterlist);
                     }
                 }
                 else
                     //Local file not found => read file from resources
-                    bannedIDs = RessourcesUtils.ReadFile<ulong[]>(Properties.Resources.cheaterlist);
+                    bannedIDs = ResourcesUtils.ReadFile<ulong[]>(Properties.Resources.cheaterlist);
                 PrepareList();
             });
         }

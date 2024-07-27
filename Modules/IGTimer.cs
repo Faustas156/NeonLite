@@ -60,30 +60,62 @@ namespace NeonLite.Modules
         {
             if (!_setting_IGTimer.Value) return true;
 
-            long currentLevelTimerMilliseconds = NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000;
-            timerBuilder.Clear();
-
-            int num = (int)(currentLevelTimerMilliseconds / 60000L);
-            int num2 = (int)(currentLevelTimerMilliseconds / 1000L) % 60;
-            int num3 = (int)(currentLevelTimerMilliseconds - (num * 60000) - (num2 * 1000));
-
-            if (num > 99)
-                timerBuilder.Append((char)((num / 100) + 48));
-
-            timerBuilder.Append((char)((num / 10) + 48));
-            timerBuilder.Append((char)((num % 10) + 48));
-            timerBuilder.Append(':');
-            timerBuilder.Append((char)((num2 / 10) + 48));
-            timerBuilder.Append((char)((num2 % 10) + 48));
-            timerBuilder.Append(':');
-            timerBuilder.Append((char)((num3 / 100) + 48));
-            num3 %= 100;
-            timerBuilder.Append((char)((num3 / 10) + 48));
-            timerBuilder.Append((char)((num3 % 10) + 48));
-
             __instance.timerText.color = _setting_IGTimer_Color.Value;
-            __instance.timerText.text = timerBuilder.ToString();
+            __instance.timerText.text = CreateTimerText();
             return false;
+        }
+
+        public static string CreateTimerText()
+        {
+            if (_setting_IGTimer.Value)
+            {
+                long currentLevelTimerMilliseconds = NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000;
+                timerBuilder.Clear();
+
+                int num = (int)(currentLevelTimerMilliseconds / 60000L);
+                int num2 = (int)(currentLevelTimerMilliseconds / 1000L) % 60;
+                int num3 = (int)(currentLevelTimerMilliseconds - (num * 60000) - (num2 * 1000));
+
+                if (num > 99)
+                    timerBuilder.Append((char)((num / 100) + 48));
+
+                timerBuilder.Append((char)((num / 10) + 48));
+                timerBuilder.Append((char)((num % 10) + 48));
+                timerBuilder.Append(':');
+                timerBuilder.Append((char)((num2 / 10) + 48));
+                timerBuilder.Append((char)((num2 % 10) + 48));
+                timerBuilder.Append(':');
+                timerBuilder.Append((char)((num3 / 100) + 48));
+                num3 %= 100;
+                timerBuilder.Append((char)((num3 / 10) + 48));
+                timerBuilder.Append((char)((num3 % 10) + 48));
+
+                return timerBuilder.ToString();
+            }
+            else
+            {
+                // copy of the OG, just don't wanna fetch it via reflection bc that's ugly
+                long currentLevelTimerCentiseconds = Singleton<Game>.Instance.GetCurrentLevelTimerCentiseconds();
+                timerBuilder.Clear();
+
+                int num = (int)(currentLevelTimerCentiseconds / 6000);
+                int num2 = (int)(currentLevelTimerCentiseconds / 100) % 60;
+                int num3 = (int)(currentLevelTimerCentiseconds - num * 6000 - num2 * 100);
+
+                if (num > 99)
+                    timerBuilder.Append((char)(num / 100 + 48));
+
+                timerBuilder.Append((char)(num / 10 + 48));
+                timerBuilder.Append((char)(num % 10 + 48));
+                timerBuilder.Append(':');
+                timerBuilder.Append((char)(num2 / 10 + 48));
+                timerBuilder.Append((char)(num2 % 10 + 48));
+                timerBuilder.Append(':');
+                timerBuilder.Append((char)(num3 / 10 + 48));
+                timerBuilder.Append((char)(num3 % 10 + 48));
+
+                return timerBuilder.ToString();
+            }
         }
     }
 }

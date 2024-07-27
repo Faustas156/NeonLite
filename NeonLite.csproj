@@ -9,58 +9,76 @@
 
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\MelonLoader\0Harmony.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\MelonLoader\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Ink-Libraries">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\Ink-Libraries.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\Ink-Libraries.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\MelonLoader\MelonLoader.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\MelonLoader\MelonLoader.dll</HintPath>
     </Reference>
     <Reference Include="MelonPrefManager.Mono">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Mods\MelonPrefManager.Mono.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Mods\MelonPrefManager.Mono.dll</HintPath>
     </Reference>
     <Reference Include="Unity.InputSystem">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\Unity.InputSystem.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\Unity.InputSystem.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextCoreModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>G:\Spiele\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VirtualTexturingModule">
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.VirtualTexturingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.VRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.WindModule">
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.WindModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.XR.LegacyInputHelpers">
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.XRModule">
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.XRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UniverseLib.Mono">
+      <HintPath>D:\SteamLibrary\steamapps\common\Neon White\UserLibs\UniverseLib.Mono.dll</HintPath>
     </Reference>
   </ItemGroup>
 

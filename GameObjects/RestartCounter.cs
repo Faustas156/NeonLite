@@ -33,7 +33,7 @@ namespace NeonLite.GameObjects
                 {
                     try
                     {
-                        LevelRestarts = RessourcesUtils.ReadFile<Dictionary<string, int>>(_path, _filename);
+                        LevelRestarts = ResourcesUtils.ReadFile<Dictionary<string, int>>(_path, _filename);
                     }
                     catch (Exception ex)
                     {
@@ -65,7 +65,7 @@ namespace NeonLite.GameObjects
             else
                 LevelRestarts[_currentLevel] = 1;
 
-            RessourcesUtils.SaveToFile<Dictionary<string, int>>(_path, _filename, LevelRestarts);
+            ResourcesUtils.SaveToFile<Dictionary<string, int>>(_path, _filename, LevelRestarts);
         }
 
         private void OnGUI()

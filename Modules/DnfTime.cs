@@ -31,7 +31,7 @@ namespace NeonLite.Modules
             long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
             frozenText.color = best < game.GetCurrentLevelTimerMicroseconds() ? Color.red : Color.green;
-            frozenText.text = "DNF: " + frozenText.text;
+            frozenText.text = "DNF: " + IGTimer.CreateTimerText();
         }
     }
 }

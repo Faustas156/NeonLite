@@ -13,7 +13,7 @@ namespace NeonLite.Modules
     public class CommunityMedals : Module
     {
         private const string FILENAME = "communitymedals.json";
-        private const string URL = "https://raw.githubusercontent.com/MOPSKATER/NeonLite/main/Resources/communitymedals.json";
+        private const string URL = "https://raw.githubusercontent.com/Faustas156/NeonLite/main/Resources/communitymedals.json";
         private static MelonPreferences_Entry<bool> _setting_CommunityMedals_enable;
 
         private static Dictionary<string, long[]> _communityMedalTimes;
@@ -30,7 +30,7 @@ namespace NeonLite.Modules
         {
             _setting_CommunityMedals_enable = NeonLite.Config_NeonLite.CreateEntry("Enable Community Medals", true, description: "Enables Custom Community Medals that change sprites in the game.");
 
-            RessourcesUtils.DownloadRessource<Dictionary<string, long[]>>(URL, result =>
+            ResourcesUtils.DownloadRessource<Dictionary<string, long[]>>(URL, result =>
             {
                 string path;
                 if (result.success)
@@ -44,27 +44,27 @@ namespace NeonLite.Modules
                     }
 
                     //Download succeeded => create local file
-                    if (RessourcesUtils.GetDirectoryPath(out path))
-                        RessourcesUtils.SaveToFile<Dictionary<string, long[]>>(path, FILENAME, _communityMedalTimes);
+                    if (ResourcesUtils.GetDirectoryPath(out path))
+                        ResourcesUtils.SaveToFile<Dictionary<string, long[]>>(path, FILENAME, _communityMedalTimes);
                     return;
                 }
 
-                else if (RessourcesUtils.GetDirectoryPath(out path) && File.Exists(path + FILENAME))
+                else if (ResourcesUtils.GetDirectoryPath(out path) && File.Exists(path + FILENAME))
                 {
                     //Download failed => find local file
                     try
                     {
-                        _communityMedalTimes = RessourcesUtils.ReadFile<Dictionary<string, long[]>>(path, FILENAME);
+                        _communityMedalTimes = ResourcesUtils.ReadFile<Dictionary<string, long[]>>(path, FILENAME);
                     }
                     catch (Exception ex)
                     {
                         Debug.Log(ex.Message);
-                        _communityMedalTimes = RessourcesUtils.ReadFile<Dictionary<string, long[]>>(Properties.Resources.communitymedals);
+                        _communityMedalTimes = ResourcesUtils.ReadFile<Dictionary<string, long[]>>(Properties.Resources.communitymedals);
                     }
                 }
                 else
                     //Local file not found => read file from resources
-                    _communityMedalTimes = RessourcesUtils.ReadFile<Dictionary<string, long[]>>(Properties.Resources.communitymedals);
+                    _communityMedalTimes = ResourcesUtils.ReadFile<Dictionary<string, long[]>>(Properties.Resources.communitymedals);
             });
 
             DefaultStamp = LoadSprite(Properties.Resources.MikeyDefault);
@@ -103,11 +103,11 @@ namespace NeonLite.Modules
         {
             if (SceneManager.GetActiveScene().name == "CustomLevel") return;
 
-            if (!_setting_CommunityMedals_enable.Value | _communityMedalTimes == null)
+            if (!_setting_CommunityMedals_enable.Value || _communityMedalTimes == null)
             {
                 //Reset stamp time to red if feature is broken or disables
                 __instance.devTime.color = new Color(0.420f, 0.015f, 0.043f);
-                DestroyNextTime();
+                DestroyNextTime(__instance);
                 return;
             }
 
@@ -138,9 +138,7 @@ namespace NeonLite.Modules
                         nextTime.color = TextColors[nexIndex];
                     }
                     else
-                    {
-                        DestroyNextTime();
-                    }
+                        DestroyNextTime(__instance);
 
                     stamps = __instance.devStamp.GetComponentsInChildren<Image>();
                     if (stamps.Length < 3) return;
@@ -171,6 +169,7 @@ namespace NeonLite.Modules
 
             stamps[1].sprite = DefaultStamp;
             stamps[2].sprite = DefaultStamp;
+            __instance.devTime.color = new Color(0.420f, 0.015f, 0.043f);
 
             if (level.isSidequest && levelStats._timeBestMicroseconds < Utils.ConvertSeconds_FloatToMicroseconds(level.GetTimeDev()))
             {
@@ -247,7 +246,7 @@ namespace NeonLite.Modules
 
         public static TextMeshProUGUI FindOrCreateNextTime(LevelInfo levelInfo)
         {
-            GameObject nextTimeGameObject = GameObject.Find("NextTimeGoalText");
+            GameObject nextTimeGameObject = levelInfo.devTime.transform.parent.Find("NextTimeGoalText")?.gameObject;
             if (nextTimeGameObject == null)
             {
                 nextTimeGameObject =
@@ -262,9 +261,9 @@ namespace NeonLite.Modules
             return nextTimeGameObject.GetComponent<TextMeshProUGUI>();
         }
 
-        public static void DestroyNextTime()
+        public static void DestroyNextTime(LevelInfo levelInfo)
         {
-            GameObject nextTimeGameObject = GameObject.Find("NextTimeGoalText");
+            GameObject nextTimeGameObject = levelInfo.devTime.transform.parent.Find("NextTimeGoalText")?.gameObject;
             if (nextTimeGameObject != null)
             {
                 Object.Destroy(nextTimeGameObject);

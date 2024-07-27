@@ -13,19 +13,14 @@ namespace NeonLite.GameObjects
             GameObject whitePortrait = RM.ui.portraitUI.gameObject;
             GameObject backstory = whitePortrait.transform.parent.Find("Backstory").gameObject;
             GameObject bottomBar = RM.ui.transform.Find("Overlays/BottomBar/").gameObject;
+            GameObject deathOverlay = RM.ui.transform.Find("Overlays/DamageOverlay").gameObject;
 
             audioController.ambienceSoundEnabled = !NeonLite.s_Setting_DisableAmbiance.Value;
             whitePortrait.SetActive(!NeonLite.s_Setting_PlayerPortrait.Value);
             backstory.SetActive(!NeonLite.s_Setting_BackstoryDisplay.Value);
             bottomBar.SetActive(!NeonLite.s_Setting_BottombarDisplay.Value);
-            RM.ui.deathOverlay.SetActive(!NeonLite.s_Setting_DamageOverlayDisplay.Value);
+            deathOverlay.SetActive(!NeonLite.s_Setting_DamageOverlayDisplay.Value);
         }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PlayerUI), "SetWarningLowHealth")]
-        private static void OverrideSetWarningLowHealth(ref bool on) =>
-            on = !NeonLite.s_Setting_DamageOverlayDisplay.Value && on;
-
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(UIScreenFader), "FadeScreen")]
