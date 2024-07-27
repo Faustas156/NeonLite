@@ -118,25 +118,52 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="mikeysealAmethyst" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\mikeysealAmethyst.png;System.Byte[]</value>
+  <data name="cheaterlist" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cheaterlist.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="mikeysealEmerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\mikeysealEmerald.png;System.Byte[]</value>
+  <data name="communitymedals" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\communitymedals.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="uiCrystal_Amethyst" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uiCrystal_Amethyst.png;System.Byte[]</value>
+  <data name="CrystalAmethyst" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CrystalAmethyst.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="uiCrystal_Emerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uiCrystal_Emerald.png;System.Byte[]</value>
+  <data name="CrystalEmerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CrystalEmerald.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="uiMedal_Emerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uiMedal_Emerald.png;System.Byte[]</value>
+  <data name="CrystalSapphire" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CrystalSapphire.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="uiMedal_MikeyStamp" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uiMedal_MikeyStamp.png;System.Byte[]</value>
+  <data name="CrystalTopaz" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CrystalTopaz.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="uiMedal_Purple" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uiMedal_Purple.png;System.Byte[]</value>
+  <data name="DiscordDLL" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DiscordDLL;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MedalAmethyst" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MedalAmethyst.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MedalEmerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MedalEmerald.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MedalSapphire" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MedalSapphire.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MedalTopaz" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MedalTopaz.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MikeyAmethyst" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MikeyAmethyst.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MikeyDefault" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MikeyDefault.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MikeyEmerald" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MikeyEmerald.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MikeySapphire" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MikeySapphire.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MikeyTopaz" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MikeyTopaz.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>
