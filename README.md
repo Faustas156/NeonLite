@@ -64,4 +64,5 @@
 ### Additional Notes
 
 Unless you're a mod developer, make sure to add `--melonloader.hideconsole` to your game launch properties (right click the game in steam -> properties -> launch options at the bottom of that window) to hide the console that melonloader loads in. It makes your game boot up faster xd
+
 Use `-neonlite_disable_discord` as start argument on Steam to disable discord integration entirely, if you ever happen to run into any issues with the game.
