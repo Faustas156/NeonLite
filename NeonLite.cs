@@ -1,161 +1,217 @@
-﻿using MelonLoader;
-using NeonLite.GameObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using HarmonyLib;
+using MelonLoader;
 using NeonLite.Modules;
-using System.Reflection;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
-using Module = NeonLite.Modules.Module;
 
 namespace NeonLite
 {
     public class NeonLite : MelonMod
     {
-        public static readonly bool DEVBUILD = false;
-        public static NeonLite Instance;
-        public static Game Game { get; private set; }
-        public static GameObject ModObject { get; private set; }
-        public static Module[] Modules { get; private set; }
-        public static new HarmonyLib.Harmony Harmony { get; private set; }
+        // The main Harmony instance to use for patching functions.
+        internal static new HarmonyLib.Harmony Harmony { get; private set; }
+        // The main Logger instance for use with debug.
+        internal static MelonLogger.Instance Logger { get; private set; }
+        internal static Game Game { get { return Singleton<Game>.Instance; } }
 
-        public static readonly BindingFlags s_publicStatic = BindingFlags.Public | BindingFlags.Static;
-        public static readonly BindingFlags s_privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
-        public static readonly BindingFlags s_privateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
+#if DEBUG
+        internal static bool DEBUG { get; private set; } = true;
+#else
+        internal const bool DEBUG = false;
+#endif
 
-        #region EntryDefinitions
+        // The generic holder for everything that doesn't have to be in the main menu. **Initializes in time for low priority.**
+        internal static GameObject holder;
+        // The holder for everything that does have to be in the main menu. **Initializes in time for low priority.**
+        internal static GameObject mmHolder;
 
-        public static MelonPreferences_Category Config_NeonLite { get; private set; }
-        public static MelonPreferences_Entry<bool> s_Setting_SessionTimer;
-        public static MelonPreferences_Entry<bool> s_Setting_LevelTimer;
-        public static MelonPreferences_Entry<bool> s_Setting_GreenHP;
-        public static MelonPreferences_Entry<bool> s_Setting_DisableAmbiance;
-        public static MelonPreferences_Entry<bool> s_Setting_RestartsTotal;
-        public static MelonPreferences_Entry<bool> s_Setting_RestartsSession;
-        //public static MelonPreferences_Entry<float> s_Setting_CoyoteAssistant;
-        public static MelonPreferences_Entry<bool> s_Setting_SessionPB;
-        public static MelonPreferences_Entry<bool> s_Setting_GhostButton;
+        // An automatically populated list of all modules in NeonLite.
+        internal static List<Type> modules = [];
 
-        public static MelonPreferences_Category Config_NeonLiteVisuals { get; private set; }
-        public static MelonPreferences_Entry<bool> s_Setting_PlayerPortrait;
-        public static MelonPreferences_Entry<bool> s_Setting_BackstoryDisplay;
-        public static MelonPreferences_Entry<bool> s_Setting_BottombarDisplay;
-        public static MelonPreferences_Entry<bool> s_Setting_DamageOverlayDisplay;
-        public static MelonPreferences_Entry<bool> s_Setting_ShockerOverlayDisplay;
-        public static MelonPreferences_Entry<bool> s_Setting_TelefragOverlayDisplay;
+        internal static AssetBundleCreateRequest bundleLoading;
+        internal static AssetBundle bundle;
+        internal static event Action<AssetBundle> OnBundleLoad;
 
-        #endregion
+        static bool setupCalled;
+        static bool activateEarly;
+        static bool activateLate;
 
-
-        public override void OnApplicationStart()
+        public override void OnInitializeMelon()
         {
-            Instance = this;
+            Settings.Setup();
+#if DEBUG
+            Settings.mainCategory.GetEntry<bool>("DEBUG").OnEntryValueChanged.Subscribe((_, a) => DEBUG = a);
+            DEBUG = Settings.mainCategory.GetEntry<bool>("DEBUG").Value;
+#endif
+            Harmony = HarmonyInstance;
+            Logger = LoggerInstance;
 
-            Config_NeonLite = MelonPreferences.CreateCategory("NeonLite Settings");
-            s_Setting_GreenHP = Config_NeonLite.CreateEntry("Enable Neon Green HP", true, description: "Displays the HP of Neon Green in Text Form.");
-            s_Setting_DisableAmbiance = Config_NeonLite.CreateEntry("Ambience Remover", false, description: "Is the game too LOUD while muted? This will remove the ambience from the game.");
-            s_Setting_SessionTimer = Config_NeonLite.CreateEntry("Display Session Timer", true, description: "Tracks your current play session time. (REQUIRES RESTART)");
-            s_Setting_LevelTimer = Config_NeonLite.CreateEntry("Display Level Timer", true, description: "Tracks the time you've spent on the current level you're playing.");
-            s_Setting_RestartsTotal = Config_NeonLite.CreateEntry("Show total Restarts", true, description: "Shows the total amout of restarts for a level.");
-            s_Setting_RestartsSession = Config_NeonLite.CreateEntry("Show session restarts", true, description: "Shows the amout of restarts for a level during the current session.");
-            s_Setting_SessionPB = Config_NeonLite.CreateEntry("SessionPB", true, description: "Shows your session pb per level");
-            s_Setting_GhostButton = Config_NeonLite.CreateEntry("Open Ghost Directory Button", true, description: "Shows a button at the end to open this level's ghost directory in the file explorer.");
+            LoadModules(MelonAssembly);
 
-
-            Config_NeonLiteVisuals = MelonPreferences.CreateCategory("NeonLite Visual Settings");
-            s_Setting_PlayerPortrait = Config_NeonLiteVisuals.CreateEntry("Disable the Player portrait", false);
-            s_Setting_BackstoryDisplay = Config_NeonLiteVisuals.CreateEntry("Disable backstory", false);
-            s_Setting_BottombarDisplay = Config_NeonLiteVisuals.CreateEntry("Disable bottom bar", false, description: "Removes the bottom black bar that appears.");
-            s_Setting_DamageOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable low HP overlay", false, description: "Removes the overlay around your screen when you're at 1 hp.");
-            s_Setting_ShockerOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable shocker overlay", false, description: "Removes the small white flash around your screen when using a shocker.");
-            s_Setting_TelefragOverlayDisplay = Config_NeonLiteVisuals.CreateEntry("Disable book of life overlay", false, description: "Removes the overlay around your screen when using the book of life.");
-        }
-
-        public override void OnApplicationLateStart()
-        {
-            Game = Singleton<Game>.Instance;
-            Game.OnLevelLoadComplete += OnLevelLoadComplete;
-
-            Harmony = new HarmonyLib.Harmony("NeonLite");
-
-            IEnumerable<Type> types = Assembly.GetAssembly(typeof(Module)).GetTypes().Where(t => t.IsSubclassOf(typeof(Module)) && !t.IsAbstract && t.IsClass);
-            Modules = new Module[types.Count()];
-            for (int i = 0; i < types.Count(); i++)
-                Modules[i] = (Module)Activator.CreateInstance(types.ElementAt(i));
-
-            ModObject = new("Neon Lite");
-            UnityEngine.Object.DontDestroyOnLoad(ModObject);
-
-            Canvas canvas = ModObject.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            if (DEVBUILD)
-                ModObject.AddComponent<Dev>();
-            ModObject.AddComponent<SessionTimer>();
-
-            RestartCounter.Initialize();
-            SessionPB.Initialize();
-
-            //TODO Add Colorblind mode for medals
-            //TODO Medals for Rushes
-            //TODO LevelRush helper - Delayed until there is more demand
-        }
-
-        private void OnLevelLoadComplete()
-        {
-            if (SceneManager.GetActiveScene().name.Equals("Heaven_Environment"))
+            // preform early inits
+            foreach (var module in modules)
             {
-                OpenGhostDir.Initialize();
+                if (DEBUG)
+                    Logger.Msg($"{module} Setup");
+
+                try
+                {
+                    AccessTools.Method(module, "Setup").Invoke(null, null);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"error in {module} Setup:");
+                    Logger.Error(e);
+                    continue;
+                }
+            }
+            setupCalled = true;
+
+            foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+            {
+                if (DEBUG)
+                    Logger.Msg($"{module} Activate");
+
+                try
+                {
+                    AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"error in {module} Activate:");
+                    Logger.Error(e);
+                    continue;
+                }
+            }
+            activateEarly = true;
+        }
+
+        internal static void LoadAssetBundle()
+        {
+            if (bundleLoading != null) 
                 return;
-            }
-
-            GreenHP.Initialize();
-            HUDManager.Initialize();
-            LevelTimer.Initialize();
-            new GameObject("RestartCounter").AddComponent<RestartCounter>();
-            new GameObject("SessionPB").AddComponent<SessionPB>();
+            bundleLoading = AssetBundle.LoadFromMemoryAsync(Resources.r.bundle);
+            bundleLoading.completed += _ =>
+            {
+                Logger.Msg("AssetBundle loading done!");
+                bundle = bundleLoading.assetBundle;
+                OnBundleLoad.Invoke(bundle);
+            };
         }
 
-        public override void OnUpdate()
+        public override void OnLateInitializeMelon()
         {
-            try
-            {
-                DiscordActivity.DiscordInstance?.RunCallbacks();
-            }
-            catch (Discord.ResultException resultException)
-            {
-                Debug.LogWarning("Failed to run Discord callbacks: " + resultException.Message);
-                DiscordActivity.ClearInstance();
-                foreach (Module module in Modules)
-                {
-                    if (module is DiscordActivity activity)
-                        activity.ClearCallbacks();
-                }
-            }
+            LoadAssetBundle();
+            Singleton<Game>.Instance.OnInitializationComplete += OnInitComplete;
+            Settings.Localize();
         }
 
-        //Dev debug features
-        public override void OnFixedUpdate()
+        void OnInitComplete()
         {
-            if (!DEVBUILD) return;
+            // mainmenu is now ready!
+            Singleton<Game>.Instance.OnInitializationComplete -= OnInitComplete;
 
-            if (Keyboard.current.f7Key.wasPressedThisFrame)
-                RM.acceptInput = !RM.acceptInput;
+            holder = new GameObject("NeonLite");
+            UnityEngine.Object.DontDestroyOnLoad(holder);
 
-            if (!Keyboard.current.hKey.wasPressedThisFrame) return;
+            mmHolder = new GameObject("NeonLite");
+            mmHolder.transform.SetParent(MainMenu.Instance().transform.Find("Canvas"), false);
+            mmHolder.transform.localScale = Vector3.one;
 
-            string FilePath = "C:\\medals\\medal.png";
-            if (File.Exists(FilePath))
+            // perform the later inits
+            foreach (var module in modules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
-                Texture2D Tex2D;
-                byte[] FileData;
-                FileData = File.ReadAllBytes(FilePath);
-                Tex2D = new Texture2D(2, 2);
-                Tex2D.LoadImage(FileData);
-                Texture2D SpriteTexture = Tex2D;
-                for (int i = 0; i < CommunityMedals.Medals.Length; i++)
+                if (DEBUG)
+                    Logger.Msg($"{module} Activate");
+
+                try
                 {
-                    CommunityMedals.Medals[i] = Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), 100f);
+                    AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"error in {module} Activate:");
+                    Logger.Error(e);
+                    continue;
                 }
             }
+            activateLate = true;
+
+            Settings.Migrate();
+
+            // force it to fetch even if it's off
+            CommunityMedals.OnLevelLoad(null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void LoadModules(MelonAssembly assembly)
+        {
+            var addedModules = assembly.Assembly.GetTypes().Where(t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t));
+            if (setupCalled)
+            {
+                foreach (var module in modules)
+                {
+                    if (DEBUG)
+                        Logger.Msg($"{module} Setup");
+
+                    try
+                    {
+                        AccessTools.Method(module, "Setup").Invoke(null, null);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"error in {module} Setup:");
+                        Logger.Error(e);
+                        continue;
+                    }
+                }
+            }
+
+            if (activateEarly)
+            {
+                foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+                {
+                    if (DEBUG)
+                        Logger.Msg($"{module} Activate");
+
+                    try
+                    {
+                        AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"error in {module} Activate:");
+                        Logger.Error(e);
+                        continue;
+                    }
+                }
+            }
+
+            if (activateLate)
+            {
+                foreach (var module in modules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+                {
+                    if (DEBUG)
+                        Logger.Msg($"{module} Activate");
+
+                    try
+                    {
+                        AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error($"error in {module} Activate:");
+                        Logger.Error(e);
+                        continue;
+                    }
+                }
+            }
+
+            //modules.UnionWith(addedModules);
+            modules.AddRange(addedModules);
         }
     }
 }

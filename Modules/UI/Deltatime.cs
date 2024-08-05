@@ -1,0 +1,106 @@
+﻿using HarmonyLib;
+using System;
+using System.Reflection;
+using TMPro;
+using UnityEngine;
+
+namespace NeonLite.Modules.UI
+{
+    internal class Deltatime : IModule
+    {
+#pragma warning disable CS0414
+        const bool priority = true;
+        static bool active = false;
+
+        static bool hit = false;
+
+        static GameObject dtLevel;
+        static GameObject dtRush;
+
+        static long oldPB = -1;
+        static bool wasFinished;
+
+        static void Setup()
+        {
+            var setting = Settings.Add(Settings.h, "UI/In-game", "deltatime", "Deltatime", "Displays a time comparing to your last personal best.", true);
+            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
+            active = setting.Value;
+        }
+
+        static readonly MethodInfo ogwin = AccessTools.Method(typeof(Game), "OnLevelWin");
+        static readonly MethodInfo ogres = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible");
+        static void Activate(bool activate)
+        {
+            if (activate)
+            {
+                NeonLite.Harmony.Patch(ogwin, prefix: Helpers.HM(PreWin));
+                NeonLite.Harmony.Patch(ogres, postfix: Helpers.HM(PostSetVisible));
+            }
+            else
+            {
+                NeonLite.Harmony.Unpatch(ogwin, Helpers.MI(PreWin));
+                NeonLite.Harmony.Unpatch(ogres, Helpers.MI(PostSetVisible));
+            }
+
+            active = activate;
+        }
+
+        static void OnLevelLoad(LevelData _) => hit = false;
+
+        static void PreWin()
+        {
+            LevelStats levelStats = GameDataManager.levelStats[NeonLite.Game.GetCurrentLevel().levelID];
+            LevelRushData bestLevelRushData = LevelRush.GetLevelRushDataByType(LevelRush.GetCurrentLevelRushType());
+            oldPB = LevelRush.IsLevelRush() ? (LevelRush.IsHellRush() ? bestLevelRushData.bestTime_HellMicroseconds : bestLevelRushData.bestTime_HeavenMicroseconds) : levelStats.GetTimeBestMicroseconds();
+            wasFinished = LevelRush.IsLevelRush() || levelStats.GetCompleted(); 
+        }
+
+        static void PostSetVisible()
+        {
+            bool isLevelRush = LevelRush.IsLevelRush();
+            long newTime = isLevelRush ? LevelRush.GetCurrentLevelRushTimerMicroseconds() : NeonLite.Game.GetCurrentLevelTimerMicroseconds();
+            long bestTime = oldPB;
+
+            long delta = (bestTime - newTime) / 1000;
+            bool newBest = delta < 0;
+
+            string deltaTimeString = (newBest ? "+" : "-") + Helpers.FormatTime(Math.Abs(delta), ShowMS.setting.Value, '.', true);
+
+            Debug.Log(bestTime + "   " + newTime);
+
+            TextMeshProUGUI text;
+            GameObject levelTimeObject;
+
+            if (!isLevelRush)
+            {
+                if (dtLevel == null)
+                {
+                    levelTimeObject = ((MenuScreenResults)MainMenu.Instance()._screenResults)._resultsScreenNewBestTimeIndicator;
+                    dtLevel = UnityEngine.Object.Instantiate(levelTimeObject, levelTimeObject.transform.parent);
+                    dtLevel.transform.SetSiblingIndex(levelTimeObject.transform.GetSiblingIndex() + 1);
+                    dtLevel.name = "Delta Time";
+                    dtLevel.transform.localPosition += new Vector3(-5, -30, 0);
+                    dtLevel.SetActive(wasFinished);
+                }
+                
+                text = dtLevel.GetComponent<TextMeshProUGUI>();
+                text.SetText(deltaTimeString);
+                text.color = newBest ? Color.red : Color.green;
+                return;
+            }
+
+            if (dtRush == null)
+            {
+                levelTimeObject = MainMenu.Instance()._screenLevelRushComplete.timeText.gameObject;
+                dtRush = UnityEngine.Object.Instantiate(levelTimeObject, levelTimeObject.transform.parent);
+                dtLevel.transform.SetSiblingIndex(levelTimeObject.transform.GetSiblingIndex() + 1);
+                dtRush.name = "Delta Time Rush";
+                dtRush.transform.localPosition += new Vector3(0, -30, 0);
+                dtRush.SetActive(true);
+            }
+            text = dtRush.GetComponent<TextMeshProUGUI>();
+            text.SetText(deltaTimeString);
+            text.color = newBest ? Color.red : Color.green;
+        }
+    }
+}
