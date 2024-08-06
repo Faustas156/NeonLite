@@ -19,6 +19,8 @@ namespace NeonLite
         static readonly MethodInfo gdmSave = AccessTools.Method(typeof(GameDataManager), "GetPlayerSaveDataPath");
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public string GetSaveDirectory() => Path.Combine(Application.persistentDataPath, Path.GetDirectoryName((string)gdmSave.Invoke(null, null)));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public void CreateDirectories(string path) => Directory.CreateDirectory(Path.GetDirectoryName(path));
 
         static readonly StringBuilder timerBuilder = new();
         public static string FormatTime(long timeMS, bool three, char split = ':', bool cutoff = false, bool msAtAll = true)

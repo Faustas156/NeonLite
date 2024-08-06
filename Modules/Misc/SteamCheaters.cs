@@ -33,6 +33,7 @@ namespace NeonLite.Modules.Misc
             Helpers.DownloadURL(URL, request =>
             {
                 string backup = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", filename);
+                Helpers.CreateDirectories(backup);
                 var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text);
                 if (load)
                     File.WriteAllText(backup, request.downloadHandler.text);

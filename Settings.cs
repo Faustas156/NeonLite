@@ -118,6 +118,7 @@ namespace NeonLite
 
 #if DEBUG
             locPath = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", "localization.json");
+            Helpers.CreateDirectories(locPath);
             ProxyObject loaded = [];
             if (File.Exists(locPath))
                 loaded = JSON.Load(File.ReadAllText(locPath)) as ProxyObject;

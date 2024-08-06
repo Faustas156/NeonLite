@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MelonLoader;
 using MelonLoader.TinyJSON;
 using NeonLite.Modules.UI;
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -56,6 +57,12 @@ namespace NeonLite.Modules
             Sapphire,
             Plus
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static MedalEnum E(int i) => (MedalEnum)i;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static int I(MedalEnum e) => (int)e;
+
 
         static bool assetReadyUnderlying;
         public static bool Ready
@@ -169,6 +176,8 @@ namespace NeonLite.Modules
         static readonly MethodInfo ogslvl = AccessTools.Method(typeof(LevelInfo), "SetLevel");
         static readonly MethodInfo ogmbls = AccessTools.Method(typeof(MenuButtonLevel), "SetLevelData");
         static readonly MethodInfo ogset = AccessTools.Method(typeof(LeaderboardScore), "SetScore");
+        static readonly MethodInfo oggolw = AccessTools.Method(typeof(Game), "OnLevelWin");
+        static readonly MethodInfo ogmrsm = AccessTools.Method(typeof(MenuScreenResults), "SetMedal");
 
         internal static void OnLevelLoad(LevelData _)
         {
@@ -178,6 +187,7 @@ namespace NeonLite.Modules
                 Helpers.DownloadURL(URL, request =>
                 {
                     string backup = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", filename);
+                    Helpers.CreateDirectories(backup);
                     var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text);
                     if (load)
                         File.WriteAllText(backup, request.downloadHandler.text);
@@ -207,6 +217,8 @@ namespace NeonLite.Modules
                 NeonLite.Harmony.Patch(ogslvl, postfix: sl);
                 NeonLite.Harmony.Patch(ogmbls, postfix: Helpers.HM(PostSetLevelData));
                 NeonLite.Harmony.Patch(ogset, postfix: Helpers.HM(PostSetScore));
+                NeonLite.Harmony.Patch(oggolw, prefix: Helpers.HM(PreOnWin));
+                NeonLite.Harmony.Patch(ogmrsm, postfix: Helpers.HM(PostSetMedal));
             }
             else
             {
@@ -216,6 +228,8 @@ namespace NeonLite.Modules
                 NeonLite.Harmony.Unpatch(ogslvl, Helpers.MI(PostSetLevel));
                 NeonLite.Harmony.Unpatch(ogmbls, Helpers.MI(PostSetLevelData));
                 NeonLite.Harmony.Unpatch(ogset, Helpers.MI(PostSetScore));
+                NeonLite.Harmony.Unpatch(oggolw, Helpers.MI(PreOnWin));
+                NeonLite.Harmony.Unpatch(ogmrsm, Helpers.MI(PostSetMedal));
             }
         }
 
@@ -307,9 +321,9 @@ namespace NeonLite.Modules
             {
                 if (oldStyle.Value)
                 {
-                    __instance._aceMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[(int)MedalEnum.Ace];
-                    __instance._goldMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[(int)MedalEnum.Gold];
-                    __instance._silverMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[(int)MedalEnum.Silver];
+                    __instance._aceMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[I(MedalEnum.Ace)];
+                    __instance._goldMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[I(MedalEnum.Gold)];
+                    __instance._silverMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[I(MedalEnum.Silver)];
                 }
 
                 __instance.devTime.color = Colors[(int)MedalEnum.Dev];
@@ -347,24 +361,24 @@ namespace NeonLite.Modules
             long[] communityTimes = medalTimes[level.levelID];
             int medalEarned = GetMedalIndex(level.levelID);
 
-            if (medalEarned < (int)MedalEnum.Dev && (!level.isSidequest || !levelStats.GetCompleted() || oldStyle.Value))
+            if (medalEarned < I(MedalEnum.Dev) && (!level.isSidequest || !levelStats.GetCompleted() || oldStyle.Value))
             {
-                aceImage.GetComponent<Image>().sprite = Medals[(int)MedalEnum.Ace];
-                goldImage.sprite = Medals[(int)MedalEnum.Gold];
-                silverImage.sprite = Medals[(int)MedalEnum.Silver];
+                aceImage.GetComponent<Image>().sprite = Medals[I(MedalEnum.Ace)];
+                goldImage.sprite = Medals[I(MedalEnum.Gold)];
+                silverImage.sprite = Medals[I(MedalEnum.Silver)];
                 return;
             }
 
             if (!level.isSidequest)
-                __instance._levelMedal.sprite = Medals[Math.Min(medalEarned, (int)MedalEnum.Sapphire)];
+                __instance._levelMedal.sprite = Medals[Math.Min(medalEarned, I(MedalEnum.Sapphire))];
             else
                 __instance._crystalHolderFilledImage.sprite = Crystals[medalEarned];
 
             if (oldStyle.Value)
             {
-                __instance.devTime.SetText(Helpers.FormatTime(communityTimes[medalEarned] / 1000, medalEarned != (int)MedalEnum.Dev || ShowMS.extended.Value, '.', true));
+                __instance.devTime.SetText(Helpers.FormatTime(communityTimes[medalEarned] / 1000, medalEarned != I(MedalEnum.Dev) || ShowMS.extended.Value, '.', true));
                 __instance.devTime.color = AdjustedColor(Colors[medalEarned]);
-                if (medalEarned < (int)MedalEnum.Sapphire)
+                if (medalEarned < I(MedalEnum.Sapphire))
                 {
                     TextMeshProUGUI nextTime;
                     nextTime = FindOrCreateNextTime(__instance);
@@ -387,9 +401,9 @@ namespace NeonLite.Modules
             {
                 if (level.isSidequest)
                 {
-                    aceImage.sprite = Crystals[(int)MedalEnum.Sapphire];
-                    goldImage.sprite = Crystals[(int)MedalEnum.Amethyst];
-                    silverImage.sprite = Crystals[(int)MedalEnum.Emerald];
+                    aceImage.sprite = Crystals[I(MedalEnum.Sapphire)];
+                    goldImage.sprite = Crystals[I(MedalEnum.Amethyst)];
+                    silverImage.sprite = Crystals[I(MedalEnum.Emerald)];
                     aceImage.preserveAspect = true;
                     goldImage.preserveAspect = true;
                     silverImage.preserveAspect = true;
@@ -399,29 +413,29 @@ namespace NeonLite.Modules
                 }
                 else
                 {
-                    aceImage.sprite = Medals[(int)MedalEnum.Sapphire];
-                    goldImage.sprite = Medals[(int)MedalEnum.Amethyst];
-                    silverImage.sprite = Medals[(int)MedalEnum.Emerald];
+                    aceImage.sprite = Medals[I(MedalEnum.Sapphire)];
+                    goldImage.sprite = Medals[I(MedalEnum.Amethyst)];
+                    silverImage.sprite = Medals[I(MedalEnum.Emerald)];
                 }
 
-                __instance._aceMedalBG.SetActive(medalEarned >= (int)MedalEnum.Sapphire);
-                __instance._goldMedalBG.SetActive(medalEarned >= (int)MedalEnum.Amethyst);
-                __instance._silverMedalBG.SetActive(medalEarned >= (int)MedalEnum.Emerald);
+                __instance._aceMedalBG.SetActive(medalEarned >= I(MedalEnum.Sapphire));
+                __instance._goldMedalBG.SetActive(medalEarned >= I(MedalEnum.Amethyst));
+                __instance._silverMedalBG.SetActive(medalEarned >= I(MedalEnum.Emerald));
 
                 __instance._aceMedalTime.text = (string)styleTime.Invoke(__instance, [
-                    Helpers.FormatTime(communityTimes[(int)MedalEnum.Sapphire] / 1000, true, '.', true),
+                    Helpers.FormatTime(communityTimes[I(MedalEnum.Sapphire)] / 1000, true, '.', true),
                     medalEarned >= (int)MedalEnum.Sapphire]);
                 __instance._goldMedalTime.text = (string)styleTime.Invoke(__instance, [
-                    Helpers.FormatTime(communityTimes[(int)MedalEnum.Amethyst] / 1000, true, '.', true),
+                    Helpers.FormatTime(communityTimes[I(MedalEnum.Amethyst)] / 1000, true, '.', true),
                     medalEarned >= (int)MedalEnum.Amethyst]);
                 __instance._silverMedalTime.text = (string)styleTime.Invoke(__instance, [
-                    Helpers.FormatTime(communityTimes[(int)MedalEnum.Emerald] / 1000, true, '.', true),
+                    Helpers.FormatTime(communityTimes[I(MedalEnum.Emerald)] / 1000, true, '.', true),
                     medalEarned >= (int)MedalEnum.Emerald]);
 
                 if (medalEarned >= (int)MedalEnum.Plus)
                 {
                     __instance.devStamp.SetActive(true);
-                    __instance.devTime.text = Helpers.FormatTime(communityTimes[(int)MedalEnum.Plus] / 1000, true, '.', true);
+                    __instance.devTime.text = Helpers.FormatTime(communityTimes[I(MedalEnum.Plus)] / 1000, true, '.', true);
                     __instance.devTime.color = AdjustedColor(Colors[medalEarned]);
 
                     stamps[1].sprite = Stamps[medalEarned];
@@ -471,10 +485,10 @@ namespace NeonLite.Modules
 
             int medalEarned = GetMedalIndex(ld.levelID);
 
-            if (medalEarned < (int)MedalEnum.Dev)
+            if (medalEarned < I(MedalEnum.Dev))
                 return;
 
-            __instance._medal.sprite = Medals[Math.Min(medalEarned, (int)MedalEnum.Sapphire)];
+            __instance._medal.sprite = Medals[Math.Min(medalEarned, I(MedalEnum.Sapphire))];
             __instance._imageLoreBacking.enabled = !ld.isSidequest;
 
             if (ld.isSidequest)
@@ -496,17 +510,59 @@ namespace NeonLite.Modules
 
             if (!levelData.isSidequest)
             {
-                __instance._medal.sprite = Medals[Math.Min(medalEarned, (int)MedalEnum.Sapphire)];
+                __instance._medal.sprite = Medals[Math.Min(medalEarned, I(MedalEnum.Sapphire))];
                 __instance._medal.gameObject.SetActive(true);
             }
             else if (medalEarned > (int)MedalEnum.Dev)
             {
                 __instance._medal.preserveAspect = true;
-                __instance._medal.sprite = Crystals[Math.Min(medalEarned, (int)MedalEnum.Sapphire)];
+                __instance._medal.sprite = Crystals[Math.Min(medalEarned, I(MedalEnum.Sapphire))];
                 __instance._medal.gameObject.SetActive(true);
             }
         }
 
+        static long lastBest;
+        static void PreOnWin() => lastBest = NeonLite.Game.GetGameData().GetLevelStats(NeonLite.Game.GetCurrentLevel().levelID)._timeBestMicroseconds;
+        static void PostSetMedal(MenuScreenResults __instance, int medalEarned, int oldInsightLevel, int previousMedal, ref int ____medalEarned)
+        {
+            if (!Ready)
+                return;
+
+            if (NeonLite.DEBUG)
+                NeonLite.Logger.Msg($"{medalEarned} {oldInsightLevel} {previousMedal}");
+
+            var level = NeonLite.Game.GetCurrentLevel();
+            GameData gameData = NeonLite.Game.GetGameData();
+            LevelStats levelStats = gameData.GetLevelStats(level.levelID);
+
+            var modded = GetMedalIndex(level.levelID);
+            __instance._levelCompleteMedalImage.sprite = Medals[modded];
+            AdjustMaterial(__instance._levelCompleteMedalImage);
+
+            if (!(medalEarned == 4 || (medalEarned == 0 && previousMedal == 4) || levelStats.IsNewBest()) || modded == GetMedalIndex(level.levelID, lastBest))
+                return;
+            if (oldInsightLevel == 4)
+            {
+                __instance._pityEarned_Localized.SetKey(""); // disable that, we're at max
+                __instance._insightEarned_Localized.SetKey(""); // disable this too, we're at max
+            }
+            else if (modded >= I(MedalEnum.Emerald))
+                __instance._insightEarned_Localized.SetKey("NeonLite/RESULTS_MEDAL_MODDED_INSIGHT");
+            if (modded <= I(MedalEnum.Dev) || modded == I(MedalEnum.Plus)) // don't do anything else on dev and under
+                return;
+
+            string locKey = E(modded) switch
+            {
+                MedalEnum.Emerald => "NeonLite/RESULTS_MEDAL_EMERALD",
+                MedalEnum.Amethyst => "NeonLite/RESULTS_MEDAL_AMETHYST",
+                MedalEnum.Sapphire => "NeonLite/RESULTS_MEDAL_SAPPHIRE",
+                _ => ""
+            };
+
+            __instance._levelCompleteMedalText_Localized.SetKey(locKey);
+
+            ____medalEarned = 4;
+        }
     }
 }
 

@@ -166,6 +166,7 @@
     <Compile Include="Modules\LoadManager.cs" />
     <Compile Include="Modules\UI\NoMission.cs" />
     <Compile Include="Modules\VFX\NoBloom.cs" />
+    <Compile Include="Modules\VFX\NoStomp.cs" />
     <Compile Include="Modules\VFX\NoSun.cs" />
     <Compile Include="NeonLite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

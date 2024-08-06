@@ -81,7 +81,6 @@ namespace NeonLite.Modules.Misc
 
             if (activate)
             {
-
                 if (prefab && !instance)
                 {
                     NeonLite.Game.winAction += LevelWin;
@@ -202,6 +201,7 @@ namespace NeonLite.Modules.Misc
             static void Activate(bool _)
             {
                 path = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", "restartcounter.json");
+                Helpers.CreateDirectories(path);
                 if (!File.Exists(path) || !Load(File.ReadAllText(path)))
                 {
                     if (!File.Exists(path + ".bak") || !Load(File.ReadAllText(path + ".bak")))
@@ -215,7 +215,7 @@ namespace NeonLite.Modules.Misc
                     var ri = restarts[lastLevel.levelID];
                     ri.completed++;
                     restarts[lastLevel.levelID] = ri;
-                    instance.seshAttemptsI.UpdateText(ri.session, ri.completed);
+                    instance?.seshAttemptsI.UpdateText(ri.session, ri.completed);
                     Save();
                 };
             }
@@ -233,8 +233,8 @@ namespace NeonLite.Modules.Misc
                     ri.queued++;
                     ri.session++;
                     restarts[level.levelID] = ri;
-                    instance.totalAttemptsI.UpdateText(ri.total + ri.queued);
-                    instance.seshAttemptsI.UpdateText(ri.session, ri.completed);
+                    instance?.totalAttemptsI.UpdateText(ri.total + ri.queued);
+                    instance?.seshAttemptsI.UpdateText(ri.session, ri.completed);
                 }
             }
 
@@ -330,7 +330,7 @@ namespace NeonLite.Modules.Misc
         class AttemptsNow : MonoBehaviour, AxKLocalizedTextObject_Interface
         {
             static AttemptsNow instance;
-            string localizeCache;
+            string localizeCache = "";
             TextMeshProUGUI text;
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
@@ -353,7 +353,7 @@ namespace NeonLite.Modules.Misc
 
         class AttemptsTotal : MonoBehaviour, AxKLocalizedTextObject_Interface
         {
-            string localizeCache;
+            string localizeCache = "";
             TextMeshProUGUI text;
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
