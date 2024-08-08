@@ -121,9 +121,12 @@ namespace NeonLite.Modules.Misc
             long levelPB = SessionPB.pbs[lastLevel.levelID];
 
             if (ms >= levelPB) return;
-            instance.seshPBI.time = ms;
             SessionPB.pbs[lastLevel.levelID] = ms;
-            instance.seshPBI.UpdateText();
+            if (instance.seshPBI)
+            {
+                instance.seshPBI.time = ms;
+                instance.seshPBI.UpdateText();
+            }
         }
 
         static void OnLevelLoad(LevelData level)

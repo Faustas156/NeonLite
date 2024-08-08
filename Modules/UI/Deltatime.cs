@@ -40,6 +40,10 @@ namespace NeonLite.Modules.UI
             {
                 NeonLite.Harmony.Unpatch(ogwin, Helpers.MI(PreWin));
                 NeonLite.Harmony.Unpatch(ogres, Helpers.MI(PostSetVisible));
+                if (dtLevel)
+                    UnityEngine.Object.Destroy(dtLevel);
+                if (dtRush)
+                    UnityEngine.Object.Destroy(dtRush);
             }
 
             active = activate;
@@ -80,8 +84,8 @@ namespace NeonLite.Modules.UI
                     dtLevel.transform.SetSiblingIndex(levelTimeObject.transform.GetSiblingIndex() + 1);
                     dtLevel.name = "Delta Time";
                     dtLevel.transform.localPosition += new Vector3(-5, -30, 0);
-                    dtLevel.SetActive(wasFinished);
                 }
+                dtLevel.SetActive(wasFinished);
                 
                 text = dtLevel.GetComponent<TextMeshProUGUI>();
                 text.SetText(deltaTimeString);
@@ -96,8 +100,8 @@ namespace NeonLite.Modules.UI
                 dtLevel.transform.SetSiblingIndex(levelTimeObject.transform.GetSiblingIndex() + 1);
                 dtRush.name = "Delta Time Rush";
                 dtRush.transform.localPosition += new Vector3(0, -30, 0);
-                dtRush.SetActive(true);
             }
+            dtRush.SetActive(true);
             text = dtRush.GetComponent<TextMeshProUGUI>();
             text.SetText(deltaTimeString);
             text.color = newBest ? Color.red : Color.green;
