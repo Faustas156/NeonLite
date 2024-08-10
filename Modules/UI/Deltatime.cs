@@ -97,7 +97,7 @@ namespace NeonLite.Modules.UI
             {
                 levelTimeObject = MainMenu.Instance()._screenLevelRushComplete.timeText.gameObject;
                 dtRush = UnityEngine.Object.Instantiate(levelTimeObject, levelTimeObject.transform.parent);
-                dtRush.transform.SetSiblingIndex(levelTimeObject.transform.GetSiblingIndex() + 1);
+                dtLevel.transform.SetSiblingIndex(levelTimeObject.transform.GetSiblingIndex() + 1);
                 dtRush.name = "Delta Time Rush";
                 dtRush.transform.localPosition += new Vector3(0, -30, 0);
             }

@@ -20,20 +20,28 @@ namespace NeonLite.Modules.UI
             active = setting.Value;
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(LevelGate), "OnTriggerStay");
+        static readonly MethodInfo ogonsty = AccessTools.Method(typeof(LevelGate), "OnTriggerStay");
+        static readonly MethodInfo ogstart = AccessTools.Method(typeof(LevelGate), "Start");
+
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, postfix: Helpers.HM(OnTrigger));
+            {
+                NeonLite.Harmony.Patch(ogonsty, postfix: Helpers.HM(OnTrigger));
+                NeonLite.Harmony.Patch(ogstart, postfix: Helpers.HM(PostStart));
+            }
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(OnTrigger));
+            {
+                NeonLite.Harmony.Unpatch(ogonsty, Helpers.MI(OnTrigger));
+                NeonLite.Harmony.Unpatch(ogstart, Helpers.MI(PostStart));
+            }
 
             active = activate;
         }
 
         static void OnLevelLoad(LevelData _) => hit = false;
 
-        static void OnTrigger(ref LevelGate __instance)
+        static void OnTrigger(LevelGate __instance)
         {
             if (__instance.Unlocked || hit || (LevelRush.IsLevelRush() && LevelRush.GetCurrentLevelRush().randomizedIndex.Length - 1 != LevelRush.GetCurrentLevelRush().currentLevelIndex))
                 return;
@@ -47,6 +55,22 @@ namespace NeonLite.Modules.UI
             frozenText.color = best < game.GetCurrentLevelTimerMicroseconds() ? Color.red : Color.green;
             var local = Localization.Setup(frozenText);
             local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(game.GetCurrentLevelTimerMicroseconds() / 1000, ShowMS.setting.Value), false)]);
+        }
+        static void PostStart(LevelGate __instance)
+        {
+            // dnfs were actually using the entire rigidbody which is a bit taller and a tiny bit wider
+            // this made dnfs fake, **ESPECIALLY** vertical DNFs 
+            // shoutout mario/snowy/wolfu/floyd for pointing it out and letting me test
+            // according to unity docs this doesn't even seem like it should happen,
+            // so we have to add a rigidbody to redirect it
+            // testing was done to make absolutely sure that this doesn't affect anything else
+            var rb = __instance._collider.GetOrAddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.detectCollisions = true;
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            rb.useGravity = false;
+            rb.freezeRotation = true;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
         }
     }
 }

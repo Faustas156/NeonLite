@@ -324,7 +324,7 @@ namespace NeonLite.Modules.Misc
             }
             internal void UpdateText()
             {
-                text.SetKey("NeonLite/INFO_SESSIONPB",
+                text?.SetKey("NeonLite/INFO_SESSIONPB",
                     [new("{0}",
                         Helpers.FormatTime((time == long.MaxValue ? 0 : time) / 1000, ShowMS.setting.Value, '.', true),
                         false)]);
