@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿#if !XBOX
+using HarmonyLib;
 using MelonLoader.TinyJSON;
 using Steamworks;
 using System;
@@ -11,7 +12,6 @@ using UnityEngine;
 
 namespace NeonLite.Modules.Misc
 {
-#if !XBOX
     internal class SteamCheaters : IModule
     {
 #pragma warning disable CS0414
@@ -125,5 +125,5 @@ namespace NeonLite.Modules.Misc
 
         private static void PostRecieve() => activeCheaters.Clear();
     }
-#endif
 }
+#endif
