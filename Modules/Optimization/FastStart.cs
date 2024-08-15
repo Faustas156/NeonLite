@@ -6,6 +6,25 @@ using UnityEngine.SceneManagement;
 
 namespace NeonLite.Modules.Optimization
 {
+    enum GameInit
+    {
+        Uninitialized,
+        Start,
+#if XBOX
+		PlatformLoading,
+		PlatformLoaded,
+        PrefsLoading,
+#endif
+        PrefsLoaded,
+        MenuHolderLoading,
+        MenuHolderLoaded,
+        SaveDataLoading,
+        SaveDataLoaded,
+        AdditionalScenesLoading,
+        AdditionalScenesLoaded,
+        Complete
+    }
+
     internal class FastStart : IModule
     {
 #pragma warning disable CS0414
@@ -67,30 +86,30 @@ namespace NeonLite.Modules.Optimization
         }
 
         static void RemoveFrontload(ref bool enforceMinimumTime, ref bool frontloadWait) => enforceMinimumTime = frontloadWait = false;
-        static bool SetInitState(Game __instance, int initializationState, ref int ____initializationState)
+        static bool SetInitState(Game __instance, GameInit initializationState, ref GameInit ____initializationState)
         {
             if (NeonLite.DEBUG)
                 NeonLite.Logger.Msg($"SetInitState {initializationState}");
 
-            if (initializationState == 2)
+            if (initializationState == GameInit.PrefsLoaded)
             {
                 Singleton<GameInput>.Instance.Initialize();
-                ____initializationState = 3;
+                ____initializationState = GameInit.MenuHolderLoading;
                 if (menuPreload.isDone)
-                    ____initializationState = 4;
+                    ____initializationState = GameInit.MenuHolderLoaded;
                 else
-                    menuPreload.completed += _ => AccessTools.Field(typeof(Game), "_initializationState").SetValue(__instance, 4);
+                    menuPreload.completed += _ => AccessTools.Field(typeof(Game), "_initializationState").SetValue(__instance, (int)GameInit.MenuHolderLoaded);
                 return false;
             }
             return initializationState > ____initializationState;
         }
-        static bool UnloadScenesRewrite(Game __instance, ref int ____initializationState)
+        static bool UnloadScenesRewrite(Game __instance, ref GameInit ____initializationState)
         {
             GameDataManager.ApplyShadowPrefs();
             if (audioPreload.isDone)
-                ____initializationState = 8;
+                ____initializationState = GameInit.AdditionalScenesLoaded;
             else
-                audioPreload.completed += _ => AccessTools.Field(typeof(Game), "_initializationState").SetValue(__instance, 8);
+                audioPreload.completed += _ => AccessTools.Field(typeof(Game), "_initializationState").SetValue(__instance, (int)GameInit.AdditionalScenesLoaded);
             return false;
         }
     }
