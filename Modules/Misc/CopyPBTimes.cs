@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -24,34 +24,36 @@ namespace NeonLite.Modules.Misc
             if (newState != MainMenu.State.GlobalNeonScore)
             {
                 if (button)
-                    button.SetActive(false);
+                    button.GetComponent<MenuButtonHolder>().UnloadButton();
                 return;
             }
 
             if (!button)
             {
-                var obj = new GameObject("Copy PB Holder");
+                var obj = new GameObject("Copy PB Holder", typeof(Animator));
                 var backButton = Singleton<BackButtonAccessor>.Instance.BackButton.gameObject;
                 obj.transform.parent = backButton.transform.parent;
-                var pbButton = Utils.InstantiateUI(backButton, "Copy PB Button", obj.transform);
+                var pbButton = Utils.InstantiateUI(backButton, "Button", obj.transform);
 
                 obj.transform.localPosition = new Vector3(0, 130f);
                 obj.transform.localScale = Vector3.one;
                 pbButton.transform.localPosition = Vector3.zero;
                 pbButton.transform.localScale = Vector3.one;
 
-                //var ani = obj.GetComponent<Animator>();
-                //var oldAni = backButton.GetComponentInParent<Animator>();
-                //ani.runtimeAnimatorController = oldAni.runtimeAnimatorController;
-                //ani.updateMode = AnimatorUpdateMode.UnscaledTime;
-                //ani.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                var ani = obj.GetComponent<Animator>();
+                var oldAni = backButton.GetComponentInParent<Animator>(true);
+                ani.runtimeAnimatorController = oldAni.runtimeAnimatorController;
+                ani.updateMode = AnimatorUpdateMode.UnscaledTime;
+                ani.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                ani.Rebind();
 
                 var bh = obj.AddComponent<MenuButtonHolder>();
                 bh.ButtonRef.onClick.RemoveAllListeners();
                 bh.ButtonRef.onClick.AddListener(CopyAllTimes);
+                bh.animatorRef = ani;
                 button = obj;
             }
-            button.SetActive(true);
+            button.GetComponent<MenuButtonHolder>().LoadButton();
             button.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPYPBS");
         }
 

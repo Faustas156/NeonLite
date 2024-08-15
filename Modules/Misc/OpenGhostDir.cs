@@ -48,7 +48,7 @@ namespace NeonLite.Modules.Misc
                 var obj = new GameObject("Ghost Button Holder", typeof(Animator));
                 var backButton = Singleton<BackButtonAccessor>.Instance.BackButton.gameObject;
                 obj.transform.parent = __instance.transform;
-                var ghostButton = Utils.InstantiateUI(backButton, "Ghost Button", obj.transform);
+                var ghostButton = Utils.InstantiateUI(backButton, "Button", obj.transform);
 
                 obj.transform.localPosition = new Vector3(105f, 110f);
                 obj.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
@@ -56,19 +56,21 @@ namespace NeonLite.Modules.Misc
                 ghostButton.transform.localScale = Vector3.one;
                 ghostButton.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_GHOSTDIRECTORY");
 
-                //var ani = obj.GetComponent<Animator>();
-                //var oldAni = backButton.GetComponentInParent<Animator>();
-                //ani.runtimeAnimatorController = oldAni.runtimeAnimatorController;
-                //ani.updateMode = AnimatorUpdateMode.UnscaledTime;
-                //ani.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                var ani = obj.GetComponent<Animator>();
+                var oldAni = backButton.GetComponentInParent<Animator>(true);
+                ani.runtimeAnimatorController = oldAni.runtimeAnimatorController;
+                ani.updateMode = AnimatorUpdateMode.UnscaledTime;
+                ani.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                ani.Rebind();
 
                 var bh = obj.AddComponent<MenuButtonHolder>();
                 bh.ButtonRef.onClick.RemoveAllListeners();
                 bh.ButtonRef.onClick.AddListener(() => Process.Start("file://" + currentPath));
+                bh.animatorRef = ani;
                 buttons.Add(__instance, obj);
             }
 
-            //buttons[__instance].GetComponent<MenuButtonHolder>().ForceVisible();
+            buttons[__instance].GetComponent<MenuButtonHolder>().ForceVisible();
             GhostUtils.GetPath(level.levelID, GhostUtils.GhostType.PersonalGhost, ref currentPath);
         }
     }
