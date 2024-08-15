@@ -258,6 +258,9 @@ namespace NeonLite.Modules.Misc
             }
             void FixedUpdate()
             {
+                if (!RM.drifter)
+                    return;
+
                 var vel = RM.drifter.Motor.BaseVelocity;
                 sb.Clear();
                 sb.Append(vel.x.ToString("0.00"));
@@ -293,6 +296,9 @@ namespace NeonLite.Modules.Misc
             }
             void FixedUpdate()
             {
+                if (!RM.drifter)
+                    return;
+
                 var vel = RM.drifter.Motor.BaseVelocity;
                 v.x = vel.x;
                 v.y = vel.z;
@@ -332,6 +338,9 @@ namespace NeonLite.Modules.Misc
             }
             void FixedUpdate()
             {
+                if (!RM.drifter)
+                    return;
+
                 var vel = RM.drifter.Motor.BaseVelocity.y;
                 text.text = minimal.Value ? vel.ToString("0.00") : localizeCache.Replace("{0}", vel.ToString("0.00"));
                 if (RM.drifter.GetIsDashing())
