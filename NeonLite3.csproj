@@ -35,8 +35,8 @@
     <NoWarn>CS0162</NoWarn>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-Xbox|AnyCPU'">
-    <OutputPath>bin\Release-Xbox\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-GP|AnyCPU'">
+    <OutputPath>bin\Release-GP\</OutputPath>
     <DefineConstants>TRACE;XBOX</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>CS0162</NoWarn>
