@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -9,12 +8,16 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NeonLite</RootNamespace>
     <AssemblyName>NeonLite</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFramework>net472</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release;Release-GP</Configurations>
+    <Platforms>x64;AnyCPU</Platforms>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +26,18 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,29 +46,57 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>CS0162</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-GP|AnyCPU'">
-    <OutputPath>bin\Release-GP\</OutputPath>
-    <DefineConstants>TRACE;XBOX</DefineConstants>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
     <NoWarn>CS0162</NoWarn>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-GP|x64'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release-GP\</OutputPath>
+    <DefineConstants>$(DefineConstants);XBOX</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>CS0162</NoWarn>
+    <NeonWhite Condition="Exists('C:\XboxGames\Neon White\Content')">C:\XboxGames\Neon White\Content</NeonWhite>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-GP|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release-GP\</OutputPath>
+    <DefineConstants>$(DefineConstants);XBOX</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>CS0162</NoWarn>
+    <NeonWhite Condition="Exists('C:\XboxGames\Neon White\Content')">C:\XboxGames\Neon White\Content</NeonWhite>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NeonWhite)' == ''">
+    <NeonWhite>C:\Program Files (x86)\Steam\steamapps\common\Neon White</NeonWhite>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <ManagedFolder>$(NeonWhite)\Neon White_Data\Managed</ManagedFolder>
+    <OutputFolder Condition="'$(OutputFolder)' == ''">Mods</OutputFolder>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\MelonLoader\net35\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="MelonLoader">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\MelonLoader\net35\MelonLoader.dll</HintPath>
-    </Reference>
-    <Reference Include="MelonPrefManager.Mono">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Mods\MelonPrefManager.Mono.dll</HintPath>
-    </Reference>
+    <Reference Include="$(NeonWhite)\MelonLoader\net35\MelonLoader.dll" Private="false" />
+    <Reference Include="$(NeonWhite)\MelonLoader\net35\0Harmony.dll" Private="false" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="$(ManagedFolder)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\Assembly-CSharp-firstpass.dll" Private="false" />
+    <Reference Include="$(NeonWhite)\Mods\MelonPrefManager.Mono.dll" Private="false" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -63,133 +105,58 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Unity.InputSystem">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\Unity.InputSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Core.Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextCoreModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Neon White\Neon White_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
-    </Reference>
+    <Reference Include="$(ManagedFolder)\Unity.InputSystem.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\Unity.RenderPipelines.Core.Runtime.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.AnimationModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.AssetBundleModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.AudioModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.ImageConversionModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.ParticleSystemModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.PhysicsModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.TextCoreModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.UnityWebRequestModule.dll" Private="false" />
   </ItemGroup>
+
+  <Target Name="MoveDllToMods" AfterTargets="Build" Condition="Exists('$(TargetDir)$(TargetName).dll') And Exists('$(NeonWhite)')">
+    <Message Text="Copying $(TargetName).dll to $(OutputFolder) folder..." Importance="High" />
+
+    <Delete Condition="Exists('$(NeonWhite)\$(OutputFolder)\$(TargetName).dll.old')" Files="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll.old" />
+
+    <Move Condition="Exists('$(NeonWhite)\$(OutputFolder)\$(TargetName).dll')" SourceFiles="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll" DestinationFiles="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll.old" />
+
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll" />
+  </Target>
+
   <ItemGroup>
-    <Compile Include="Dependencies\Discord\ActivityManager.cs" />
-    <Compile Include="Dependencies\Discord\Constants.cs" />
-    <Compile Include="Dependencies\Discord\Core.cs" />
-    <Compile Include="Dependencies\Discord\ImageManager.cs" />
-    <Compile Include="Dependencies\Discord\LobbyManager.cs" />
-    <Compile Include="Dependencies\Discord\StorageManager.cs" />
-    <Compile Include="Dependencies\Discord\StoreManager.cs" />
-    <Compile Include="Helpers.cs" />
-    <Compile Include="Modules\DevText.cs" />
-    <Compile Include="Modules\ExampleModule.cs" />
-    <Compile Include="Modules\Localization.cs" />
-    <Compile Include="Modules\Misc\AmbienceRemover.cs" />
-    <Compile Include="Modules\Misc\CopyPBTimes.cs" />
-    <Compile Include="Modules\Misc\OpenGhostDir.cs" />
-    <Compile Include="Modules\Misc\DiscordActivity.cs" />
-    <Compile Include="Modules\Misc\GameInfo.cs" />
-    <Compile Include="Modules\Misc\GhostsEverywhere.cs" />
-    <Compile Include="Modules\Misc\CardNames.cs" />
-    <Compile Include="Modules\Misc\CommunityMedals.cs" />
-    <Compile Include="Modules\Misc\RushSeed.cs" />
-    <Compile Include="Modules\Misc\Speedometer.cs" />
-    <Compile Include="Modules\Optimization\CacheGhost.cs" />
-    <Compile Include="Modules\Optimization\CleanTexts.cs" />
-    <Compile Include="Modules\Optimization\FalseLoading.cs" />
-    <Compile Include="Modules\Optimization\FastQuit.cs" />
-    <Compile Include="Modules\Optimization\FastStart.cs" />
-    <Compile Include="Modules\Optimization\MultiLoad.cs" />
-    <Compile Include="Modules\Misc\SteamCheaters.cs" />
-    <Compile Include="Modules\Optimization\UpdateManRewrite.cs" />
-    <Compile Include="Modules\UI\CrosshairColors.cs" />
-    <Compile Include="Modules\UI\CustomPortrait.cs" />
-    <Compile Include="Modules\UI\Deltatime.cs" />
-    <Compile Include="Modules\UI\DNFTime.cs" />
-    <Compile Include="Modules\UI\ShowMS.cs" />
-    <Compile Include="Modules\UI\TimerColor.cs" />
-    <Compile Include="Modules\VFX\NoFireball.cs" />
-    <Compile Include="Modules\VFX\NoReflect.cs" />
-    <Compile Include="Modules\VFX\NoBoof.cs" />
-    <Compile Include="Modules\VFX\NoShocker.cs" />
-    <Compile Include="Modules\UI\Toggles.cs" />
-    <Compile Include="Modules\UI\BegoneApocalypse.cs" />
-    <Compile Include="Modules\Misc\InsightSkip.cs" />
-    <Compile Include="Modules\Misc\SkipIntro.cs" />
-    <Compile Include="Modules\Module.cs" />
-    <Compile Include="Modules\UI\ExtraSlider.cs" />
-    <Compile Include="Modules\UI\GreenHP.cs" />
-    <Compile Include="Modules\UI\LeaderboardFix.cs" />
-    <Compile Include="Modules\LoadManager.cs" />
-    <Compile Include="Modules\UI\NoMission.cs" />
-    <Compile Include="Modules\VFX\NoBloom.cs" />
-    <Compile Include="Modules\VFX\NoStomp.cs" />
-    <Compile Include="Modules\VFX\NoSun.cs" />
-    <Compile Include="NeonLite.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\r.Designer.cs">
+    <Compile Update="Resources\r.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>r.resx</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
   </ItemGroup>
+  
   <ItemGroup>
-    <EmbeddedResource Include="Resources\r.resx">
+    <EmbeddedResource Update="Resources\r.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>r.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  
   <ItemGroup>
     <None Include="Resources\bundle" />
     <None Include="Resources\cheaterlist.json" />
     <None Include="Resources\communitymedals.json" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\DiscordDLL" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  
+  <ItemGroup>
+    <Compile Remove="UnityProject\**\*.cs" />
+    <None Remove="UnityProject\**\*" />
+  </ItemGroup>
 </Project>
