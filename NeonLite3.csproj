@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -13,9 +13,11 @@
     <Deterministic>true</Deterministic>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release;Release-GP</Configurations>
+    <Platforms>x64;AnyCPU</Platforms>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +27,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -35,18 +47,39 @@
     <NoWarn>CS0162</NoWarn>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-GP|AnyCPU'">
-    <OutputPath>bin\Release-GP\</OutputPath>
-    <DefineConstants>TRACE;XBOX</DefineConstants>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
     <NoWarn>CS0162</NoWarn>
   </PropertyGroup>
-
-  <PropertyGroup Condition="Exists('C:\XboxGames\Neon White\Content')">
-    <NeonWhite>C:\XboxGames\Neon White\Content</NeonWhite>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-GP|x64'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release-GP\</OutputPath>
+    <DefineConstants>$(DefineConstants);XBOX</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>CS0162</NoWarn>
+    <NeonWhite Condition="Exists('C:\XboxGames\Neon White\Content')">C:\XboxGames\Neon White\Content</NeonWhite>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-GP|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release-GP\</OutputPath>
+    <DefineConstants>$(DefineConstants);XBOX</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>CS0162</NoWarn>
+    <NeonWhite Condition="Exists('C:\XboxGames\Neon White\Content')">C:\XboxGames\Neon White\Content</NeonWhite>
   </PropertyGroup>
 
-  <PropertyGroup Condition="!Exists('C:\XboxGames\Neon White\Content')">
+  <PropertyGroup Condition="'$(NeonWhite)' == ''">
     <NeonWhite>C:\Program Files (x86)\Steam\steamapps\common\Neon White</NeonWhite>
   </PropertyGroup>
   
@@ -56,14 +89,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="$(NeonWhite)\MelonLoader\net35\MelonLoader.dll" Private="false"/>
-    <Reference Include="$(NeonWhite)\MelonLoader\net35\0Harmony.dll" Private="false"/>
+    <Reference Include="$(NeonWhite)\MelonLoader\net35\MelonLoader.dll" Private="false" />
+    <Reference Include="$(NeonWhite)\MelonLoader\net35\0Harmony.dll" Private="false" />
   </ItemGroup>
   
   <ItemGroup>
-    <Reference Include="$(ManagedFolder)\Assembly-CSharp.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\Assembly-CSharp-firstpass.dll" Private="false"/>
-    <Reference Include="$(NeonWhite)\Mods\MelonPrefManager.Mono.dll" Private="false"/>
+    <Reference Include="$(ManagedFolder)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\Assembly-CSharp-firstpass.dll" Private="false" />
+    <Reference Include="$(NeonWhite)\Mods\MelonPrefManager.Mono.dll" Private="false" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -72,36 +105,32 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="$(ManagedFolder)\Unity.InputSystem.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\Unity.RenderPipelines.Core.Runtime.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\Unity.TextMeshPro.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.AnimationModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.AssetBundleModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.AudioModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.CoreModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.ImageConversionModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.IMGUIModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.ParticleSystemModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.PhysicsModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.TextCoreModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.UI.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.UIModule.dll" Private="false"/>
-    <Reference Include="$(ManagedFolder)\UnityEngine.UnityWebRequestModule.dll" Private="false"/>
+    <Reference Include="$(ManagedFolder)\Unity.InputSystem.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\Unity.RenderPipelines.Core.Runtime.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.AnimationModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.AssetBundleModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.AudioModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.ImageConversionModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.ParticleSystemModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.PhysicsModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.TextCoreModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="$(ManagedFolder)\UnityEngine.UnityWebRequestModule.dll" Private="false" />
   </ItemGroup>
 
-  <Target Name="MoveDllToMods" AfterTargets="Build" Condition="Exists('$(TargetDir)$(TargetName).dll')">
-    <Message Text="Copying $(ProjectName).dll to $(OutputFolder) Folder..." Importance="High"/>
+  <Target Name="MoveDllToMods" AfterTargets="Build" Condition="Exists('$(TargetDir)$(TargetName).dll') And Exists('$(NeonWhite)')">
+    <Message Text="Copying $(TargetName).dll to $(OutputFolder) folder..." Importance="High" />
 
-    <Delete Condition="Exists('$(NeonWhite)\$(OutputFolder)\Old Mods\$(ProjectName).dll')"
-            Files="$(NeonWhite)\$(OutputFolder)\Old Mods\$(ProjectName).dll"/>
+    <Delete Condition="Exists('$(NeonWhite)\$(OutputFolder)\$(TargetName).dll.old')" Files="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll.old" />
 
-    <Move Condition="Exists('$(NeonWhite)\$(OutputFolder)\$(ProjectName).dll')"
-          SourceFiles="$(NeonWhite)\$(OutputFolder)\$(ProjectName).dll"
-          DestinationFiles="$(NeonWhite)\$(OutputFolder)\Old Mods\$(ProjectName).dll"/>
+    <Move Condition="Exists('$(NeonWhite)\$(OutputFolder)\$(TargetName).dll')" SourceFiles="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll" DestinationFiles="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll.old" />
 
-    <Copy SourceFiles="$(TargetDir)$(TargetName).dll"
-          DestinationFiles="$(NeonWhite)\$(OutputFolder)\$(ProjectName).dll"/>
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(NeonWhite)\$(OutputFolder)\$(TargetName).dll" />
   </Target>
 
   <ItemGroup>
