@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NeonLite.Modules.UI;
 using System;
 using System.IO;
 using System.Reflection;
@@ -23,7 +24,7 @@ namespace NeonLite
         static public void CreateDirectories(string path) => Directory.CreateDirectory(Path.GetDirectoryName(path));
 
         static readonly StringBuilder timerBuilder = new();
-        public static string FormatTime(long timeMS, bool three, char split = ':', bool cutoff = false, bool msAtAll = true)
+        public static string FormatTime(long timeMS, bool? three = null, char split = ':', bool cutoff = false, bool msAtAll = true)
         {
             timerBuilder.Clear();
             int num = (int)(timeMS / 60000L);
@@ -48,7 +49,7 @@ namespace NeonLite
                 timerBuilder.Append((char)((num3 / 100) + '0'));
                 num3 %= 100;
                 timerBuilder.Append((char)((num3 / 10) + '0'));
-                if (three)
+                if (three ?? ShowMS.setting.Value)
                     timerBuilder.Append((char)((num3 % 10) + '0'));
             }
 

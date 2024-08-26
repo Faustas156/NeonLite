@@ -68,7 +68,7 @@ namespace NeonLite.Modules.UI
             long delta = (bestTime - newTime) / 1000;
             bool newBest = delta < 0;
 
-            string deltaTimeString = (newBest ? "+" : "-") + Helpers.FormatTime(Math.Abs(delta), ShowMS.setting.Value, '.', true);
+            string deltaTimeString = (newBest ? "+" : "-") + Helpers.FormatTime(Math.Abs(delta), null, '.', true);
 
             Debug.Log(bestTime + "   " + newTime);
 

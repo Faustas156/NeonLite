@@ -184,7 +184,7 @@ namespace NeonLite.Modules.Misc
                             returnText.Append(levelLCache);
                             break;
                         case 'p':
-                            returnText.Append(Helpers.FormatTime(GameDataManager.levelStats[level.levelID].GetTimeBestMicroseconds() / 1000, UI.ShowMS.setting.Value, '.', true));
+                            returnText.Append(Helpers.FormatTime(GameDataManager.levelStats[level.levelID].GetTimeBestMicroseconds() / 1000, null, '.', true));
                             break;
                     }
                 }

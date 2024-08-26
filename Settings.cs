@@ -59,13 +59,13 @@ namespace NeonLite
                 catLoc.Add(cat, $"SETTING_{catloc}");
             entryLoc.Add(ret, ($"SETTING_{catloc}_{id.ToUpper()}_T", description != null ? $"SETTING_{catloc}_{id.ToUpper()}_D" : null));
 #if DEBUG
-            if (holder == h)
-            {
-                locJSON[$"SETTING_{catloc}"] = new ProxyString(category);
-                locJSON[$"SETTING_{catloc}_{id.ToUpper()}_T"] = new ProxyString(display);
-                if (description != null)
-                    locJSON[$"SETTING_{catloc}_{id.ToUpper()}_D"] = new ProxyString(description.Replace("\n", "<br>"));
-            }
+            if (!locJSON.Keys.Contains(holder))
+                locJSON[holder] = new ProxyObject();
+            ProxyObject jshold = locJSON[holder] as ProxyObject;
+            jshold[$"SETTING_{catloc}"] = new ProxyString(category);
+            jshold[$"SETTING_{catloc}_{id.ToUpper()}_T"] = new ProxyString(display);
+            if (description != null)
+                jshold[$"SETTING_{catloc}_{id.ToUpper()}_D"] = new ProxyString(description.Replace("\n", "<br>"));
 #endif
             return ret;
         }
@@ -77,9 +77,9 @@ namespace NeonLite
                 var holder = k.DisplayName.Split('/')[0];
                 var trans = catLoc[k]; // yay!!
                 if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg($"try {trans}");
+                    NeonLite.Logger.Msg($"try {holder}/{trans}");
                 if (LocalizationManager.TryGetTranslation($"{holder}/{trans}", out var t))
-                    k.DisplayName = $"NeonLite/{t}";
+                    k.DisplayName = $"{holder}/{t}";
                 else if (NeonLite.DEBUG)
                     NeonLite.Logger.Msg($"fail");
             }
@@ -88,13 +88,15 @@ namespace NeonLite
             {
                 var pair = entryLoc[k];
 
+                var holder = k.Category.DisplayName.Split('/')[0];
+
                 if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg($"try {pair.Item1}");
-                if (LocalizationManager.TryGetTranslation($"NeonLite/{pair.Item1}", out var t))
+                    NeonLite.Logger.Msg($"try {holder}/{pair.Item1}");
+                if (LocalizationManager.TryGetTranslation($"{holder}/{pair.Item1}", out var t))
                     k.DisplayName = t;
                 else if (NeonLite.DEBUG)
                     NeonLite.Logger.Msg($"fail");
-                if (pair.Item2 != null && LocalizationManager.TryGetTranslation($"NeonLite/{pair.Item2}", out var d))
+                if (pair.Item2 != null && LocalizationManager.TryGetTranslation($"{holder}/{pair.Item2}", out var d))
                     k.Description = d.Replace("<br>", "\n");
             }
         }
@@ -124,7 +126,12 @@ namespace NeonLite
                 loaded = JSON.Load(File.ReadAllText(locPath)) as ProxyObject;
 
             foreach (var kv in locJSON)
-                loaded[kv.Key] = kv.Value;
+            {
+                if (!loaded.Keys.Contains(kv.Key))
+                    loaded[kv.Key] = new ProxyObject();
+                foreach (var kv2 in kv.Value as ProxyObject)
+                    loaded[kv.Key][kv2.Key] = kv2.Value;
+            }
 
             File.WriteAllText(locPath, JSON.Dump(loaded, EncodeOptions.PrettyPrint));
 #endif

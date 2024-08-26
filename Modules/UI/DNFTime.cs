@@ -54,7 +54,7 @@ namespace NeonLite.Modules.UI
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
             frozenText.color = best < game.GetCurrentLevelTimerMicroseconds() ? Color.red : Color.green;
             var local = Localization.Setup(frozenText);
-            local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(game.GetCurrentLevelTimerMicroseconds() / 1000, ShowMS.setting.Value), false)]);
+            local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(game.GetCurrentLevelTimerMicroseconds() / 1000, null), false)]);
         }
         static void PostStart(LevelGate __instance)
         {

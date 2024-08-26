@@ -42,9 +42,6 @@ namespace NeonLite.Modules.UI
         {
             Image character = __instance.characterImage;
 
-            if (character != __instance.white) 
-                return;
-
             string path = setting.Value;
             if (NeonLite.DEBUG)
                 NeonLite.Logger.Msg(path);

@@ -49,7 +49,7 @@ namespace NeonLite.Modules.Optimization
             //MelonCoroutines.Start(PreloadCoroutine());
         }
 
-        private static IEnumerator PreloadCoroutine()
+        static IEnumerator PreloadCoroutine()
         {
             yield return null;
             NeonLite.ActivatePriority();
@@ -116,6 +116,8 @@ namespace NeonLite.Modules.Optimization
             }
             return initializationState > ____initializationState;
         }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Game), "OnGameDataLoaded")]
         static bool UnloadScenesRewrite(Game __instance, ref GameInit ____initializationState)
         {
             if (!active)
