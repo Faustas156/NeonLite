@@ -11,8 +11,7 @@ namespace NeonLite.Modules.UI
         static bool active = false;
 
         static MelonPreferences_Entry<string> setting;
-        static Texture2D portrait;
-        static string path;
+        static Texture2D cache;
 
         static void Setup()
         {
@@ -21,31 +20,33 @@ namespace NeonLite.Modules.UI
             active = setting.Value != "";
         }
 
-        static void Activate(bool activate) => active = activate;
+        static void Activate(bool activate)
+        {
+            cache = null;
+            active = activate;
+        }
         static void OnLevelLoad(LevelData level)
         {
             if (!level || level.type == LevelData.LevelType.Hub)
                 return;
 
             var uiPortrait = RM.ui.portraitUI;
-            if (uiPortrait != null)
+            if (!uiPortrait)
+                return;
+
+            var portraitImg = uiPortrait.playerHolder.GetComponentInChildren<MeshRenderer>();
+            if (!cache)
             {
-                var portraitImg = uiPortrait.playerHolder.GetComponentInChildren<MeshRenderer>();
-                if (path != setting.Value || portrait == null)
-                {
-                    path = setting.Value;
+                var path = setting.Value;
 
-                    if (!File.Exists(path))
-                    {
-                        return;
-                    }
+                if (!File.Exists(path))
+                    return;
 
-                    var imgBytes = File.ReadAllBytes(path);
-                    portrait = LoadTexture(imgBytes);
-                }
-
-                portraitImg.material.mainTexture = portrait;
+                var imgBytes = File.ReadAllBytes(path);
+                cache = LoadTexture(imgBytes);
             }
+
+            portraitImg.material.mainTexture = cache;
         }
 
         static Texture2D LoadTexture(byte[] image)

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MelonLoader;
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace NeonLite.Modules.Optimization
         Complete
     }
 
+    [HarmonyPatch]
     internal class FastStart : IModule
     {
 #pragma warning disable CS0414
@@ -32,6 +34,7 @@ namespace NeonLite.Modules.Optimization
         static bool active = false;
 
         static bool preload = false;
+        static bool gameDataLoaded = false;
 
         internal static AsyncOperation audioPreload;
         internal static AsyncOperation menuPreload;
@@ -46,17 +49,20 @@ namespace NeonLite.Modules.Optimization
             //MelonCoroutines.Start(PreloadCoroutine());
         }
 
-        static IEnumerator PreloadCoroutine() {
-            Preload();
+        private static IEnumerator PreloadCoroutine()
+        {
             yield return null;
+            NeonLite.ActivatePriority();
         }
 
+        /*
         static readonly MethodInfo loadon = AccessTools.Method(typeof(Setup), "Start");
         static readonly MethodInfo ogstate = AccessTools.Method(typeof(Game), "SetInitializationState");
-        static readonly MethodInfo ogdata = AccessTools.Method(typeof(Game), "OnGameDataLoaded");
+        static readonly MethodInfo ogdata = AccessTools.Method(typeof(Game), "OnGameDataLoaded");//*/
 
         static void Activate(bool activate)
         {
+            /*
             if (activate)
             {
                 NeonLite.Harmony.Patch(loadon, prefix: Helpers.HM(Preload));
@@ -68,26 +74,33 @@ namespace NeonLite.Modules.Optimization
                 NeonLite.Harmony.Unpatch(loadon, Helpers.MI(Preload));
                 NeonLite.Harmony.Unpatch(ogstate, Helpers.MI(SetInitState));
                 NeonLite.Harmony.Unpatch(ogdata, Helpers.MI(UnloadScenesRewrite));
-            }
+            }//*/
 
             active = activate;
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Setup), "Start")]
         static void Preload()
         {
-            if (preload) 
+            if (!active || preload) 
                 return;
-            NeonLite.LoadAssetBundle();
             preload = true;
             NeonLite.Logger.Msg("Started scene preload, please wait...!");
             menuPreload = SceneManager.LoadSceneAsync("MenuHolder", LoadSceneMode.Additive);
             enemyPreload = SceneManager.LoadSceneAsync("Enemies", LoadSceneMode.Additive);
             audioPreload = SceneManager.LoadSceneAsync("Audio", LoadSceneMode.Additive);
+            NeonLite.LoadAssetBundle();
+            MelonCoroutines.Start(PreloadCoroutine());
         }
 
-        static void RemoveFrontload(ref bool enforceMinimumTime, ref bool frontloadWait) => enforceMinimumTime = frontloadWait = false;
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Game), "SetInitializationState")]
         static bool SetInitState(Game __instance, GameInit initializationState, ref GameInit ____initializationState)
         {
+            if (!active)
+                return true;
+
             if (NeonLite.DEBUG)
                 NeonLite.Logger.Msg($"SetInitState {initializationState}");
 
@@ -105,7 +118,15 @@ namespace NeonLite.Modules.Optimization
         }
         static bool UnloadScenesRewrite(Game __instance, ref GameInit ____initializationState)
         {
+            if (!active)
+                return true;
+            if (gameDataLoaded)
+                return false;
+            gameDataLoaded = true;
+
+#if XBOX
             GameDataManager.ApplyShadowPrefs();
+#endif
             if (audioPreload.isDone)
                 ____initializationState = GameInit.AdditionalScenesLoaded;
             else

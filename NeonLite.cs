@@ -69,6 +69,12 @@ namespace NeonLite
                 }
             }
             setupCalled = true;
+        }
+
+        internal static void ActivatePriority()
+        {
+            if (activateEarly)
+                return;
 
             foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
@@ -91,7 +97,7 @@ namespace NeonLite
 
         internal static void LoadAssetBundle()
         {
-            if (bundleLoading != null) 
+            if (bundleLoading != null)
                 return;
             bundleLoading = AssetBundle.LoadFromMemoryAsync(Resources.r.bundle);
             bundleLoading.completed += _ =>
@@ -104,6 +110,7 @@ namespace NeonLite
 
         public override void OnLateInitializeMelon()
         {
+            ActivatePriority();
             LoadAssetBundle();
             Singleton<Game>.Instance.OnInitializationComplete += OnInitComplete;
             Settings.Localize();
@@ -152,7 +159,7 @@ namespace NeonLite
             var addedModules = assembly.Assembly.GetTypes().Where(t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t));
             if (setupCalled)
             {
-                foreach (var module in modules)
+                foreach (var module in addedModules)
                 {
                     if (DEBUG)
                         Logger.Msg($"{module} Setup");
@@ -172,7 +179,7 @@ namespace NeonLite
 
             if (activateEarly)
             {
-                foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+                foreach (var module in addedModules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
                 {
                     if (DEBUG)
                         Logger.Msg($"{module} Activate");
@@ -192,7 +199,7 @@ namespace NeonLite
 
             if (activateLate)
             {
-                foreach (var module in modules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+                foreach (var module in addedModules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
                 {
                     if (DEBUG)
                         Logger.Msg($"{module} Activate");

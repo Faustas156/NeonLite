@@ -28,6 +28,5 @@ namespace NeonLite.Modules.Optimization
                 }
             }
         }
-
     }
 }
