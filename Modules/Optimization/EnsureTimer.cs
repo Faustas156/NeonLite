@@ -41,11 +41,13 @@ namespace NeonLite.Modules.Optimization
                 if (NeonLite.DEBUG)
                     NeonLite.Logger.Msg("resetting timer");
                 __instance.Reset();
+                var wasN = next;
                 next = false;
-                return next;
+                return wasN;
             }
             return true;
         }
+
         [HarmonyPatch(typeof(FirstPersonDrifter), "UpdateVelocity")]
         [HarmonyPrefix]
         static void FPDUpdate()
