@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NeonLite.Modules.Optimization;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
@@ -52,9 +53,10 @@ namespace NeonLite.Modules.UI
             Game game = NeonLite.Game;
             long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
-            frozenText.color = best < game.GetCurrentLevelTimerMicroseconds() ? Color.red : Color.green;
+            var time = EnsureTimer.CalculateOffset(__instance.GetComponentInChildren<MeshCollider>());
+            frozenText.color = best < time ? Color.red : Color.green;
             var local = Localization.Setup(frozenText);
-            local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(game.GetCurrentLevelTimerMicroseconds() / 1000, null), false)]);
+            local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
         }
         static void PostStart(LevelGate __instance)
         {

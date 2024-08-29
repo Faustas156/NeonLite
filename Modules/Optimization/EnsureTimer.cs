@@ -84,7 +84,7 @@ namespace NeonLite.Modules.Optimization
             currentPlaythrough?.OverrideLevelTimerMicroseconds(Math.Min(currentMS, maxTime));
         }
 
-        static long CalculateOffset(Collider trigger)
+        internal static long CalculateOffset(Collider trigger)
         {
             var rigidbody = RM.drifter.GetComponent<Rigidbody>();
             if (NeonLite.DEBUG)
@@ -202,6 +202,8 @@ namespace NeonLite.Modules.Optimization
 
         static void PerformFinish(Collider c)
         {
+            if (locked)
+                return;
             var finish = CalculateOffset(c);
             if (finish != long.MaxValue)
                 currentMS = finish;
@@ -215,10 +217,8 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPrefix]
         static bool SetTimeForFinish(LevelGate __instance, bool ____unlocked, bool ____playerWon)
         {
-            if (!____unlocked || ____playerWon)
+            if (!____unlocked || ____playerWon || locked)
                 return true;
-            if (locked)
-                return !NeonLite.DEBUG;
             PerformFinish(__instance.GetComponentInChildren<MeshCollider>());
             return !NeonLite.DEBUG;
         }
@@ -227,10 +227,8 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPrefix]
         static bool SetTimeForFinish(LevelGateBookOfLife __instance, bool ____playerWon)
         {
-            if (____playerWon)
+            if (____playerWon || locked)
                 return true;
-            if (locked)
-                return !NeonLite.DEBUG;
             PerformFinish(__instance.GetComponentInChildren<MeshCollider>());
             return !NeonLite.DEBUG;
         }
@@ -239,13 +237,25 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPrefix]
         static bool SetTimeForFinish(CardPickup __instance, PlayerCardData ____currentCard, bool ____pickupAble)    
         {
-            if (____currentCard.consumableType != PlayerCardData.ConsumableType.LoreCollectible || !____pickupAble)
+            if (____currentCard.consumableType != PlayerCardData.ConsumableType.LoreCollectible || !____pickupAble || locked)
                 return true;
-            if (locked)
-                return !NeonLite.DEBUG;
             PerformFinish(__instance.GetComponent<CapsuleCollider>());
             return !NeonLite.DEBUG;
         }
+
+        [HarmonyPatch(typeof(PlayerWinTrigger), "OnTriggerEnter")]
+        [HarmonyPrefix]
+        static bool SetTimeForFinish(PlayerWinTrigger __instance, Collider other)
+        {
+            if (RM.mechController == null || !RM.mechController.GetIsAlive() || other != RM.drifter.GetComponent<CapsuleCollider>() || locked)
+                return true;
+            PerformFinish(__instance.GetComponent<BoxCollider>());
+            return !NeonLite.DEBUG;
+        }
+
+        [HarmonyPatch(typeof(MechController), "Die")]
+        [HarmonyPrefix]
+        static void OnDie() => locked = true;
 
         // for now, im tired of working on this and doing nothing else 2day
         [HarmonyPatch(typeof(Game), "OnLevelWin")]
