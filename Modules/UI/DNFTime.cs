@@ -42,10 +42,13 @@ namespace NeonLite.Modules.UI
 
         static void OnLevelLoad(LevelData _) => hit = false;
 
-        static void OnTrigger(LevelGate __instance)
+        static void OnTrigger(LevelGate __instance, Collider other)
         {
             if (__instance.Unlocked || hit || (LevelRush.IsLevelRush() && LevelRush.GetCurrentLevelRush().randomizedIndex.Length - 1 != LevelRush.GetCurrentLevelRush().currentLevelIndex))
                 return;
+
+            if (NeonLite.DEBUG)
+                NeonLite.Logger.Msg(other);
 
             hit = true;
             GameObject frozenTime = UnityEngine.Object.Instantiate(RM.ui.timerText.gameObject, RM.ui.timerText.transform);
@@ -53,7 +56,11 @@ namespace NeonLite.Modules.UI
             Game game = NeonLite.Game;
             long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
-            var time = EnsureTimer.CalculateOffset(__instance.GetComponentInChildren<MeshCollider>());
+#if DEBUG
+            var time = EnsureTimer.CalculateOffset(EnsureTimer.cOverride ?? __instance.GetComponentInChildren<MeshCollider>(), other.transform.position);
+#else
+            var time = game.GetCurrentLevelTimerMicroseconds();
+#endif
             frozenText.color = best < time ? Color.red : Color.green;
             var local = Localization.Setup(frozenText);
             local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
@@ -65,7 +72,8 @@ namespace NeonLite.Modules.UI
             // shoutout mario/snowy/wolfu/floyd for pointing it out and letting me test
             // according to unity docs this doesn't even seem like it should happen,
             // so we have to add a rigidbody to redirect it
-            // testing was done to make absolutely sure that this doesn't affect anything else
+            // testing was done to make absolutely sure that this doesn't affect anything
+            //__instance._collider.gameObject.SetActive(false);
             var rb = __instance._collider.GetOrAddComponent<Rigidbody>();
             rb.isKinematic = true;
             rb.detectCollisions = true;

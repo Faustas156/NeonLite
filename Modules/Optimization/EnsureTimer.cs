@@ -24,6 +24,9 @@ namespace NeonLite.Modules.Optimization
         static Vector3 currentVel;
         static Vector3 currentPos;
         static long currentMS;
+        static bool extendedTrigger;
+
+        internal static Collider cOverride;
 
         static long maxTime;
 
@@ -66,6 +69,8 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPostfix]
         static void GetVelocityTickTimer(FirstPersonDrifter __instance, ref Vector3 currentVelocity, float deltaTime)
         {
+            cOverride = null;
+            extendedTrigger = false;
             lastVel = currentVel;
             lastPos = currentPos;
 
@@ -82,13 +87,31 @@ namespace NeonLite.Modules.Optimization
             else
                 currentMS = 0;
             currentPlaythrough?.OverrideLevelTimerMicroseconds(Math.Min(currentMS, maxTime));
+            if (NeonLite.DEBUG)
+                NeonLite.Logger.Msg($"after movement {currentMS}");
         }
 
-        internal static long CalculateOffset(Collider trigger)
+        [HarmonyPatch(typeof(DamageableTrigger), "OnTriggerStay")]
+        [HarmonyPrefix]
+        static void DamageableTriggerStop(Collider c)
         {
-            var rigidbody = RM.drifter.GetComponent<Rigidbody>();
+            if (c && !cOverride && c.attachedRigidbody?.GetComponent<LevelGate>())
+            {
+                extendedTrigger = true;
+                cOverride = c;
+            }
+            //if (NeonLite.DEBUG)
+            //    NeonLite.Logger.Msg($"dt {c} override? {cOverride}");
+        }
+
+        internal static long CalculateOffset(Collider trigger, Vector3 DEBUGPOS = default)
+        {
+            var rigidbody = (extendedTrigger ? RM.drifter.playerDashDamageableTrigger as Component : RM.drifter).GetComponent<Rigidbody>();
             if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"trigger {trigger}");
+                NeonLite.Logger.Msg($"trigger {trigger} rigidbody {rigidbody}");
+
+            var preLayer = rigidbody.gameObject.layer;
+            rigidbody.gameObject.layer = LayerMask.NameToLayer("Player");
 
             var prePos = rigidbody.position;
             // because the player (should) update its position and velocity the *SECOND* before this is checked,
@@ -103,22 +126,8 @@ namespace NeonLite.Modules.Optimization
             {
                 NeonLite.Logger.Msg($"test last {lastPos} {vel} {balanced} {preTime}-{time}");
                 NeonLite.Logger.Msg($"compared {lastPos}+{vel.normalized * balanced} = {lastPos + vel.normalized * balanced} = {currentPos}");
-            }
-            var hits = rigidbody.SweepTestAll(vel.normalized, balanced, QueryTriggerInteraction.Collide);
-            if (hits.Length > 0)
-                hit = hits.OrderBy(x => x.distance).FirstOrDefault(x => x.collider == trigger);
 
-            rigidbody.position = prePos;
-            if (!hit.collider)
-                return long.MaxValue;
-
-            var percent = hit.distance / balanced;
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"percent {percent} {hit.distance}/{balanced}");
-
-            if (NeonLite.DEBUG)
-            {
-                var playerC = RM.drifter.GetComponent<CapsuleCollider>();
+                var playerC = rigidbody.GetComponent<CapsuleCollider>();
                 var obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 obj.name = "COLVIEW";
                 UnityEngine.Object.Destroy(obj.GetComponent<CapsuleCollider>());
@@ -130,7 +139,7 @@ namespace NeonLite.Modules.Optimization
                 var render = obj.GetComponent<MeshRenderer>();
                 render.material.shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
                 //render.materials[i].SetFloat("_Cull", 0);
-                render.material.SetColor("_AlbedoColorTint", UnityEngine.Color.red);
+                render.material.SetColor("_AlbedoColorTint", Color.red);
 
 
                 obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -144,7 +153,24 @@ namespace NeonLite.Modules.Optimization
                 render = obj.GetComponent<MeshRenderer>();
                 render.material.shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
                 //render.materials[i].SetFloat("_Cull", 0);
-                render.material.SetColor("_AlbedoColorTint", UnityEngine.Color.green);
+                render.material.SetColor("_AlbedoColorTint", Color.green);
+
+                if (DEBUGPOS != default)
+                {
+                    obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                    obj.name = "COLVIEW";
+                    UnityEngine.Object.Destroy(obj.GetComponent<CapsuleCollider>());
+                    //obj.transform.parent = ccollider.transform;
+                    obj.transform.localScale = new(playerC.radius * 2, playerC.height / 2, playerC.radius * 2);
+                    obj.transform.position = DEBUGPOS;
+                    obj.transform.localRotation = Quaternion.Euler(playerC.direction == 2 ? 90 : 0, 0, playerC.direction == 0 ? 90 : 0);
+
+                    render = obj.GetComponent<MeshRenderer>();
+                    render.material.shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
+                    //render.materials[i].SetFloat("_Cull", 0);
+                    render.material.SetColor("_AlbedoColorTint", Color.yellow);
+
+                }
 
                 render = null;
                 int materialCount = 1;
@@ -191,20 +217,32 @@ namespace NeonLite.Modules.Optimization
                     {
                         render.materials[i].shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
                         //render.materials[i].SetFloat("_Cull", 0);
-                        render.materials[i].SetColor("_AlbedoColorTint", UnityEngine.Color.blue);
+                        render.materials[i].SetColor("_AlbedoColorTint", Color.blue);
                     }
                 }
-
             }
+
+            var hits = rigidbody.SweepTestAll(vel.normalized, balanced, QueryTriggerInteraction.Collide);
+            if (hits.Length > 0)
+                hit = hits.OrderBy(x => x.distance).FirstOrDefault(x => x.collider == trigger);
+
+            rigidbody.position = prePos;
+            rigidbody.gameObject.layer = preLayer;
+            if (!hit.collider)
+                return long.MaxValue;
+
+            var percent = hit.distance / balanced;
+            if (NeonLite.DEBUG)
+                NeonLite.Logger.Msg($"percent {percent} {hit.distance}/{balanced}");
 
             return (long)(preTime + (time - preTime) * percent);
         }
 
-        static void PerformFinish(Collider c)
+        static void PerformFinish(Collider c, Vector3 DEBUGPOS = default)
         {
             if (locked)
                 return;
-            var finish = CalculateOffset(c);
+            var finish = CalculateOffset(c, DEBUGPOS);
             if (finish != long.MaxValue)
                 currentMS = finish;
             else
@@ -215,11 +253,13 @@ namespace NeonLite.Modules.Optimization
 
         [HarmonyPatch(typeof(LevelGate), "OnTriggerStay")]
         [HarmonyPrefix]
-        static bool SetTimeForFinish(LevelGate __instance, bool ____unlocked, bool ____playerWon)
+        static bool SetTimeForFinish(LevelGate __instance, bool ____unlocked, bool ____playerWon, Collider other)
         {
             if (!____unlocked || ____playerWon || locked)
                 return true;
-            PerformFinish(__instance.GetComponentInChildren<MeshCollider>());
+            if (NeonLite.DEBUG)
+                NeonLite.Logger.Msg(other);
+            PerformFinish(cOverride ?? __instance.GetComponentInChildren<MeshCollider>(), other.attachedRigidbody.position);
             return !NeonLite.DEBUG;
         }
 
@@ -235,7 +275,7 @@ namespace NeonLite.Modules.Optimization
 
         [HarmonyPatch(typeof(CardPickup), "OnTriggerStay")]
         [HarmonyPrefix]
-        static bool SetTimeForFinish(CardPickup __instance, PlayerCardData ____currentCard, bool ____pickupAble)    
+        static bool SetTimeForFinish(CardPickup __instance, PlayerCardData ____currentCard, bool ____pickupAble)
         {
             if (____currentCard.consumableType != PlayerCardData.ConsumableType.LoreCollectible || !____pickupAble || locked)
                 return true;
