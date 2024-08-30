@@ -57,7 +57,7 @@ namespace NeonLite.Modules.UI
             long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
 #if DEBUG
-            var time = EnsureTimer.CalculateOffset(EnsureTimer.cOverride ?? __instance.GetComponentInChildren<MeshCollider>(), other.transform.position);
+            var time = EnsureTimer.CalculateOffset(EnsureTimer.cOverride ?? __instance.GetComponentInChildren<MeshCollider>());
 #else
             var time = game.GetCurrentLevelTimerMicroseconds();
 #endif

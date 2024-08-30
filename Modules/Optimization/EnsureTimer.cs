@@ -25,6 +25,7 @@ namespace NeonLite.Modules.Optimization
         static Vector3 currentPos;
         static long currentMS;
         static bool extendedTrigger;
+        static bool maybeET;
 
         internal static Collider cOverride;
 
@@ -32,9 +33,8 @@ namespace NeonLite.Modules.Optimization
 
         static LevelPlaythrough currentPlaythrough;
 
-        static void Setup() { }
 
-        static readonly FieldInfo levelSetup = AccessTools.Field(typeof(Game), "_levelSetup");
+        static void Setup() { }
 
         static void Activate(bool activate) => NeonLite.Game.OnLevelLoadComplete += SetTrue;
 
@@ -59,11 +59,7 @@ namespace NeonLite.Modules.Optimization
 
         [HarmonyPatch(typeof(FirstPersonDrifter), "Update")]
         [HarmonyPrefix]
-        static void FPDUpdate(FirstPersonDrifter __instance)
-        {
-            //levelSetup.SetValue(NeonLite.Game, false); 
-            processed = true;
-        }
+        static void FPDUpdate(FirstPersonDrifter __instance) => processed = true;
 
         [HarmonyPatch(typeof(FirstPersonDrifter), "UpdateVelocity")]
         [HarmonyPostfix]
@@ -76,6 +72,7 @@ namespace NeonLite.Modules.Optimization
 
             currentVel = currentVelocity;
             currentPos = __instance.transform.position;
+
             if (processed)
             {
                 if (!locked && RM.mechController && RM.mechController.GetIsAlive())
@@ -87,8 +84,6 @@ namespace NeonLite.Modules.Optimization
             else
                 currentMS = 0;
             currentPlaythrough?.OverrideLevelTimerMicroseconds(Math.Min(currentMS, maxTime));
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"after movement {currentMS}");
         }
 
         [HarmonyPatch(typeof(DamageableTrigger), "OnTriggerStay")]
@@ -100,11 +95,30 @@ namespace NeonLite.Modules.Optimization
                 extendedTrigger = true;
                 cOverride = c;
             }
+
+            maybeET = true;
+            //if (NeonLite.DEBUG)
+            //    NeonLite.Logger.Msg($"dt pre");
+
             //if (NeonLite.DEBUG)
             //    NeonLite.Logger.Msg($"dt {c} override? {cOverride}");
         }
+        [HarmonyPatch(typeof(DamageableTrigger), "OnTriggerStay")]
+        [HarmonyPostfix]
+        static void DamageableTriggerStop()
+        {
+            maybeET = false;
+            //if (NeonLite.DEBUG)
+            //    NeonLite.Logger.Msg($"dt post");
+        }
 
-        internal static long CalculateOffset(Collider trigger, Vector3 DEBUGPOS = default)
+
+
+        [HarmonyPatch(typeof(MechController), "Die")]
+        [HarmonyPrefix]
+        static void OnDie() => locked = true;
+
+        internal static long CalculateOffset(Collider trigger)
         {
             var rigidbody = (extendedTrigger ? RM.drifter.playerDashDamageableTrigger as Component : RM.drifter).GetComponent<Rigidbody>();
             if (NeonLite.DEBUG)
@@ -114,63 +128,41 @@ namespace NeonLite.Modules.Optimization
             rigidbody.gameObject.layer = LayerMask.NameToLayer("Player");
 
             var prePos = rigidbody.position;
-            // because the player (should) update its position and velocity the *SECOND* before this is checked,
-            // check the last pathing to see if we hit it b4 (this is the most common case bc of how unity works)
+            // because the player (should) update its velocity the *SECOND* before this is checked,
+            // check the last pathing to see if we hit it b4 (this is how unity works)
             RaycastHit hit = default;
             rigidbody.position = lastPos;
             var vel = lastVel;
             var time = currentMS;
             var preTime = lastMS;
             var balanced = vel.magnitude * ((time - preTime) / 1000000f); // the amount you actually move
+
             if (NeonLite.DEBUG)
             {
                 NeonLite.Logger.Msg($"test last {lastPos} {vel} {balanced} {preTime}-{time}");
-                NeonLite.Logger.Msg($"compared {lastPos}+{vel.normalized * balanced} = {lastPos + vel.normalized * balanced} = {currentPos}");
 
                 var playerC = rigidbody.GetComponent<CapsuleCollider>();
                 var obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 obj.name = "COLVIEW";
                 UnityEngine.Object.Destroy(obj.GetComponent<CapsuleCollider>());
-                //obj.transform.parent = ccollider.transform;
                 obj.transform.localScale = new(playerC.radius * 2, playerC.height / 2, playerC.radius * 2);
                 obj.transform.position = lastPos;
                 obj.transform.localRotation = Quaternion.Euler(playerC.direction == 2 ? 90 : 0, 0, playerC.direction == 0 ? 90 : 0);
 
                 var render = obj.GetComponent<MeshRenderer>();
-                render.material.shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
-                //render.materials[i].SetFloat("_Cull", 0);
-                render.material.SetColor("_AlbedoColorTint", Color.red);
+                render.material.shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended");
+                render.sortingOrder = 1;
+                render.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                render.receiveShadows = false;
+                render.material.SetColor("_TintColor", Color.red.Alpha(0.1f));
 
-
-                obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                obj.name = "COLVIEW";
-                UnityEngine.Object.Destroy(obj.GetComponent<CapsuleCollider>());
-                //obj.transform.parent = ccollider.transform;
-                obj.transform.localScale = new(playerC.radius * 2, playerC.height / 2, playerC.radius * 2);
+                obj = UnityEngine.Object.Instantiate(obj);
                 obj.transform.position = currentPos;
-                obj.transform.localRotation = Quaternion.Euler(playerC.direction == 2 ? 90 : 0, 0, playerC.direction == 0 ? 90 : 0);
 
                 render = obj.GetComponent<MeshRenderer>();
-                render.material.shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
-                //render.materials[i].SetFloat("_Cull", 0);
-                render.material.SetColor("_AlbedoColorTint", Color.green);
-
-                if (DEBUGPOS != default)
-                {
-                    obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                    obj.name = "COLVIEW";
-                    UnityEngine.Object.Destroy(obj.GetComponent<CapsuleCollider>());
-                    //obj.transform.parent = ccollider.transform;
-                    obj.transform.localScale = new(playerC.radius * 2, playerC.height / 2, playerC.radius * 2);
-                    obj.transform.position = DEBUGPOS;
-                    obj.transform.localRotation = Quaternion.Euler(playerC.direction == 2 ? 90 : 0, 0, playerC.direction == 0 ? 90 : 0);
-
-                    render = obj.GetComponent<MeshRenderer>();
-                    render.material.shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
-                    //render.materials[i].SetFloat("_Cull", 0);
-                    render.material.SetColor("_AlbedoColorTint", Color.yellow);
-
-                }
+                UnityEngine.Object.Destroy(obj.GetComponent<CapsuleCollider>());
+                render.material.SetColor("_TintColor", Color.green.Alpha(0.1f));
+                render.sortingOrder = 2;
 
                 render = null;
                 int materialCount = 1;
@@ -209,15 +201,19 @@ namespace NeonLite.Modules.Optimization
                     render = obj.GetComponent<MeshRenderer>();
                 }
 
+                obj.transform.parent = null;
+
                 if (render)
                 {
                     //render.enabled = collider.isTrigger;
                     render.materials = new Material[materialCount];
                     for (int i = 0; i < materialCount; i++)
                     {
-                        render.materials[i].shader = Shader.Find("NW/Environment/PBR_TriplanarTint_Env");
-                        //render.materials[i].SetFloat("_Cull", 0);
-                        render.materials[i].SetColor("_AlbedoColorTint", Color.blue);
+                        render.material.shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended");
+                        render.sortingOrder = 1;
+                        render.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                        render.receiveShadows = false;
+                        render.materials[i].SetColor("_TintColor", Color.blue.Alpha(0.1f));
                     }
                 }
             }
@@ -229,7 +225,12 @@ namespace NeonLite.Modules.Optimization
             rigidbody.position = prePos;
             rigidbody.gameObject.layer = preLayer;
             if (!hit.collider)
-                return long.MaxValue;
+            {
+                if (NeonLite.DEBUG)
+                    NeonLite.Logger.Msg($"missed, reporting 0%");
+
+                return lastMS;
+            }
 
             var percent = hit.distance / balanced;
             if (NeonLite.DEBUG)
@@ -238,64 +239,80 @@ namespace NeonLite.Modules.Optimization
             return (long)(preTime + (time - preTime) * percent);
         }
 
-        static void PerformFinish(Collider c, Vector3 DEBUGPOS = default)
+        static void PerformFinish(Collider c)
         {
             if (locked)
                 return;
-            var finish = CalculateOffset(c, DEBUGPOS);
-            if (finish != long.MaxValue)
-                currentMS = finish;
-            else
-                currentMS = lastMS;
+            currentMS = CalculateOffset(c);
+
             currentPlaythrough?.OverrideLevelTimerMicroseconds(Math.Min(currentMS, maxTime));
             locked = true;
         }
 
         [HarmonyPatch(typeof(LevelGate), "OnTriggerStay")]
         [HarmonyPrefix]
-        static bool SetTimeForFinish(LevelGate __instance, bool ____unlocked, bool ____playerWon, Collider other)
+        [HarmonyPriority(Priority.First)]
+        static void SetTimeForFinish(LevelGate __instance, bool ____unlocked, bool ____playerWon, Collider other)
         {
             if (!____unlocked || ____playerWon || locked)
-                return true;
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg(other);
-            PerformFinish(cOverride ?? __instance.GetComponentInChildren<MeshCollider>(), other.attachedRigidbody.position);
-            return !NeonLite.DEBUG;
+                return;
+            PerformFinish(cOverride ?? __instance.GetComponentInChildren<MeshCollider>());
         }
 
         [HarmonyPatch(typeof(LevelGateBookOfLife), "OnTriggerStay")]
         [HarmonyPrefix]
-        static bool SetTimeForFinish(LevelGateBookOfLife __instance, bool ____playerWon)
+        [HarmonyPriority(Priority.First)]
+        // ???
+        static void SetTimeForFinish(LevelGateBookOfLife __instance, bool ____playerWon)
         {
             if (____playerWon || locked)
-                return true;
+                return;
             PerformFinish(__instance.GetComponentInChildren<MeshCollider>());
-            return !NeonLite.DEBUG;
         }
 
         [HarmonyPatch(typeof(CardPickup), "OnTriggerStay")]
         [HarmonyPrefix]
-        static bool SetTimeForFinish(CardPickup __instance, PlayerCardData ____currentCard, bool ____pickupAble)
+        [HarmonyPriority(Priority.First)]
+        static void SetTimeForFinish(CardPickup __instance, PlayerCardData ____currentCard, bool ____pickupAble)
         {
+            if (NeonLite.DEBUG)
+                NeonLite.Logger.Msg($"triggerstay {____currentCard.cardName}");
+
             if (____currentCard.consumableType != PlayerCardData.ConsumableType.LoreCollectible || !____pickupAble || locked)
-                return true;
+                return;
+
             PerformFinish(__instance.GetComponent<CapsuleCollider>());
-            return !NeonLite.DEBUG;
+        }
+
+        [HarmonyPatch(typeof(FirstPersonDrifter), "OnMovementHitDamageable")]
+        [HarmonyPrefix]
+        [HarmonyPriority(Priority.First)]
+        static void SetTimeForFinish(FirstPersonDrifter __instance, BaseDamageable dmg)
+        {
+            //if (NeonLite.DEBUG)
+            //    NeonLite.Logger.Msg($"hit damage {maybeET} {dmg} {__instance.GetIsDashing()}");
+
+            var lore = dmg as BreakableLoreCollectible;
+            if (!lore || !__instance.GetIsDashing())
+                return;
+
+            // im not sure why this is sometimes false?
+            // but it really should always be true even the times where it's false behaves like true
+            // extendedTrigger = maybeET; // should basically be true
+            extendedTrigger = true;
+
+            PerformFinish(dmg.GetComponent<CapsuleCollider>());
         }
 
         [HarmonyPatch(typeof(PlayerWinTrigger), "OnTriggerEnter")]
         [HarmonyPrefix]
-        static bool SetTimeForFinish(PlayerWinTrigger __instance, Collider other)
+        [HarmonyPriority(Priority.First)]
+        static void SetTimeForFinish(PlayerWinTrigger __instance, Collider other)
         {
             if (RM.mechController == null || !RM.mechController.GetIsAlive() || other != RM.drifter.GetComponent<CapsuleCollider>() || locked)
-                return true;
+                return;
             PerformFinish(__instance.GetComponent<BoxCollider>());
-            return !NeonLite.DEBUG;
         }
-
-        [HarmonyPatch(typeof(MechController), "Die")]
-        [HarmonyPrefix]
-        static void OnDie() => locked = true;
 
         // for now, im tired of working on this and doing nothing else 2day
         [HarmonyPatch(typeof(Game), "OnLevelWin")]
