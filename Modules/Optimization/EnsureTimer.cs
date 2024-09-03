@@ -1,8 +1,7 @@
-﻿#if DEBUG
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace NeonLite.Modules.Optimization
@@ -33,17 +32,26 @@ namespace NeonLite.Modules.Optimization
 
         static LevelPlaythrough currentPlaythrough;
 
+        static long ghostTimer;
 
         static void Setup() { }
 
         static void Activate(bool activate) => NeonLite.Game.OnLevelLoadComplete += SetTrue;
 
+        [HarmonyPatch(typeof(LevelPlaythrough), "Reset")]
+        [HarmonyPatch(typeof(Game), "LevelSetupRoutine")]
+        [HarmonyPrefix]
         static void SetTrue()
         {
+            if (NeonLite.DEBUG)
+                NeonLite.Logger.Msg("RESET");
             lastMS = 0;
             currentMS = 0;
+            ghostTimer = 0;
+            maxTime = 0;
             locked = false;
             processed = false;
+            currentPlaythrough?.OverrideLevelTimerMicroseconds(Math.Min(currentMS, maxTime));
         }
 
         [HarmonyPatch(typeof(LevelPlaythrough), "Update")]
@@ -54,8 +62,27 @@ namespace NeonLite.Modules.Optimization
                 maxTime = maxLevelTime;
             if (__instance != null)
                 currentPlaythrough = __instance;
+            ghostTimer += (long)(Time.deltaTime * 1000000f);
+            ghostTimer = Math.Min(ghostTimer, maxTime);
             return false;
         }
+
+        static long GetGhostMS(Game _) => ghostTimer;
+
+        [HarmonyPatch(typeof(GhostPlayback), "LateUpdate")]
+        [HarmonyTranspiler]
+        static IEnumerable<CodeInstruction> UseGhostTimer(IEnumerable<CodeInstruction> instructions)
+        {
+            var gettimer = AccessTools.Method(typeof(Game), "GetCurrentLevelTimerMicroseconds");
+            foreach (var code in instructions)
+            {
+                if (code.Calls(gettimer))
+                    yield return CodeInstruction.Call(typeof(EnsureTimer), "GetGhostMS");
+                else
+                    yield return code;
+            }
+        }
+
 
         [HarmonyPatch(typeof(FirstPersonDrifter), "Update")]
         [HarmonyPrefix]
@@ -313,7 +340,7 @@ namespace NeonLite.Modules.Optimization
                 return;
             PerformFinish(__instance.GetComponent<BoxCollider>());
         }
-
+#if DEBUG
         // for now, im tired of working on this and doing nothing else 2day
         [HarmonyPatch(typeof(Game), "OnLevelWin")]
         [HarmonyPrefix]
@@ -322,8 +349,6 @@ namespace NeonLite.Modules.Optimization
             locked = true;
             return false;
         }
-
-        //static void OnLevelLoad(LevelData _) => levelSetup.SetValue(NeonLite.Game, false);
+#endif
     }
 }
-#endif
