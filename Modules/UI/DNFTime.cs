@@ -56,11 +56,7 @@ namespace NeonLite.Modules.UI
             Game game = NeonLite.Game;
             long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
-#if DEBUG
             var time = EnsureTimer.CalculateOffset(EnsureTimer.cOverride ?? __instance.GetComponentInChildren<MeshCollider>());
-#else
-            var time = game.GetCurrentLevelTimerMicroseconds();
-#endif
             frozenText.color = best < time ? Color.red : Color.green;
             var local = Localization.Setup(frozenText);
             local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
