@@ -41,7 +41,6 @@ namespace NeonLite
 
         public override void OnInitializeMelon()
         {
-            //AntiCheat.Anticheat.TriggerAnticheat();
             Settings.Setup();
 #if DEBUG
             Settings.mainCategory.GetEntry<bool>("DEBUG").OnEntryValueChanged.Subscribe((_, a) => DEBUG = a);
