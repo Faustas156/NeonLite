@@ -180,7 +180,11 @@ namespace NeonLite.Modules.Misc
                             break;
                         case 'l':
                             if (levelLCache == null || level != lastLevel)
+                            {
                                 levelLCache = LocalizationManager.GetTranslation(level.GetLevelDisplayName());
+                                if (string.IsNullOrEmpty(levelLCache))
+                                    levelLCache = level.levelDisplayName;
+                            }
                             returnText.Append(levelLCache);
                             break;
                         case 'p':
@@ -221,7 +225,7 @@ namespace NeonLite.Modules.Misc
             }
             else
             {
-                activity.Assets.LargeImage = level.GetPreviewImage().name.ToLower();
+                activity.Assets.LargeImage = level.GetPreviewImage()?.name.ToLower() ?? "locationother";
                 activity.Details = GetText(level, levelRush, (levelRush ? rushTitle : levelTitle).Value);
                 activity.State = GetText(level, levelRush, (levelRush ? rushDesc : levelDesc).Value);
             }

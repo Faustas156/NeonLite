@@ -535,6 +535,9 @@ namespace NeonLite.Modules
             GameData gameData = NeonLite.Game.GetGameData();
             LevelStats levelStats = gameData.GetLevelStats(level.levelID);
 
+            if (!medalTimes.ContainsKey(level.levelID))
+                return;
+
             var modded = GetMedalIndex(level.levelID);
             __instance._levelCompleteMedalImage.sprite = Medals[modded];
             AdjustMaterial(__instance._levelCompleteMedalImage);
