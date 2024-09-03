@@ -28,6 +28,7 @@ namespace NeonLite.Modules.Misc
         static Activity activity = new();
 
         static LevelData lastLevel;
+        static string lastLevelID;
 
         static DateTime timeRecorded;
         static long startup;
@@ -179,7 +180,7 @@ namespace NeonLite.Modules.Misc
                                 returnText.Append(ri.session);
                             break;
                         case 'l':
-                            if (levelLCache == null || level != lastLevel)
+                            if (levelLCache == null || level.levelID != lastLevelID)
                             {
                                 levelLCache = LocalizationManager.GetTranslation(level.GetLevelDisplayName());
                                 if (string.IsNullOrEmpty(levelLCache))
@@ -241,7 +242,7 @@ namespace NeonLite.Modules.Misc
             else
             {
                 activity.Assets.SmallImage = "";
-                if (level != lastLevel)
+                if (level.levelID != lastLevelID)
                     timeRecorded = DateTime.Now;
             }
 
@@ -273,6 +274,7 @@ namespace NeonLite.Modules.Misc
 
             wasRushing = levelRush;
             lastLevel = level;
+            lastLevelID = level?.levelID;
             dirty = false;
         }
 

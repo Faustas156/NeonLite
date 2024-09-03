@@ -28,6 +28,7 @@ namespace NeonLite.Modules.Misc
         CanvasGroup cg;
 
         static LevelData lastLevel;
+        static string lastLevelID;
 
         static MelonPreferences_Entry<float> alpha;
         static MelonPreferences_Entry<float> scale;
@@ -131,13 +132,15 @@ namespace NeonLite.Modules.Misc
 
         static void OnLevelLoad(LevelData level)
         {
-            if (!instance || !level || level == lastLevel)
+            if (!instance || !level || level.levelID == lastLevelID)
             {
                 lastLevel = level;
+                lastLevelID = level?.levelID;
                 return;
             }
 
             lastLevel = level;
+            lastLevelID = level.levelID;
 
             if (!SessionPB.pbs.ContainsKey(level.levelID))
             {
