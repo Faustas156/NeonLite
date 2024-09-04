@@ -74,7 +74,7 @@ namespace NeonLite.Modules.Misc
                 __instance._insightAniamtor.gameObject.SetActive(true);
             }
 
-            bool showing = level && CommunityMedals.Ready &&
+            bool showing = level && CommunityMedals.Ready && CommunityMedals.medalTimes.ContainsKey(level.levelID) &&
                 (!CommunityMedals.oldStyle.Value ||
                 (CommunityMedals.GetMedalIndex(level.levelID, stats._timeBestMicroseconds) >= (int)CommunityMedals.MedalEnum.Emerald));
 
