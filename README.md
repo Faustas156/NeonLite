@@ -56,7 +56,7 @@
 
 * [MOPPI](https://github.com/MOPSKATER), majorly contributed to the project and was responsible for rewriting/updating NeonLite.
 * [stxticOVFL](https://github.com/stxticOVFL), overhauling the project for its third version.
-* [Marbles](https://github.com/MarblesFr), custom portrait feature and updating the mikey stamp for medals
+* [Sora](https://github.com/sorascode), custom portrait feature and updating the mikey stamp for medals
 * [Makarew](https://github.com/Makarew), helped with custom level issues.
 * [Pandora's Fox](https://github.com/PandorasFox), for their work on PuppyPowertools, which has since been ported to this mod.
 * [Madmon](https://github.com/Madmonii), for their work on the crosshair color customization mod, now ported to this mod.
