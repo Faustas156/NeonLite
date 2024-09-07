@@ -1,10 +1,12 @@
 ﻿using HarmonyLib;
+using I2.Loc;
 using MelonLoader;
 using MelonLoader.TinyJSON;
 using NeonLite.Modules.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -57,7 +59,7 @@ namespace NeonLite.Modules
             Sapphire,
             Plus
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static MedalEnum E(int i) => (MedalEnum)i;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -178,6 +180,8 @@ namespace NeonLite.Modules
         static readonly MethodInfo ogset = AccessTools.Method(typeof(LeaderboardScore), "SetScore");
         static readonly MethodInfo oggolw = AccessTools.Method(typeof(Game), "OnLevelWin");
         static readonly MethodInfo ogmrsm = AccessTools.Method(typeof(MenuScreenResults), "SetMedal");
+        static readonly MethodInfo ogmosv = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible");
+
 
         internal static void OnLevelLoad(LevelData _)
         {
@@ -219,6 +223,7 @@ namespace NeonLite.Modules
                 NeonLite.Harmony.Patch(ogset, postfix: Helpers.HM(PostSetScore));
                 NeonLite.Harmony.Patch(oggolw, prefix: Helpers.HM(PreOnWin));
                 NeonLite.Harmony.Patch(ogmrsm, postfix: Helpers.HM(PostSetMedal));
+                NeonLite.Harmony.Patch(ogmosv, postfix: Helpers.HM(PostSetVisible));
             }
             else
             {
@@ -230,6 +235,7 @@ namespace NeonLite.Modules
                 NeonLite.Harmony.Unpatch(ogset, Helpers.MI(PostSetScore));
                 NeonLite.Harmony.Unpatch(oggolw, Helpers.MI(PreOnWin));
                 NeonLite.Harmony.Unpatch(ogmrsm, Helpers.MI(PostSetMedal));
+                NeonLite.Harmony.Unpatch(ogmosv, Helpers.MI(PostSetVisible));
             }
         }
 
@@ -565,6 +571,26 @@ namespace NeonLite.Modules
             __instance._levelCompleteMedalText_Localized.SetKey(locKey);
 
             ____medalEarned = 4;
+        }
+
+        static void PostSetVisible(MenuScreenResults __instance)
+        {
+            if (LevelRush.IsLevelRush())
+                return;
+            var split = __instance.levelComplete_Localized.textMeshProUGUI.text.Split();
+            var level = NeonLite.Game.GetCurrentLevel();
+            var name = LocalizationManager.GetTranslation(level.GetLevelDisplayName());
+            if (string.IsNullOrEmpty(name))
+                name = level.levelDisplayName;
+            if (split.Length > 1)
+                name = "  " + name;
+            var list = split.ToList();
+            var str = $"<nobr><alpha=#88><size=35%><noparse>{name}</noparse></size></nobr><alpha=#FF><br>";
+            if (split.Length < 2)
+                list.Insert(list.Count - 1, str);
+            else
+                list[list.Count - 2] += str;
+            __instance.levelComplete_Localized.textMeshProUGUI.text = string.Join("", list);
         }
     }
 }
