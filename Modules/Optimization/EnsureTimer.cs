@@ -341,14 +341,15 @@ namespace NeonLite.Modules.Optimization
             PerformFinish(__instance.GetComponent<BoxCollider>());
         }
 #if DEBUG
-        // for now, im tired of working on this and doing nothing else 2day
+        /* // for now, im tired of working on this and doing nothing else 2day
+        
         [HarmonyPatch(typeof(Game), "OnLevelWin")]
         [HarmonyPrefix]
         static bool StopFinishes()
         {
             locked = true;
             return false;
-        }
+        } //*/
 #endif
     }
 }

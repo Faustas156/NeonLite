@@ -487,8 +487,6 @@ namespace NeonLite.Modules
             if (ld.isSidequest)
                 AdjustMaterial(__instance._imageLoreFilled);
 
-            GameData GameDataRef = Singleton<Game>.Instance.GetGameData();
-
             int medalEarned = GetMedalIndex(ld.levelID);
 
             if (medalEarned < I(MedalEnum.Dev))

@@ -45,13 +45,14 @@ namespace NeonLite
 #if DEBUG
             Settings.mainCategory.GetEntry<bool>("DEBUG").OnEntryValueChanged.Subscribe((_, a) => DEBUG = a);
             DEBUG = Settings.mainCategory.GetEntry<bool>("DEBUG").Value;
+
+            Anticheat.Register(MelonAssembly);
 #endif
             Harmony = HarmonyInstance;
             Logger = LoggerInstance;
 
             LoadModules(MelonAssembly);
 
-            // preform early inits
             foreach (var module in modules)
             {
                 if (DEBUG)
