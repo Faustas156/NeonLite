@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+using HarmonyLib;
+using MelonLoader;
 using NeonLite.Modules.Optimization;
 using System.Reflection;
 using TMPro;
@@ -13,10 +14,13 @@ namespace NeonLite.Modules.UI
         static bool active = false;
 
         static bool hit = false;
+        static MelonPreferences_Entry<string> sfxSetting;
 
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "dnf", "Show DNFs", "Shows the time you would have got if you had killed all the demons in a level.", true);
+            sfxSetting = Settings.Add(Settings.h, "UI/In-game", "dnfSound", "DNF Sound FX", "The sound to play when you DNF.\nBlank to disable.", "UI_CUTIN_IN");
+
             setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
             active = setting.Value;
         }
@@ -60,6 +64,8 @@ namespace NeonLite.Modules.UI
             frozenText.color = best < time ? Color.red : Color.green;
             var local = Localization.Setup(frozenText);
             local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
+            if (!string.IsNullOrEmpty(sfxSetting.Value))
+                AudioController.Play(sfxSetting.Value);
         }
         static void PostStart(LevelGate __instance)
         {
