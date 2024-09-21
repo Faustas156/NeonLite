@@ -1,26 +1,36 @@
 ﻿using HarmonyLib;
 using MelonLoader;
 using Steamworks;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
+using TMPro;
+using UnityEngine;
 
 namespace NeonLite.Modules
 {
-    internal class Anticheat : IModule
+    public class Anticheat : MonoBehaviour, IModule
     {
 #pragma warning disable CS0414
-        const bool priority = true;
+        const bool priority = false;
         public static bool active = true;
         
         static bool hasSetup = false;
         static readonly HashSet<MelonAssembly> assemblies = [];
 
-        static void Setup() => active = assemblies.Count > 0;
+        static GameObject prefab;
+        static Anticheat textInstance;
+
+        static void Setup()
+        {
+            NeonLite.OnBundleLoad += bundle =>
+            {
+                prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/AnticheatText.prefab");
+                if (hasSetup)
+                    Activate(true);
+            };
+
+            active = assemblies.Count > 0;
+        }
 
         static readonly MethodInfo ogutms = AccessTools.Method(typeof(LevelStats), "UpdateTimeMicroseconds");
 
@@ -41,7 +51,12 @@ namespace NeonLite.Modules
             {
                 NeonLite.Harmony.Unpatch(ogutms, Helpers.MI(DontUpdateTime));
                 NeonLite.Harmony.Unpatch(oglbui, Helpers.MI(UploadScoreStopper));
+                if (textInstance)
+                    Destroy(textInstance);
             }
+            
+            if (activate && !textInstance && prefab)
+                textInstance = Utils.InstantiateUI(prefab, "AnticheatText", NeonLite.mmHolder.transform).AddComponent<Anticheat>();
 
             hasSetup = true;
             active = activate;
@@ -84,5 +99,17 @@ namespace NeonLite.Modules
                 Activate(assemblies.Count > 0);
         }
 
+        TextMeshProUGUI text;
+        Canvas c;
+
+        void Start()
+        {
+            text = GetComponent<TextMeshProUGUI>();
+            text.alpha = .7f;
+
+            c = GetComponentInParent<Canvas>();
+        }
+
+        void Update() => transform.localPosition = c.ViewportToCanvasPosition(new Vector3(0f, 0f, 0));
     }
 }

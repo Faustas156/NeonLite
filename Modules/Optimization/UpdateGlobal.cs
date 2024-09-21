@@ -1,4 +1,4 @@
-﻿#if !XBOX && DEBUG
+﻿#if !XBOX
 using System.Reflection;
 using HarmonyLib;
 
@@ -40,24 +40,23 @@ namespace NeonLite.Modules.Optimization
 
         static void PreLBUploaded() => ready = true;
 
-        static void ChangeCallback(ref LeaderboardIntegrationSteam.LeaderboardLoadedCallback newCallback)
+        static bool ChangeCallback(LevelData newData, Leaderboards newRef, LeaderboardIntegrationSteam.LeaderboardLoadedCallback newCallback)
         {
             if (!ready)
-                return;
+                return true;
 
             ready = false;
-            LeaderboardIntegrationSteam.LeaderboardLoadedCallback cb = newCallback;
-            newCallback = (result, offline) =>
+
+            LeaderboardIntegrationSteam.UploadScore_GlobalNeonRank(null, (result, _) =>
             {
-                cb?.Invoke(result, offline);
-                LeaderboardIntegrationSteam.UploadScore_GlobalNeonRank(null, (result, _) =>
-                {
-                    if (result)
-                        NeonLite.Logger.Msg("Updated global!");
-                    else
-                        NeonLite.Logger.Warning("Failed to update global.");
-                });
-            };
+                if (result)
+                    NeonLite.Logger.Msg("Updated global!");
+                else
+                    NeonLite.Logger.Warning("Failed to update global.");
+
+                LeaderboardIntegrationSteam.SetupLeaderboardForLevel(newData, newRef, newCallback);
+            });
+            return false;
         }
     }
 }

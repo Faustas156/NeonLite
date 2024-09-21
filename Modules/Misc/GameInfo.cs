@@ -86,36 +86,15 @@ namespace NeonLite.Modules.Misc
                 {
                     NeonLite.Game.winAction += LevelWin;
                     Utils.InstantiateUI(prefab, "GameInfo", NeonLite.mmHolder.transform).AddComponent<GameInfo>();
-                    NeonLite.Harmony.Patch(original, transpiler: Helpers.HM(KeepCameraActive));
                 }
             }
             else
             {
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(KeepCameraActive));
                 NeonLite.Game.winAction -= LevelWin;
                 if (instance)
                     Destroy(instance.gameObject);
             }
         }
-
-        static IEnumerable<CodeInstruction> KeepCameraActive(IEnumerable<CodeInstruction> instructions)
-        {
-            int skip = 0;
-            var crtCamera = AccessTools.Field(typeof(MainMenu), "CRTCamera");
-
-            foreach (var code in instructions)
-            {
-                if (code.LoadsField(crtCamera))
-                {
-                    yield return code;
-                    yield return new(OpCodes.Ldc_I4_1);
-                    skip = 3;
-                }
-                else if (--skip < 0)
-                    yield return code;
-            }
-        }
-
         static void LevelWin()
         {
             long ms = NeonLite.Game.GetCurrentLevelTimerMicroseconds();
