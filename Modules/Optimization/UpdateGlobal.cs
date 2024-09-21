@@ -40,13 +40,12 @@ namespace NeonLite.Modules.Optimization
 
         static void PreLBUploaded() => ready = true;
 
-        static bool ChangeCallback(LevelData newData, Leaderboards newRef, LeaderboardIntegrationSteam.LeaderboardLoadedCallback newCallback)
+        static bool ChangeCallback(int ___previousUserRanking, LevelData newData, Leaderboards newRef, LeaderboardIntegrationSteam.LeaderboardLoadedCallback newCallback)
         {
             if (!ready)
                 return true;
 
             ready = false;
-
             LeaderboardIntegrationSteam.UploadScore_GlobalNeonRank(null, (result, _) =>
             {
                 if (result)
@@ -54,6 +53,7 @@ namespace NeonLite.Modules.Optimization
                 else
                     NeonLite.Logger.Warning("Failed to update global.");
 
+                AccessTools.Field(typeof(LeaderboardIntegrationSteam), "previousUserRanking").SetValue(null, ___previousUserRanking);
                 LeaderboardIntegrationSteam.SetupLeaderboardForLevel(newData, newRef, newCallback);
             });
             return false;
