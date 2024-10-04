@@ -247,10 +247,10 @@ namespace NeonLite.Modules
                 h += 1;
             return Color.HSVToRGB(h, s, v);
         }
-        static void AdjustMaterial(Image image)
+        public static void AdjustMaterial(Graphic graphic)
         {
-            if (image.material != HueShiftMat)
-                image.material = HueShiftMat;
+            if (graphic.material != HueShiftMat)
+                graphic.material = HueShiftMat;
         }
 
         static void AssetsDone(AssetBundle bundle)
@@ -583,7 +583,7 @@ namespace NeonLite.Modules
             if (split.Length > 1)
                 name = "  " + name;
             var list = split.ToList();
-            var str = $"<nobr><alpha=#88><size=35%><noparse>{name}</noparse></size></nobr><alpha=#FF><br>";
+            var str = $"<nobr><alpha=#AA><size=40%><noparse>{name}</noparse></size></nobr><alpha=#FF><br>";
             if (split.Length < 2)
                 list.Insert(list.Count - 1, str);
             else
