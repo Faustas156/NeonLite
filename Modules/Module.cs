@@ -8,7 +8,7 @@
     /// - a static void `Activate(bool)` to preform Harmony (un)patching. Passed true means to activate, false means to deactivate.
     /// Optionally, it can also include a static void `OnLevelLoad(LevelData)` that will get called as late as possible before the staging screen.
     /// </summary>
-    internal interface IModule
+    public interface IModule
     {
     }
 }
