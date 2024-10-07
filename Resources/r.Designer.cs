@@ -83,6 +83,16 @@ namespace NeonLite.Resources {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] cheaterlist_xbox {
+            get {
+                object obj = ResourceManager.GetObject("cheaterlist_xbox", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] communitymedals {
             get {
                 object obj = ResourceManager.GetObject("communitymedals", resourceCulture);
