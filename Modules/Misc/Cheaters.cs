@@ -1,7 +1,5 @@
-﻿#if !XBOX
-using HarmonyLib;
+﻿using HarmonyLib;
 using MelonLoader.TinyJSON;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,9 +8,13 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
+#if !XBOX
+using Steamworks;
+#endif
+
 namespace NeonLite.Modules.Misc
 {
-    internal class SteamCheaters : IModule
+    internal class Cheaters : IModule
     {
 #pragma warning disable CS0414
         const bool priority = true;
@@ -21,8 +23,12 @@ namespace NeonLite.Modules.Misc
         public static ulong[] bannedIDs;
         static readonly HashSet<int> activeCheaters = [];
 
+#if XBOX
+        const string filename = "cheaterlist-xbox.json";
+#else
         const string filename = "cheaterlist.json";
-        const string URL = "https://raw.githubusercontent.com/Faustas156/NeonLite/main/Resources/cheaterlist.json";
+#endif
+        const string URL = "https://raw.githubusercontent.com/Faustas156/NeonLite/main/Resources/" + filename;
 
         static void Setup()
         {
@@ -40,7 +46,12 @@ namespace NeonLite.Modules.Misc
                 else if (!File.Exists(backup) || !Load(File.ReadAllText(backup)))
                 {
                     NeonLite.Logger.Warning("Could not load up to date cheater list. Loading the backup resource; this could be really outdated!");
-                    if (!Load(Encoding.UTF8.GetString(Resources.r.cheaterlist)))
+#if XBOX
+                    var resource = Resources.r.cheaterlist_xbox;
+#else
+                    var resource = Resources.r.cheaterlist;
+#endif
+                    if (!Load(Encoding.UTF8.GetString(resource)))
                         NeonLite.Logger.Error("Failed to load the cheater list.");
                 }
             });
@@ -65,8 +76,12 @@ namespace NeonLite.Modules.Misc
             return true;
         }
 
+#if XBOX
+        static readonly MethodInfo ogtransform = AccessTools.Method(typeof(LeaderboardIntegrationBitcode), "TransformRankingsToScoreData");
+#else
         static readonly MethodInfo ogscore = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "GetScoreDataAtGlobalRank");
         static readonly MethodInfo ogdllb = AccessTools.Method(typeof(SteamUserStats), "GetDownloadedLeaderboardEntry");
+#endif
         static readonly MethodInfo ogset = AccessTools.Method(typeof(LeaderboardScore), "SetScore");
         static readonly MethodInfo ogrecv = AccessTools.Method(typeof(Leaderboards), "DisplayScores_AsyncRecieve");
 
@@ -74,15 +89,23 @@ namespace NeonLite.Modules.Misc
         {
             if (activate)
             {
+#if XBOX
+                NeonLite.Harmony.Patch(ogtransform, prefix: Helpers.HM(PreTransformRankingsToScoreData));
+#else
                 NeonLite.Harmony.Patch(ogscore, prefix: Helpers.HM(PreGetScoreDataAtGlobalRank));
                 NeonLite.Harmony.Patch(ogdllb, postfix: Helpers.HM(PostGetDownloadedLeaderboardEntry));
+#endif
                 NeonLite.Harmony.Patch(ogset, postfix: Helpers.HM(PostSetScore));
                 NeonLite.Harmony.Patch(ogrecv, postfix: Helpers.HM(PostRecieve));
             }
             else
             {
+#if XBOX
+                NeonLite.Harmony.Unpatch(ogtransform, Helpers.MI(PreTransformRankingsToScoreData));
+#else
                 NeonLite.Harmony.Unpatch(ogscore, Helpers.MI(PreGetScoreDataAtGlobalRank));
                 NeonLite.Harmony.Unpatch(ogdllb, Helpers.MI(PostGetDownloadedLeaderboardEntry));
+#endif
                 NeonLite.Harmony.Unpatch(ogset, Helpers.MI(PostSetScore));
                 NeonLite.Harmony.Unpatch(ogrecv, Helpers.MI(PostRecieve));
             }
@@ -90,6 +113,21 @@ namespace NeonLite.Modules.Misc
             active = activate;
         }
 
+#if XBOX
+        private static void PreTransformRankingsToScoreData(IReadOnlyList<BitCode.Platform.Leaderboards.Ranking> rankings)
+        {
+            if (bannedIDs == null)
+                return;
+
+            foreach (var ranking in rankings)
+            {
+                var user = (BitCode.Platform.PlayFab.PlayFabRemoteAccount)ranking.User;
+                var id = Convert.ToUInt64(user.PlayerId, 16);
+                if (bannedIDs.Contains(id))
+                    activeCheaters.Add((int)ranking.Rank);
+            }
+        }
+#else
         static bool? friendOnly;
         static int global;
 
@@ -107,6 +145,7 @@ namespace NeonLite.Modules.Misc
                 activeCheaters.Add(friendOnly.Value ? global : pLeaderboardEntry.m_nGlobalRank);
             friendOnly = null;
         }
+#endif
 
         private static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData)
         {
@@ -126,4 +165,3 @@ namespace NeonLite.Modules.Misc
         private static void PostRecieve() => activeCheaters.Clear();
     }
 }
-#endif
