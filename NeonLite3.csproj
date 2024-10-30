@@ -12,7 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>12</LangVersion>
     <Configurations>Debug;Release;Release-GP</Configurations>
     <Platforms>x64;AnyCPU</Platforms>
   </PropertyGroup>
