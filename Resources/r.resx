@@ -124,6 +124,9 @@
   <data name="cheaterlist" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>cheaterlist.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="cheaterlist_xbox" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>cheaterlist-xbox.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="communitymedals" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>communitymedals.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
