@@ -9,6 +9,7 @@ namespace NeonLite.Modules.Misc
 #pragma warning disable CS0414
         const bool priority = true;
         static bool active = false;
+        static bool first = true;
 
         static void Setup()
         {
@@ -18,13 +19,21 @@ namespace NeonLite.Modules.Misc
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MainMenu), "SetItemShowcaseCard");
+        static readonly MethodInfo ognewgame = AccessTools.Method(typeof(MainMenu), "OnPressButtonStartGame");
         static void Activate(bool activate)
         {
-            if (activate)
+            if (activate && (!active || first))
+            {
                 NeonLite.Harmony.Patch(original, prefix: Helpers.HM(PreShowcase));
-            else
+                NeonLite.Harmony.Patch(ognewgame, prefix: Helpers.HM(PreNewGame));
+            }
+            else if (!activate && active)
+            {
                 NeonLite.Harmony.Unpatch(original, Helpers.MI(PreShowcase));
+                NeonLite.Harmony.Unpatch(ognewgame, Helpers.MI(PreNewGame));
+            }
 
+            first = false;
             active = activate;
         }
 
@@ -33,5 +42,7 @@ namespace NeonLite.Modules.Misc
             callback?.Invoke();
             return false;
         }
+
+        static void PreNewGame() => Activate(false);
     }
 }

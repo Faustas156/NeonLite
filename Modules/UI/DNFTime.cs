@@ -1,4 +1,5 @@
 using HarmonyLib;
+using KinematicCharacterController;
 using MelonLoader;
 using NeonLite.Modules.Optimization;
 using System.Reflection;
@@ -15,6 +16,7 @@ namespace NeonLite.Modules.UI
 
         static bool hit = false;
         static MelonPreferences_Entry<string> sfxSetting;
+        static GameObject frozenTime;
 
         static void Setup()
         {
@@ -27,6 +29,8 @@ namespace NeonLite.Modules.UI
 
         static readonly MethodInfo ogonsty = AccessTools.Method(typeof(LevelGate), "OnTriggerStay");
         static readonly MethodInfo ogstart = AccessTools.Method(typeof(LevelGate), "Start");
+        static readonly MethodInfo ogedie = AccessTools.Method(typeof(Enemy), "Die");
+        static readonly MethodInfo ogefdie = AccessTools.Method(typeof(Enemy), "ForceDie");
 
         static void Activate(bool activate)
         {
@@ -34,11 +38,15 @@ namespace NeonLite.Modules.UI
             {
                 NeonLite.Harmony.Patch(ogonsty, postfix: Helpers.HM(OnTrigger));
                 NeonLite.Harmony.Patch(ogstart, postfix: Helpers.HM(PostStart));
+                NeonLite.Harmony.Patch(ogedie, postfix: Helpers.HM(OnEnemyDie));
+                NeonLite.Harmony.Patch(ogefdie, postfix: Helpers.HM(OnEnemyDie));
             }
             else
             {
                 NeonLite.Harmony.Unpatch(ogonsty, Helpers.MI(OnTrigger));
                 NeonLite.Harmony.Unpatch(ogstart, Helpers.MI(PostStart));
+                NeonLite.Harmony.Unpatch(ogedie, Helpers.MI(OnEnemyDie));
+                NeonLite.Harmony.Unpatch(ogefdie, Helpers.MI(OnEnemyDie));
             }
 
             active = activate;
@@ -55,7 +63,7 @@ namespace NeonLite.Modules.UI
                 NeonLite.Logger.Msg(other);
 
             hit = true;
-            GameObject frozenTime = UnityEngine.Object.Instantiate(RM.ui.timerText.gameObject, RM.ui.timerText.transform);
+            frozenTime = UnityEngine.Object.Instantiate(RM.ui.timerText.gameObject, RM.ui.timerText.transform);
             frozenTime.transform.localPosition += new Vector3(0, 35, 0);
             Game game = NeonLite.Game;
             long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
@@ -67,6 +75,13 @@ namespace NeonLite.Modules.UI
             if (!string.IsNullOrEmpty(sfxSetting.Value))
                 AudioController.Play(sfxSetting.Value);
         }
+
+        static void OnEnemyDie()
+        {
+            UnityEngine.Object.Destroy(frozenTime);
+            hit = false;
+        }
+
         static void PostStart(LevelGate __instance)
         {
             // dnfs were actually using the entire rigidbody which is a bit taller and a tiny bit wider

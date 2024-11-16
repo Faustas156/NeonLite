@@ -52,7 +52,7 @@ namespace NeonLite.Modules
                 NeonLite.Harmony.Unpatch(ogutms, Helpers.MI(DontUpdateTime));
                 NeonLite.Harmony.Unpatch(oglbui, Helpers.MI(UploadScoreStopper));
                 if (textInstance)
-                    Destroy(textInstance);
+                    Destroy(textInstance.gameObject);
             }
             
             if (activate && !textInstance && prefab)
