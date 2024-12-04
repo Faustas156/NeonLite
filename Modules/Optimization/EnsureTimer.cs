@@ -1,7 +1,8 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using UnityEngine;
 
 namespace NeonLite.Modules.Optimization
@@ -32,6 +33,17 @@ namespace NeonLite.Modules.Optimization
 
         static long ghostTimer;
 
+        static double intertime;
+        public static double InterpolatedTime
+        {
+            get
+            {
+                return intertime;
+            }
+        }
+
+        static void Setup() { }
+        static void Activate(bool _) => NeonLite.Game.OnLevelLoadComplete += SetTrue;
         static void Activate(bool _)
         {
             NeonLite.Game.OnLevelLoadComplete += SetTrue;
@@ -49,10 +61,12 @@ namespace NeonLite.Modules.Optimization
             currentMS = 0;
             ghostTimer = 0;
             maxTime = 0;
+            intertime = 0;
             locked = false;
             processed = false;
             currentPlaythrough?.OverrideLevelTimerMicroseconds(Math.Min(currentMS, maxTime));
         }
+        static void OnLevelLoad(LevelData _) => intertime = 0;
 
         [HarmonyPatch(typeof(LevelPlaythrough), "Update")]
         [HarmonyPrefix]
@@ -62,7 +76,8 @@ namespace NeonLite.Modules.Optimization
                 maxTime = maxLevelTime;
             if (__instance != null)
                 currentPlaythrough = __instance;
-            ghostTimer += (long)(Time.deltaTime * 1000000f);
+            intertime += Time.deltaTime;
+            ghostTimer = (long)(InterpolatedTime * 1000000);
             ghostTimer = Math.Min(ghostTimer, maxTime);
             return false;
         }
