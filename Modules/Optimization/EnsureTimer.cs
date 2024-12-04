@@ -1,7 +1,8 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using UnityEngine;
 
 namespace NeonLite.Modules.Optimization
@@ -24,7 +25,6 @@ namespace NeonLite.Modules.Optimization
         static Vector3 currentPos;
         static long currentMS;
         static bool extendedTrigger;
-        static bool maybeET;
 
         internal static Collider cOverride;
 
@@ -33,6 +33,15 @@ namespace NeonLite.Modules.Optimization
         static LevelPlaythrough currentPlaythrough;
 
         static long ghostTimer;
+
+        static double intertime;
+        public static double InterpolatedTime
+        {
+            get
+            {
+                return intertime;
+            }
+        }
 
         static void Setup() { }
 
@@ -48,10 +57,12 @@ namespace NeonLite.Modules.Optimization
             currentMS = 0;
             ghostTimer = 0;
             maxTime = 0;
+            intertime = 0;
             locked = false;
             processed = false;
             currentPlaythrough?.OverrideLevelTimerMicroseconds(Math.Min(currentMS, maxTime));
         }
+        static void OnLevelLoad(LevelData _) => intertime = 0;
 
         [HarmonyPatch(typeof(LevelPlaythrough), "Update")]
         [HarmonyPrefix]
@@ -61,7 +72,8 @@ namespace NeonLite.Modules.Optimization
                 maxTime = maxLevelTime;
             if (__instance != null)
                 currentPlaythrough = __instance;
-            ghostTimer += (long)(Time.deltaTime * 1000000f);
+            intertime += Time.deltaTime;
+            ghostTimer = (long)(InterpolatedTime * 1000000);
             ghostTimer = Math.Min(ghostTimer, maxTime);
             return false;
         }
@@ -121,24 +133,7 @@ namespace NeonLite.Modules.Optimization
                 extendedTrigger = true;
                 cOverride = c;
             }
-
-            maybeET = true;
-            //if (NeonLite.DEBUG)
-            //    NeonLite.Logger.Msg($"dt pre");
-
-            //if (NeonLite.DEBUG)
-            //    NeonLite.Logger.Msg($"dt {c} override? {cOverride}");
         }
-        [HarmonyPatch(typeof(DamageableTrigger), "OnTriggerStay")]
-        [HarmonyPostfix]
-        static void DamageableTriggerStop()
-        {
-            maybeET = false;
-            //if (NeonLite.DEBUG)
-            //    NeonLite.Logger.Msg($"dt post");
-        }
-
-
 
         [HarmonyPatch(typeof(MechController), "Die")]
         [HarmonyPrefix]
