@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MelonLoader;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +18,21 @@ namespace NeonLite.Modules.Optimization
         public static readonly HashSet<AsyncOperation> operations = [];
         static bool skip = false;
 
+        public static MelonPreferences_Entry<bool> setting;
+
         static void Setup()
         {
-            var setting = Settings.Add(Settings.h, "Misc", "multiLoad", "MultiLoad", "Modify the level loading to load multiple scenes at once. Can help with load times.", true);
+            setting = Settings.Add(Settings.h, "Misc", "multiLoad", "MultiLoad", "Modify the level loading to load multiple scenes at once. Can help with load times.", true);
             setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
             active = setting.Value;
         }
 
-        static void Activate(bool activate) => active = activate;
+        static void Activate(bool activate)
+        {
+            if (activate)
+                SuperRestart.setting.Value = false;
+            active = activate;
+        }
 
         [HarmonyPatch(typeof(Game), "LevelSetupRoutine", MethodType.Enumerator)]
         [HarmonyTranspiler]
