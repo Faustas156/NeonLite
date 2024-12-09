@@ -1,4 +1,10 @@
-﻿using HarmonyLib;
+﻿#if DEBUG
+// #define ENABLE_PROFILER
+#else
+// #define ENABLE_PROFILER
+#endif
+
+using HarmonyLib;
 using NeonLite.Modules.UI;
 using System;
 using System.IO;
@@ -7,6 +13,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using Unity.Profiling;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 
 namespace NeonLite
 {
@@ -76,5 +86,39 @@ namespace NeonLite
             UnityWebRequest webRequest = UnityWebRequest.Get(url);
             webRequest.SendWebRequest().completed += _ => callback(webRequest);
         }
+
+#if ENABLE_PROFILER
+        static readonly Stack<ProfilerMarker> currentMarkers = [];
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StartProfiling(string name) 
+        {
+            currentMarkers.Push(new(ProfilerCategory.Scripts, name));
+            currentMarkers.Peek().Begin();
+        }
+        public static IEnumerable<T> ProfileLoop<T>(IEnumerable<T> loop, string name)
+        {
+            currentMarkers.Push(new(ProfilerCategory.Scripts, $"{name}"));
+            currentMarkers.Peek().Begin();
+            int i = 0;
+            foreach (T t in loop)
+            {
+                StartProfiling($"{name}#{++i}");
+                yield return t;
+                EndProfiling();
+            }
+            EndProfiling();
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EndProfiling() => currentMarkers.Pop().End();
+#else
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StartProfiling(string _) { }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> ProfileLoop<T>(IEnumerable<T> loop, string _) => loop;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EndProfiling() { }
+
+#endif
     }
 }

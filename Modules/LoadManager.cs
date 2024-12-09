@@ -41,12 +41,15 @@ namespace NeonLite.Modules
         [HarmonyPrefix]
         static void PreTitle() => HandleLoads(null);
 
-        static void HandleLoads(LevelData level)
+        public static void HandleLoads(LevelData level)
         {
+            Helpers.StartProfiling("HandleLoads");
             foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
                 if (NeonLite.DEBUG)
                     NeonLite.Logger.Msg($"{module} OnLevelLoad");
+
+                Helpers.StartProfiling($"{module}");
 
                 try
                 {
@@ -57,7 +60,10 @@ namespace NeonLite.Modules
                     NeonLite.Logger.Error($"error in {module} OnLevelLoad:");
                     NeonLite.Logger.Error(e);
                 }
+
+                Helpers.EndProfiling();
             }
+            Helpers.EndProfiling();
         }
     }
 }

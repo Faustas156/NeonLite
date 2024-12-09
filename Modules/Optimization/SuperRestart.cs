@@ -1,6 +1,7 @@
 ﻿using ClockStone;
 using Guirao.UltimateTextDamage;
 using HarmonyLib;
+using JetBrains.Annotations;
 using MelonLoader;
 using System;
 using System.Collections;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
 
 namespace NeonLite.Modules.Optimization
@@ -39,6 +41,7 @@ namespace NeonLite.Modules.Optimization
         }
 
         static readonly MethodInfo oglvlsetup = AccessTools.Method(typeof(Game), "LevelSetupRoutine");
+        static readonly MethodInfo ogsetact = AccessTools.Method(typeof(Game), "SetActiveScene");
         static readonly MethodInfo ogpthrukill = AccessTools.Method(typeof(LevelPlaythrough), "OnEnemyKill");
 
         static readonly MethodInfo ogobjmspwn = AccessTools.Method(typeof(ObjectSpawner), "SpawnObject");
@@ -60,7 +63,26 @@ namespace NeonLite.Modules.Optimization
         static readonly MethodInfo ogmmupd = AccessTools.Method(typeof(MainMenu), "Update");
         static readonly MethodInfo ogmmpause = AccessTools.Method(typeof(MainMenu), "PauseGame");
 
-
+        static readonly List<Tuple<Type, string, Type[]>> prefixToRegister = [
+            new(typeof(OnRegion), "Start", null),
+            new(typeof(EnemyEncounter), "Setup", null),
+            new(typeof(LevelGate), "Start", null),
+            new(typeof(ParticleSystem), "Play", null),
+            new(typeof(GhostHintOriginVFX), "OnTriggerEnter", null),
+            new(typeof(GhostPlayback), "ProcessTriggers", null),
+            new(typeof(CardPickupSpawner), "SpawnCard", []),
+            new(typeof(CardPickupSpawner), "SpawnCard", [typeof(float)]),
+            new(typeof(BeamWeapon), "StartBeamTrackingRoutine", null),
+            new(typeof(ObjectSpawner), "Spawn", []),
+            new(typeof(ObjectSpawner), "Spawn", [typeof(float)]),
+            new(typeof(EnemySpawner), "SpawnDelay", null),
+            new(typeof(EnemyWaveSpecificObject), "Spawn", null),
+            new(typeof(EnemyWave), "SpawnWave", null),
+            new(typeof(RememberTransform), "Start", null),
+            new(typeof(RememberTransform), "Apply", null),
+            new(typeof(LevelTrigger), "OnTriggered", null),
+            new(typeof(TripwireWeapon), "OnTripped", null),
+        ];
 
         static void Activate(bool activate)
         {
@@ -68,6 +90,7 @@ namespace NeonLite.Modules.Optimization
             {
                 MultiLoad.setting.Value = false;
                 NeonLite.Harmony.Patch(oglvlsetup, postfix: Helpers.HM(OverridePlayLevel));
+                NeonLite.Harmony.Patch(ogsetact, prefix: Helpers.HM(SetActiveScene));
                 NeonLite.Harmony.Patch(ogpthrukill, prefix: Helpers.HM(Never));
 
                 NeonLite.Harmony.Patch(ogobjmspwn, postfix: Helpers.HM(MarkForDestroy));
@@ -89,6 +112,16 @@ namespace NeonLite.Modules.Optimization
                 NeonLite.Harmony.Patch(ogmmupd, prefix: Helpers.HM(PreMMUpdate));
                 NeonLite.Harmony.Patch(ogmmupd, postfix: Helpers.HM(PostMMUpdate));
                 NeonLite.Harmony.Patch(ogmmpause, prefix: Helpers.HM(MMPausing));
+
+                foreach ((var type, var name, var args) in prefixToRegister)
+                {
+                    if (!registry.ContainsKey(type))
+                        registry[type] = new(new(30), new(30));
+
+                    var func = AccessTools.Method(type, name, args);
+                    var manual = AccessTools.Method(typeof(SuperRestart), "AddToRegistry", generics: [type]);
+                    NeonLite.Harmony.Patch(func, prefix: manual.ToNewHarmonyMethod());
+                }
             }
             else
             {
@@ -96,8 +129,8 @@ namespace NeonLite.Modules.Optimization
                 reserveList.Clear();
 
                 NeonLite.Harmony.Unpatch(oglvlsetup, Helpers.MI(OverridePlayLevel));
+                NeonLite.Harmony.Unpatch(ogsetact, Helpers.MI(SetActiveScene));
                 NeonLite.Harmony.Unpatch(ogpthrukill, Helpers.MI(Never));
-
                 NeonLite.Harmony.Unpatch(ogobjmspwn, Helpers.MI(MarkForDestroy));
                 NeonLite.Harmony.Unpatch(ogenemyspwn, Helpers.MI(MarkForDestroyEnemy));
                 NeonLite.Harmony.Unpatch(ogobjpspwn, Helpers.MI(MarkForDestroy));
@@ -108,14 +141,20 @@ namespace NeonLite.Modules.Optimization
                 NeonLite.Harmony.Unpatch(ogfracexpl, Helpers.MI(MarkForDestroyFracture));
                 NeonLite.Harmony.Unpatch(ogdmgtxts, Helpers.MI(MarkForDestroyDamageText));
                 NeonLite.Harmony.Unpatch(ogghplstrt, Helpers.MI(MarkForDestroyGhost));
-
+                NeonLite.Harmony.Unpatch(ogutprlres, Helpers.MI(MarkForDestroyPreload));
                 NeonLite.Harmony.Unpatch(ogmenuload, Helpers.MI(PostMenuLoad));
-
                 NeonLite.Harmony.Unpatch(ogobjpdspwn, Helpers.MI(UnmarkForDestroyPool));
-
                 NeonLite.Harmony.Unpatch(ogmmupd, Helpers.MI(PreMMUpdate));
                 NeonLite.Harmony.Unpatch(ogmmupd, Helpers.MI(PostMMUpdate));
                 NeonLite.Harmony.Unpatch(ogmmpause, Helpers.MI(MMPausing));
+
+                foreach ((var type, var name, var args) in prefixToRegister)
+                {
+                    var func = AccessTools.Method(type, name, args);
+                    var manual = AccessTools.Method(typeof(SuperRestart), "AddToRegistry", generics: [type]);
+
+                    NeonLite.Harmony.Unpatch(func, manual);
+                }
             }
 
             active = activate;
@@ -123,12 +162,19 @@ namespace NeonLite.Modules.Optimization
 
         static bool Never() => false;
 
+        static readonly HashSet<string> blacklisted = [
+            "HUB_HEAVEN",
+            "TUT_ORIGIN"
+        ];
+
+
+        static int activeScene;
         static IEnumerator OverridePlayLevel(IEnumerator __result, Game __instance, LevelData newLevel, LevelData ____currentLevel)
         {
-            if (newLevel == ____currentLevel && destroy.Count > 0)
+            if (newLevel == ____currentLevel && destroy.Count > 0 && !blacklisted.Contains(newLevel.levelID))
             {
                 MainMenu.Instance().SetState(MainMenu.State.Loading, true, true, true, false);
-                yield return QuickLevelSetup(__instance, newLevel, LevelRush.IsLevelRush() || mmUpdating || !noStaging.Value);
+                yield return QuickLevelSetup(__instance, newLevel, StagingHappens() || mmUpdating);
             }
             else
             {
@@ -137,13 +183,18 @@ namespace NeonLite.Modules.Optimization
                     yield return TrimmedLevelSetup(__instance, newLevel);
                     yield break;
                 }//*/
+                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
 
+                activeScene = 0;
                 destroy.Clear();
                 reserveList.Clear();
                 while (__result.MoveNext())
                     yield return __result.Current;
+
+                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
             }
         }
+        static void SetActiveScene(int activeSceneIndex) => activeScene = activeSceneIndex;
 
         static readonly HashSet<GameObject> destroy = [];
         static void MarkForDestroy(GameObject __result) => destroy.Add(__result);
@@ -152,7 +203,7 @@ namespace NeonLite.Modules.Optimization
         static void MarkForDestroyCard(GameObject obj) => destroy.Add(obj);
         static void MarkForDestroyCard2(ref CardPickup pickup)
         {
-            if (pickup != null)
+            if (pickup)
                 destroy.Add(pickup.gameObject);
         }
         static void MarkForDestroyTripwire(EnemyTripwire __instance) => destroy.Add(__instance.CurrentWeapon.gameObject);
@@ -198,19 +249,16 @@ namespace NeonLite.Modules.Optimization
 
         struct ReserveInfo
         {
-            public Component old;
-            public Type componentType;
-            public GameObject oldObj;
-
             public Transform parent;
             public int sibling;
 
             public GameObject reserved;
+            public string name;
             public GameObject newObj;
         }
 
         static readonly List<ReserveInfo> reserveList = [];
-        static readonly Type[] manualTypes = [];// [typeof(DFlattener), typeof(MoveTransform)];
+        static readonly Type[] rememberTransformTypes = [typeof(DFlattener), typeof(MoveTransform), typeof(RotateTransform), typeof(RotateAroundAxis), typeof(ShakePosition)];
 
         static bool ParentsAreMarked(GameObject obj)
         {
@@ -228,58 +276,47 @@ namespace NeonLite.Modules.Optimization
         {
             while (__result.MoveNext())
                 yield return __result.Current;
+            if (blacklisted.Contains(Singleton<Game>.Instance.GetCurrentLevel().levelID))
+                yield break;
             var s = SceneManager.GetActiveScene();
             SceneManager.SetActiveScene(SceneManager.GetSceneAt(SceneManager.sceneCount - 1));
             var cur = SceneManager.GetActiveScene();
-            
-            var reserve = new GameObject()
-            {
-                name = "Reserve"
-            }.transform;
-            reserve.gameObject.SetActive(false);
 
-            foreach (var damageable in Object.FindObjectsOfType<BaseDamageable>(true))
+            IEnumerable<GameObject> iter = [];
+            if (sceneName != "Player")
             {
-                if (damageable.gameObject.scene == cur && !ParentsAreMarked(damageable.gameObject))
+                var reserve = new GameObject()
                 {
-                    destroy.Add(damageable.gameObject);
-                    var obj = Object.Instantiate(damageable.gameObject, reserve);
-                    reserveList.Add(new ReserveInfo
-                    {
-                        old = damageable,
-                        componentType = damageable.GetType(),
-                        oldObj = damageable.gameObject,
+                    name = "Reserve"
+                }.transform;
+                reserve.gameObject.SetActive(false);
 
-                        parent = damageable.transform.parent,
-                        sibling = damageable.transform.GetSiblingIndex(),
+                iter = Object.FindObjectsOfType<BaseDamageable>(true).Select(x => x.gameObject);
 
-                        reserved = obj
-                    });
-                }
-            }
-
-            foreach (var type in manualTypes)
-            {
-                foreach (var comp in Object.FindObjectsOfType(type, true).Cast<Component>())
+                foreach (var comp in iter)
                 {
-                    if (!destroy.Contains(comp.gameObject))
+                    if (comp.scene == cur && !ParentsAreMarked(comp) && comp != reserve.gameObject)
                     {
-                        destroy.Add(comp.gameObject);
-                        var obj = Object.Instantiate(comp.gameObject, reserve);
+                        destroy.Add(comp);
+                        var obj = Object.Instantiate(comp, reserve);
                         reserveList.Add(new ReserveInfo
                         {
-                            old = comp,
-                            componentType = comp.GetType(),
-                            oldObj = comp.gameObject,
-
                             parent = comp.transform.parent,
                             sibling = comp.transform.GetSiblingIndex(),
 
-                            reserved = obj
+                            reserved = obj,
+                            name = comp.name
                         });
                     }
                 }
+
+                foreach (var type in rememberTransformTypes)
+                {
+                    foreach (var comp in Object.FindObjectsOfType(type, true).Cast<Component>())
+                        comp.GetOrAddComponent<RememberTransform>();
+                }
             }
+
             SceneManager.SetActiveScene(s);
         }
 
@@ -288,6 +325,36 @@ namespace NeonLite.Modules.Optimization
         {
             if (obj == null)
                 destroy.Remove(obj);
+        }
+
+        static readonly Dictionary<Type, Tuple<List<Object>, HashSet<Object>>> registry = [];
+        static void AddToRegistry<T>(T __instance) where T : Object
+        {
+            if (!registry.ContainsKey(typeof(T)))
+                registry[typeof(T)] = new([], []);
+            var regList = registry[typeof(T)];
+            if (!regList.Item2.Add(__instance))
+                return;
+            regList.Item1.Add(__instance);
+        }
+
+
+        static IEnumerable<T> InRegistry<T>(bool clear = false, bool sanitize = true) where T : Object
+        {
+            if (!registry.ContainsKey(typeof(T)))
+                yield break;
+            var regList = registry[typeof(T)];
+            var iterCopy = regList.Item1.ToArray();
+            if (clear)
+            {
+                regList.Item1.Clear();
+                regList.Item2.Clear();
+            }
+            for (int i = 0; i < iterCopy.Length; i++)
+            {
+                if (!sanitize || iterCopy[i])
+                    yield return iterCopy[i] as T;
+            }
         }
 
 
@@ -317,75 +384,42 @@ namespace NeonLite.Modules.Optimization
 
         static readonly FieldInfo ltrigTriggered = AccessTools.Field(typeof(LevelTrigger), "_triggered");
 
-        static IEnumerable<T> SearchInAllScenes<T>(bool includeInactive = false) where T : MonoBehaviour
-        {
-            foreach (var obj in UnityEngine.Resources.FindObjectsOfTypeAll<T>())
-            {
-                if (obj != null && !(obj.hideFlags == HideFlags.NotEditable || obj.hideFlags == HideFlags.HideAndDontSave) && (includeInactive || obj.isActiveAndEnabled))
-                    yield return obj;
-            }
-        }
         static IEnumerator QuickLevelSetup(Game game, LevelData level, bool staging = true)
         {
             RM.time.SetTargetTimescale(0, true);
+
+            var frame = Application.targetFrameRate == -1 ? 60 : Application.targetFrameRate;
+            var nanosecond = (ulong)(1.0 / frame * 1e+9);
 
             RM.Pointer.Visible = false;
             RM.acceptInput = false;
             RM.acceptInputPauseMenu = false;
 
+            int target = !string.IsNullOrEmpty(level.environmentSceneAlt?.SceneName) ? 1 : 0;
+            if (target != activeScene)
+            {
+                Helpers.StartProfiling("SetActiveScene");
+                game.SetActiveScene(target);
+                Helpers.EndProfiling();
+            }
             game.SetWaitForStaging(true);
             var playthru = (LevelPlaythrough)currentPlaythrough.GetValue(game);
             playthru.Reset();
 
-            TripwireWeapon.CancelTripRoutines();
-            foreach (var beam in SearchInAllScenes<BeamWeapon>())
+            foreach (var tripwire in Helpers.ProfileLoop(InRegistry<TripwireWeapon>(true), "Tripwire Cancels"))
+                TripwireWeapon.CancelTripRoutines();
+            foreach (var beam in Helpers.ProfileLoop(InRegistry<BeamWeapon>(true), "Beam Weapon Cancels"))
                 beam.CancelBeamTrackingRoutine();
 
             var audioObjects = AudioController.GetPlayingAudioObjects(true);
-            foreach (var audio in audioObjects)
+            foreach (var audio in Helpers.ProfileLoop(audioObjects, "Audio Object Stops"))
             {
                 if (audio.transform.parent != MainMenu.Instance().transform)
                     audio.Stop(0);
             }
             AudioObjectSplineMover.ReleaseAudioObjects();
 
-            yield return null;
-
-            foreach (var spawner in SearchInAllScenes<CardPickupSpawner>())
-                spawner.StopAllCoroutines();
-            foreach (var spawner in SearchInAllScenes<ObjectSpawner>())
-                spawner.StopAllCoroutines();
-            foreach (var spawner in SearchInAllScenes<EnemySpawner>())
-                spawner.StopAllCoroutines();
-            foreach (var spawner in SearchInAllScenes<EnemyWaveSpecificObject>())
-            {
-                if (spawner.holder)
-                    spawner.holder.SetActive(false);
-            }
-            foreach (var wave in SearchInAllScenes<EnemyWave>())
-            {
-                enemydict.SetValue(wave, new Dictionary<Enemy, bool>());
-                enemycount.SetValue(wave, 0);
-            }
-            foreach (var obj in destroy)
-            {
-                if (obj != null)
-                    Object.Destroy(obj);
-            }
-            foreach (var particle in Object.FindObjectsOfType<ParticleSystem>())
-            {
-                if (!particle.main.loop)
-                    particle.Stop();
-            }
-            foreach (var hint in SearchInAllScenes<GhostHintOriginVFX>())
-            {
-                if ((bool)hintActive.GetValue(hint))
-                {
-                    hintSetActive.Invoke(hint, [false]);
-                    AudioController.Stop("HINT_RESET", 0);
-                }
-            }
-            foreach (var ghost in SearchInAllScenes<GhostPlayback>())
+            foreach (var ghost in Helpers.ProfileLoop(InRegistry<GhostPlayback>(true), "GhostPlayback Resets"))
             {
                 if (ghost.gameObject.scene.name == "Player")
                     GhostPlaybackLord.i.ghostPlaybacks.Remove(ghost);
@@ -393,7 +427,46 @@ namespace NeonLite.Modules.Optimization
                     ghost.ResetTimer();
             }
 
+            SceneManager.UnloadSceneAsync("Player");
+            var op = SceneManager.LoadSceneAsync("Player", LoadSceneMode.Additive);
 
+            //yield return null;
+
+            foreach (var encounter in Helpers.ProfileLoop(InRegistry<EnemyEncounter>(), "Enemy Encounter Stops"))
+                encounter.StopAllCoroutines();
+
+            foreach (var spawner in Helpers.ProfileLoop(InRegistry<CardPickupSpawner>(), "Card Pickup Stops"))
+                spawner.StopAllCoroutines();
+            foreach (var spawner in Helpers.ProfileLoop(InRegistry<ObjectSpawner>(), "Object Spawner Stops"))
+                spawner.StopAllCoroutines();
+            foreach (var spawner in Helpers.ProfileLoop(InRegistry<EnemySpawner>(true), "Enemy Spawner Stops"))
+                spawner.StopAllCoroutines();
+            foreach (var spawner in Helpers.ProfileLoop(InRegistry<EnemyWaveSpecificObject>(true), "Wave Specific Object Disables"))
+            {
+                if (spawner.holder)
+                    spawner.holder.SetActive(false);
+            }
+
+            foreach (var obj in Helpers.ProfileLoop(destroy, "Destroys"))
+            {
+                if (obj)
+                    Object.Destroy(obj);
+            }
+            foreach (var particle in Helpers.ProfileLoop(InRegistry<ParticleSystem>(true), "Particle Stops"))
+            {
+                if (!particle.main.loop)
+                    particle.Stop();
+            }
+            foreach (var hint in Helpers.ProfileLoop(InRegistry<GhostHintOriginVFX>(true), "Hint Resets"))
+            {
+                if ((bool)hintActive.GetValue(hint))
+                {
+                    hintSetActive.Invoke(hint, [false]);
+                    AudioController.Stop("HINT_RESET", 0);
+                }
+            }
+
+            Helpers.StartProfiling("Boss Encounter");
             if (RM.bossEncounter)
             {
                 ((IList)bossCList.GetValue(RM.bossEncounter)).Clear();
@@ -405,18 +478,25 @@ namespace NeonLite.Modules.Optimization
                 foreach (var k in timedict.Keys.ToArray())
                     timedict[k] = 0;
             }
+            Helpers.EndProfiling();
 
+            foreach (var remember in Helpers.ProfileLoop(InRegistry<RememberTransform>(true), "Apply RememberTransform"))
+                remember.Apply();
 
-            foreach (var region in SearchInAllScenes<OnRegion>())
+            foreach (var region in Helpers.ProfileLoop(InRegistry<OnRegion>(), "Handle OnRegions"))
             {
                 region.enabled = false;
                 for (int i = 0; i < region.monoBehavioursToEnable.Length; ++i)
                 {
                     var comp = region.monoBehavioursToEnable[i];
                     comp.enabled = false;
-                    if (comp is RestartStart rs)
+                    if (comp is ISkipRSS)
                     {
-                        HandleSpecialComponent(rs.behaviour);
+                        if (comp is RestartStart rs)
+                        {
+                            HandleSpecialComponent(rs.behaviour);
+                            rs.behaviour.enabled = false;
+                        }
                         continue;
                     }
                     HandleSpecialComponent(comp);
@@ -429,9 +509,13 @@ namespace NeonLite.Modules.Optimization
                     obj.SetActive(false);
                     foreach (var comp in obj.GetComponents<MonoBehaviour>())
                     {
-                        if (comp is RestartStart rs)
+                        if (comp is ISkipRSS)
                         {
-                            HandleSpecialComponent(rs.behaviour);
+                            if (comp is RestartStart rs)
+                            {
+                                HandleSpecialComponent(rs.behaviour);
+                                rs.behaviour.enabled = false;
+                            }
                             continue;
                         }
 
@@ -442,7 +526,7 @@ namespace NeonLite.Modules.Optimization
                 }
             }
 
-            foreach (var trigger in SearchInAllScenes<LevelTrigger>())
+            foreach (var trigger in Helpers.ProfileLoop(InRegistry<LevelTrigger>(true), "Reset LevelTriggers"))
             {
                 if (trigger.triggerAction == LevelTrigger.TriggerAction.EnableObjects)
                     foreach (var obj in trigger.gameObjects)
@@ -456,36 +540,63 @@ namespace NeonLite.Modules.Optimization
             Utils.ClearPreloadedObjectsFromResources();
             destroy.Clear();
             RM.time.SetTargetTimescale(1, true);
-            game.SetActiveScene(!string.IsNullOrEmpty(level.environmentSceneAlt?.SceneName) ? 1 : 0);
 
-            SceneManager.UnloadSceneAsync("Player");
-            var op = SceneManager.LoadSceneAsync("Player", LoadSceneMode.Additive);
-            do yield return null;
-            while (!op.isDone);
+            while (!op.isDone)
+            {
+                GarbageCollector.CollectIncremental(nanosecond);
+                yield return null;
+            }
+            //ResetPlayer();
+
             playthru.Reset();
+
+            Helpers.StartProfiling($"Handle Reserves - {reserveList.Count}");
+            var s = SceneManager.GetActiveScene();
+            var cur = s;
 
             for (int i = 0; i < reserveList.Count; ++i)
             {
                 var reserved = reserveList[i];
+                var rScene = reserved.reserved.gameObject.scene;
+                if (cur != rScene)
+                {
+                    SceneManager.SetActiveScene(rScene);
+                    cur = rScene;
+                }
+
                 reserved.newObj = Object.Instantiate(reserved.reserved, reserved.parent);
+                reserved.newObj.name = reserved.name;
                 reserved.newObj.transform.SetSiblingIndex(reserved.sibling);
                 destroy.Add(reserved.newObj);
                 reserveList[i] = reserved;
             }
-            foreach (var region in Object.FindObjectsOfType<OnRegion>(true))
+            SceneManager.SetActiveScene(s);
+            Helpers.EndProfiling();
+            foreach (var region in InRegistry<OnRegion>(true))
                 region.enabled = true;
-            foreach (var spawner in Object.FindObjectsOfType<CardPickupSpawner>())
+            foreach (var spawner in Helpers.ProfileLoop(InRegistry<CardPickupSpawner>(true), "Respawn Cards"))
             {
                 if (spawner.spawnOnStart)
                     spawner.SpawnCard();
             }
-            foreach (var spawner in Object.FindObjectsOfType<ObjectSpawner>())
+            foreach (var spawner in Helpers.ProfileLoop(InRegistry<ObjectSpawner>(true), "Respawn ObjectSpawners"))
             {
                 if (spawner.spawnOnStart)
                     spawner.Spawn();
             }
 
-            foreach (var encounter in Object.FindObjectsOfType<EnemyEncounter>())
+            foreach (var wave in Helpers.ProfileLoop(InRegistry<EnemyWave>(true), "Reset EnemyWaves"))
+            {
+                enemydict.SetValue(wave, new Dictionary<Enemy, bool>());
+                enemycount.SetValue(wave, 0);
+            }
+            foreach (var gate in Helpers.ProfileLoop(InRegistry<LevelGate>(true), "Gate Particles"))
+            {
+                if (gate.teleportParticles)
+                    gate.teleportParticles.Stop();
+            }
+
+            foreach (var encounter in Helpers.ProfileLoop(InRegistry<EnemyEncounter>(true), "Reset Encounter"))
                 encounter.Setup();
 
             RM.Pointer.Visible = staging;
@@ -493,12 +604,16 @@ namespace NeonLite.Modules.Optimization
 
             Object.FindObjectOfType<Setup>().ApplyHeightFogMat();
             yield return null;
+
             LoadManager.HandleLoads(game.GetCurrentLevel());
             if (staging)
             {
                 MainMenu.Instance().SetState(MainMenu.State.Staging, true, true, true, false);
                 while ((bool)waitForStaging.GetValue(game) || MainMenu.Instance().GetCurrentState() != MainMenu.State.Staging)
+                {
+                    GarbageCollector.CollectIncremental(nanosecond);
                     yield return null;
+                }
             }
 
             yield return RM.mechController.ForceSetup();
@@ -516,10 +631,21 @@ namespace NeonLite.Modules.Optimization
                 dlg.DynamicInvoke();
         }
 
-        static readonly FieldInfo flattenStart = AccessTools.Field(typeof(DFlattener), "m_startPos");
+        static readonly MethodInfo drifterStart = AccessTools.Method(typeof(FirstPersonDrifter), "Start");
+
+        static void ResetPlayer()
+        {
+            RM.ui.Setup();
+            drifterStart.Invoke(RM.drifter, []);
+            RM.drifter._zipline.SetZipline(false, false, Vector3.zero, Vector3.zero);
+            RM.drifter.CancelTelefrag();
+            RM.drifter.OnPlayerDie();
+        }
+
         static readonly FieldInfo flattenLoop = AccessTools.Field(typeof(DFlattener), "m_loop");
 
-        static readonly FieldInfo moveStart = AccessTools.Field(typeof(MoveTransform), "m_startPosition");
+        static readonly FieldInfo moveScaledT = AccessTools.Field(typeof(MoveTransform), "m_t");
+        static readonly FieldInfo moveTime = AccessTools.Field(typeof(MoveTransform), "m_timer");
         static readonly FieldInfo moveLoop = AccessTools.Field(typeof(MoveTransform), "m_loop");
 
         static void HandleSpecialComponent(MonoBehaviour comp)
@@ -527,22 +653,16 @@ namespace NeonLite.Modules.Optimization
             if (comp is DFlattener flattener)
             {
                 var loop = (AudioObject)flattenLoop.GetValue(flattener);
-                if (loop is not null)
-                {
-                    if (loop != null)
-                        loop.Stop(); // null prop doesn't work???
-                    flattener.transform.position = (Vector3)flattenStart.GetValue(flattener);
-                }
+                if (loop)
+                    loop.Stop(); // null prop doesn't work???
             }
             else if (comp is MoveTransform move)
             {
+                moveScaledT.SetValue(move, 0);
+                moveTime.SetValue(move, 0);
                 var loop = (AudioObject)moveLoop.GetValue(move);
-                if (loop is not null)
-                {
-                    if (loop != null)
-                        loop.Stop();
-                    move.transform.position = (Vector3)moveStart.GetValue(move);
-                }
+                if (loop)
+                    loop.Stop();
             }
         }
 
@@ -585,13 +705,13 @@ namespace NeonLite.Modules.Optimization
             MainMenu.Instance().SetState(MainMenu.State.None, true, true, true, false);
         }
 
-
+        static bool StagingHappens() => !noStaging.Value || LevelRush.IsLevelRush();
         static bool mmUpdating = false;
         static void PreMMUpdate() => mmUpdating = true;
         static void PostMMUpdate() => mmUpdating = false;
         static bool MMPausing(MainMenu __instance, bool setPause)
         {
-            if (pauseStaging.Value && setPause && mmUpdating && noStaging.Value && __instance.GetCurrentState() != MainMenu.State.Staging)
+            if (pauseStaging.Value && setPause && mmUpdating && !StagingHappens() && __instance.GetCurrentState() == MainMenu.State.None)
             {
                 RM.mechController.Die(true, true);
                 return false;
@@ -600,7 +720,9 @@ namespace NeonLite.Modules.Optimization
         }
     }
 
-    class RestartStart : MonoBehaviour
+    interface ISkipRSS { };
+
+    class RestartStart : MonoBehaviour, ISkipRSS
     {
         public MonoBehaviour behaviour;
         public Type behaviorType;
@@ -619,6 +741,29 @@ namespace NeonLite.Modules.Optimization
             behaviorType = behaviour.GetType();
             enabled = enable;
             return this;
+        }
+    }
+
+    [DefaultExecutionOrder(-1000)]
+    class RememberTransform : MonoBehaviour, ISkipRSS
+    {
+        public bool remembered;
+        public Vector3 position;
+        public Quaternion rotation;
+
+        void Start()
+        {
+            if (remembered)
+                return;
+            remembered = true;
+            position = transform.position;
+            rotation = transform.rotation;
+        }
+
+        public void Apply()
+        {
+            transform.position = position;
+            transform.rotation = rotation;
         }
     }
 }
