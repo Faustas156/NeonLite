@@ -88,7 +88,6 @@ namespace NeonLite.Modules.Optimization
         {
             if (activate)
             {
-                MultiLoad.setting.Value = false;
                 NeonLite.Harmony.Patch(oglvlsetup, postfix: Helpers.HM(OverridePlayLevel));
                 NeonLite.Harmony.Patch(ogsetact, prefix: Helpers.HM(SetActiveScene));
                 NeonLite.Harmony.Patch(ogpthrukill, prefix: Helpers.HM(Never));
