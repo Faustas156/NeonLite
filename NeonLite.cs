@@ -71,6 +71,7 @@ namespace NeonLite
                 }
             }
             setupCalled = true;
+            VersionText.ver = Info.Version;
         }
 
         internal static void ActivatePriority()
