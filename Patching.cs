@@ -101,7 +101,7 @@ namespace NeonLite
             }
 
             if (parallel)
-                Parallel.ForEach(bag, x => x.Execute());
+                new Thread(() => Parallel.ForEach(bag, x => x.Execute())).Start();
         }
 
         struct PatchJob
