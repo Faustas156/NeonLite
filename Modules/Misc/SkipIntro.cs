@@ -23,9 +23,9 @@ namespace NeonLite.Modules.Misc
         {
             /*
             if (activate)
-                NeonLite.Harmony.Patch(original, prefix: Helpers.HM(SkipIntroCards));
+                Patching.AddPatch(original, SkipIntroCards, Patching.PatchTarget.Prefix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(SkipIntroCards));//*/
+                Patching.RemovePatch(original, SkipIntroCards);//*/
 
             active = activate;
         }

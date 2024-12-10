@@ -24,7 +24,7 @@ namespace NeonLite.Modules.Optimization
         {
             foreach (var method in toPatch)
             {
-                NeonLite.Harmony.Patch(method, prefix: Helpers.HM(ProtectInstance));
+                Patching.AddPatch(method, ProtectInstance, Patching.PatchTarget.Prefix);
             }
         }
 

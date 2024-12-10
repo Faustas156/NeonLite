@@ -36,17 +36,17 @@ namespace NeonLite.Modules.UI
         {
             if (activate)
             {
-                NeonLite.Harmony.Patch(ogonsty, postfix: Helpers.HM(OnTrigger));
-                NeonLite.Harmony.Patch(ogstart, postfix: Helpers.HM(PostStart));
-                NeonLite.Harmony.Patch(ogedie, postfix: Helpers.HM(OnEnemyDie));
-                NeonLite.Harmony.Patch(ogefdie, postfix: Helpers.HM(OnEnemyDie));
+                Patching.AddPatch(ogonsty, OnTrigger, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogstart, PostStart, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogedie, OnEnemyDie, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogefdie, OnEnemyDie, Patching.PatchTarget.Postfix);
             }
             else
             {
-                NeonLite.Harmony.Unpatch(ogonsty, Helpers.MI(OnTrigger));
-                NeonLite.Harmony.Unpatch(ogstart, Helpers.MI(PostStart));
-                NeonLite.Harmony.Unpatch(ogedie, Helpers.MI(OnEnemyDie));
-                NeonLite.Harmony.Unpatch(ogefdie, Helpers.MI(OnEnemyDie));
+                Patching.RemovePatch(ogonsty, OnTrigger);
+                Patching.RemovePatch(ogstart, PostStart);
+                Patching.RemovePatch(ogedie, OnEnemyDie);
+                Patching.RemovePatch(ogefdie, OnEnemyDie);
             }
 
             active = activate;

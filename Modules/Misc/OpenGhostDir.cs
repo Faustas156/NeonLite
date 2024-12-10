@@ -30,14 +30,14 @@ namespace NeonLite.Modules.Misc
             active = activate;
 
             if (activate)
-                NeonLite.Harmony.Patch(oglvli, postfix: Helpers.HM(PostSetLevel));
+                Patching.AddPatch(oglvli, PostSetLevel, Patching.PatchTarget.Postfix);
             else
             {
                 foreach (var kv in buttons)
                     UnityEngine.Object.Destroy(kv.Value);
                 buttons.Clear();
 
-                NeonLite.Harmony.Unpatch(oglvli, Helpers.MI(PostSetLevel));
+                Patching.RemovePatch(oglvli, PostSetLevel);
             }
         }
 

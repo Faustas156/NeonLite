@@ -22,9 +22,9 @@ namespace NeonLite.Modules.Misc.VFX
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, prefix: Helpers.HM(StopTelefrag));
+                Patching.AddPatch(original, StopTelefrag, Patching.PatchTarget.Prefix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(StopTelefrag));
+                Patching.RemovePatch(original, StopTelefrag);
 
             active = activate;
         }

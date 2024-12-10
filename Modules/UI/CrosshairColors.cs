@@ -40,9 +40,9 @@ namespace NeonLite.Modules.UI
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(ogload, postfix: Helpers.HM(SetIndicatorUI));
+                Patching.AddPatch(ogload, SetIndicatorUI, Patching.PatchTarget.Postfix);
             else
-                NeonLite.Harmony.Unpatch(ogload, Helpers.MI(SetIndicatorUI));
+                Patching.RemovePatch(ogload, SetIndicatorUI);
 
             active = activate;
         }

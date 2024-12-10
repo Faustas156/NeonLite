@@ -29,9 +29,9 @@ namespace NeonLite.Modules.UI
         static void Activate(bool activate)
         {
             if (activate && (!active || firstLoad))
-                NeonLite.Harmony.Patch(original, postfix: Helpers.HM(PostSetVisible));
+                Patching.AddPatch(original, PostSetVisible, Patching.PatchTarget.Postfix);
             else if (!activate)
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(PostSetVisible));
+                Patching.RemovePatch(original, PostSetVisible);
 
             cache = null;
             active = activate;

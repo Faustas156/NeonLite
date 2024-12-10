@@ -21,9 +21,9 @@ namespace NeonLite.Modules.Optimization
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(ogload, prefix: Helpers.HM(RemoveFrontload));
+                Patching.AddPatch(ogload, RemoveFrontload, Patching.PatchTarget.Prefix);
             else
-                NeonLite.Harmony.Unpatch(ogload, Helpers.MI(RemoveFrontload));
+                Patching.RemovePatch(ogload, RemoveFrontload);
 
             active = activate;
         }

@@ -17,7 +17,7 @@ namespace NeonLite.Modules.Misc
 
         static readonly MethodInfo oglvli = AccessTools.Method(typeof(MainMenu), "SetState");
 
-        static void Activate(bool activate) => NeonLite.Harmony.Patch(oglvli, postfix: Helpers.HM(PostSetState));
+        static void Activate(bool activate) => Patching.AddPatch(oglvli, PostSetState, Patching.PatchTarget.Postfix);
 
         static void PostSetState(MainMenu.State newState)
         {

@@ -36,19 +36,19 @@ namespace NeonLite.Modules.UI
         {
             if (activate)
             {
-                NeonLite.Harmony.Patch(ogtt, prefix: Helpers.HM(OnTimerUpdate));
-                NeonLite.Harmony.Patch(ogrush, postfix: Helpers.HM(OnRushFinish));
-                NeonLite.Harmony.Patch(oglevel, postfix: Helpers.HM(OnLevelFinish));
-                NeonLite.Harmony.Patch(oggtf, prefix: Helpers.HM(GetTimerFormatted));
-                NeonLite.Harmony.Patch(ogwin, prefix: Helpers.HM(OnWin));
+                Patching.AddPatch(ogtt, OnTimerUpdate, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogrush, OnRushFinish, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(oglevel, OnLevelFinish, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(oggtf, GetTimerFormatted, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogwin, OnWin, Patching.PatchTarget.Prefix);
             }
             else
             {
-                NeonLite.Harmony.Unpatch(ogtt, Helpers.MI(OnTimerUpdate));
-                NeonLite.Harmony.Unpatch(ogrush, Helpers.MI(OnRushFinish));
-                NeonLite.Harmony.Unpatch(oglevel, Helpers.MI(OnLevelFinish));
-                NeonLite.Harmony.Unpatch(oggtf, Helpers.MI(GetTimerFormatted));
-                NeonLite.Harmony.Unpatch(ogwin, Helpers.MI(OnWin));
+                Patching.RemovePatch(ogtt, OnTimerUpdate);
+                Patching.RemovePatch(ogrush, OnRushFinish);
+                Patching.RemovePatch(oglevel, OnLevelFinish);
+                Patching.RemovePatch(oggtf, GetTimerFormatted);
+                Patching.RemovePatch(ogwin, OnWin);
             }
 
             active = activate;

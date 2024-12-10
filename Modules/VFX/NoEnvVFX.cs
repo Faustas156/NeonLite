@@ -20,9 +20,9 @@ namespace NeonLite.Modules.VFX
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, prefix: Helpers.HM(StopFX));
+                Patching.AddPatch(original, StopFX, Patching.PatchTarget.Prefix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(StopFX));
+                Patching.RemovePatch(original, StopFX);
 
             active = activate;
         }

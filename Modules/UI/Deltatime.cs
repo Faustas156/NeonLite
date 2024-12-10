@@ -33,13 +33,13 @@ namespace NeonLite.Modules.UI
         {
             if (activate)
             {
-                NeonLite.Harmony.Patch(ogwin, prefix: Helpers.HM(PreWin));
-                NeonLite.Harmony.Patch(ogres, postfix: Helpers.HM(PostSetVisible));
+                Patching.AddPatch(ogwin, PreWin, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogres, PostSetVisible, Patching.PatchTarget.Postfix);
             }
             else
             {
-                NeonLite.Harmony.Unpatch(ogwin, Helpers.MI(PreWin));
-                NeonLite.Harmony.Unpatch(ogres, Helpers.MI(PostSetVisible));
+                Patching.RemovePatch(ogwin, PreWin);
+                Patching.RemovePatch(ogres, PostSetVisible);
                 if (dtLevel)
                     UnityEngine.Object.Destroy(dtLevel);
                 if (dtRush)

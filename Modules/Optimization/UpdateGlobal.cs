@@ -47,10 +47,10 @@ namespace NeonLite.Modules.Optimization
             }
             else
             {
-                NeonLite.Harmony.Unpatch(oglbupld, Helpers.MI(PreLBUploaded));
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(ChangeCallback));
-                NeonLite.Harmony.Unpatch(ogtlvis, Helpers.MI(OnTitleShow));
-                NeonLite.Harmony.Unpatch(oggdgn, Helpers.MI(NeonScoreDebug));
+                Patching.RemovePatch(oglbupld, PreLBUploaded);
+                Patching.RemovePatch(original, ChangeCallback);
+                Patching.RemovePatch(ogtlvis, OnTitleShow);
+                Patching.RemovePatch(oggdgn, NeonScoreDebug);
             }
 
             active = activate;

@@ -12,7 +12,7 @@ namespace NeonLite.Modules.UI
         static void Setup() { }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(SliderUIPrefab), "Initialise");
-        static void Activate(bool activate) => NeonLite.Harmony.Patch(original, prefix: Helpers.HM(Initialize));
+        static void Activate(bool activate) => Patching.AddPatch(original, Initialize, Patching.PatchTarget.Prefix);
 
         static void Initialize(ref string localisationKey, ref OptionsMenuPanelInformation.OptionEntry optionEntry)
         {

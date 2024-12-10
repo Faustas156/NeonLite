@@ -17,9 +17,9 @@ namespace NeonLite.Modules.UI
         static readonly MethodInfo original = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "DownloadEntries");
         static void Activate(bool _)
         {
-            NeonLite.Harmony.Patch(original, transpiler: Helpers.HM(AddToScoreData));
+            Patching.AddPatch(original, AddToScoreData, Patching.PatchTarget.Transpiler);
             var friendsDL = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "OnLeaderboardScoresFriendsDownloaded");
-            NeonLite.Harmony.Patch(friendsDL, transpiler: Helpers.HM(PatchSteamFriends));
+            Patching.AddPatch(friendsDL, PatchSteamFriends, Patching.PatchTarget.Transpiler);
         }
 
         static IEnumerable<CodeInstruction> AddToScoreData(IEnumerable<CodeInstruction> instructions)

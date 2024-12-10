@@ -112,12 +112,12 @@ namespace NeonLite.Modules.Misc
                 {
                     NeonLite.Game.winAction += LevelWin;
                     Utils.InstantiateUI(prefab, "Speedometer", NeonLite.mmHolder.transform).AddComponent<Speedometer>();
-                    NeonLite.Harmony.Patch(original, postfix: Helpers.HM(OnPlaying));
+                    Patching.AddPatch(original, OnPlaying, Patching.PatchTarget.Postfix);
                 }
             }
             else
             {
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(OnPlaying));
+                Patching.RemovePatch(original, OnPlaying);
                 NeonLite.Game.winAction -= LevelWin;
                 if (instance)
                     Destroy(instance.gameObject);

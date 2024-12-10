@@ -44,13 +44,13 @@ namespace NeonLite.Modules
         {
             if (activate && (!active || !hasSetup))
             {
-                NeonLite.Harmony.Patch(ogutms, prefix: Helpers.HM(DontUpdateTime));
-                NeonLite.Harmony.Patch(oglbui, prefix: Helpers.HM(UploadScoreStopper));
+                Patching.AddPatch(ogutms, DontUpdateTime, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(oglbui, UploadScoreStopper, Patching.PatchTarget.Prefix);
             }
             else if (!activate && active)
             {
-                NeonLite.Harmony.Unpatch(ogutms, Helpers.MI(DontUpdateTime));
-                NeonLite.Harmony.Unpatch(oglbui, Helpers.MI(UploadScoreStopper));
+                Patching.RemovePatch(ogutms, DontUpdateTime);
+                Patching.RemovePatch(oglbui, UploadScoreStopper);
                 if (textInstance)
                     Destroy(textInstance.gameObject);
             }

@@ -14,7 +14,7 @@ namespace NeonLite.Modules.Misc
         static void Setup() { }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MainMenu), "SetState");
-        static void Activate(bool _) => NeonLite.Harmony.Patch(original, transpiler: Helpers.HM(Transpiler));
+        static void Activate(bool _) => Patching.AddPatch(original, Transpiler, Patching.PatchTarget.Transpiler);
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

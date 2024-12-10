@@ -65,15 +65,15 @@ namespace NeonLite.Modules.Optimization
             /*
             if (activate)
             {
-                NeonLite.Harmony.Patch(loadon, prefix: Helpers.HM(Preload));
-                NeonLite.Harmony.Patch(ogstate, prefix: Helpers.HM(SetInitState));
-                NeonLite.Harmony.Patch(ogdata, prefix: Helpers.HM(UnloadScenesRewrite));
+                Patching.AddPatch(loadon, Preload, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogstate, SetInitState, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogdata, UnloadScenesRewrite, Patching.PatchTarget.Prefix);
             }
             else
             {
-                NeonLite.Harmony.Unpatch(loadon, Helpers.MI(Preload));
-                NeonLite.Harmony.Unpatch(ogstate, Helpers.MI(SetInitState));
-                NeonLite.Harmony.Unpatch(ogdata, Helpers.MI(UnloadScenesRewrite));
+                Patching.RemovePatch(loadon, Preload);
+                Patching.RemovePatch(ogstate, SetInitState);
+                Patching.RemovePatch(ogdata, UnloadScenesRewrite);
             }//*/
 
             active = activate;

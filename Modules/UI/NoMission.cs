@@ -20,9 +20,9 @@ namespace NeonLite.Modules.UI
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, prefix: Helpers.HM(PreCreateButton));
+                Patching.AddPatch(original, PreCreateButton, Patching.PatchTarget.Prefix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(PreCreateButton));
+                Patching.RemovePatch(original, PreCreateButton);
 
             active = activate;
         }

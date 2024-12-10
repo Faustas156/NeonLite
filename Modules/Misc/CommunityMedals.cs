@@ -219,23 +219,23 @@ namespace NeonLite.Modules
                 var sl = Helpers.HM(PostSetLevel);
                 sl.priority = Priority.First;
                 NeonLite.Harmony.Patch(ogslvl, postfix: sl);
-                NeonLite.Harmony.Patch(ogmbls, postfix: Helpers.HM(PostSetLevelData));
-                NeonLite.Harmony.Patch(ogset, postfix: Helpers.HM(PostSetScore));
-                NeonLite.Harmony.Patch(oggolw, prefix: Helpers.HM(PreOnWin));
-                NeonLite.Harmony.Patch(ogmrsm, postfix: Helpers.HM(PostSetMedal));
-                NeonLite.Harmony.Patch(ogmosv, postfix: Helpers.HM(PostSetVisible));
+                Patching.AddPatch(ogmbls, PostSetLevelData, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogset, PostSetScore, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(oggolw, PreOnWin, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogmrsm, PostSetMedal, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogmosv, PostSetVisible, Patching.PatchTarget.Postfix);
             }
             else
             {
                 foreach (var li in UnityEngine.Object.FindObjectsOfType<LevelInfo>())
                     PostSetLevel(li, null); // for !active, revert stuff -- for active, setup some small stuff
 
-                NeonLite.Harmony.Unpatch(ogslvl, Helpers.MI(PostSetLevel));
-                NeonLite.Harmony.Unpatch(ogmbls, Helpers.MI(PostSetLevelData));
-                NeonLite.Harmony.Unpatch(ogset, Helpers.MI(PostSetScore));
-                NeonLite.Harmony.Unpatch(oggolw, Helpers.MI(PreOnWin));
-                NeonLite.Harmony.Unpatch(ogmrsm, Helpers.MI(PostSetMedal));
-                NeonLite.Harmony.Unpatch(ogmosv, Helpers.MI(PostSetVisible));
+                Patching.RemovePatch(ogslvl, PostSetLevel);
+                Patching.RemovePatch(ogmbls, PostSetLevelData);
+                Patching.RemovePatch(ogset, PostSetScore);
+                Patching.RemovePatch(oggolw, PreOnWin);
+                Patching.RemovePatch(ogmrsm, PostSetMedal);
+                Patching.RemovePatch(ogmosv, PostSetVisible);
             }
         }
 

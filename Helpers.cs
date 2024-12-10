@@ -1,5 +1,5 @@
 ﻿#if DEBUG
-// #define ENABLE_PROFILER
+#define ENABLE_PROFILER
 #else
 // #define ENABLE_PROFILER
 #endif
@@ -15,8 +15,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Unity.Profiling;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
 
 namespace NeonLite
 {
@@ -118,7 +116,6 @@ namespace NeonLite
         public static IEnumerable<T> ProfileLoop<T>(IEnumerable<T> loop, string _) => loop;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void EndProfiling() { }
-
 #endif
     }
 }

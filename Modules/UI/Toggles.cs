@@ -104,9 +104,9 @@ namespace NeonLite.Modules.UI.Toggles
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, prefix: Helpers.HM(StopCRT));
+                Patching.AddPatch(original, StopCRT, Patching.PatchTarget.Prefix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(StopCRT));
+                Patching.RemovePatch(original, StopCRT);
 
             active = activate;
         }

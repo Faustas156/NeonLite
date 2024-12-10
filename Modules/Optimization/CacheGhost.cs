@@ -33,14 +33,14 @@ namespace NeonLite.Modules.Optimization
         {
             if (activate)
             {
-                NeonLite.Harmony.Patch(ogload, prefix: Helpers.HM(LoadDataRewrite));
-                NeonLite.Harmony.Patch(ogsave, prefix: Helpers.HM(OnGhostSave));
+                Patching.AddPatch(ogload, LoadDataRewrite, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogsave, OnGhostSave, Patching.PatchTarget.Prefix);
             }
             else
             {
                 ghosts.Clear();
-                NeonLite.Harmony.Unpatch(ogload, Helpers.MI(LoadDataRewrite));
-                NeonLite.Harmony.Unpatch(ogsave, Helpers.MI(OnGhostSave));
+                Patching.RemovePatch(ogload, LoadDataRewrite);
+                Patching.RemovePatch(ogsave, OnGhostSave);
             }
 
             active = activate;

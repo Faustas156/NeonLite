@@ -36,22 +36,22 @@ namespace NeonLite.Modules.Misc
 
             if (activate)
             {
-                NeonLite.Harmony.Patch(record, postfix: Helpers.HM(PostStart));
-                NeonLite.Harmony.Patch(playback, prefix: Helpers.HM(PreStart));
-                NeonLite.Harmony.Patch(oglvli, postfix: Helpers.HM(PostSetLevel));
-                NeonLite.Harmony.Patch(oginsl, postfix: Helpers.HM(PostSetLevelInsight));
-                NeonLite.Harmony.Patch(oginsu, transpiler: Helpers.HM(MidUpdateInsight));
+                Patching.AddPatch(record, PostStart, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(playback, PreStart, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(oglvli, PostSetLevel, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(oginsl, PostSetLevelInsight, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(oginsu, MidUpdateInsight, Patching.PatchTarget.Transpiler);
             }
             else
             {
                 foreach (var li in UnityEngine.Object.FindObjectsOfType<LevelInfo>())
                     PostSetLevel(li, null);
 
-                NeonLite.Harmony.Unpatch(record, Helpers.MI(PostStart));
-                NeonLite.Harmony.Unpatch(playback, Helpers.MI(PreStart));
-                NeonLite.Harmony.Unpatch(oglvli, Helpers.MI(PostSetLevel));
-                NeonLite.Harmony.Unpatch(oginsl, Helpers.MI(PostSetLevelInsight));
-                NeonLite.Harmony.Unpatch(oginsu, Helpers.MI(MidUpdateInsight));
+                Patching.RemovePatch(record, PostStart);
+                Patching.RemovePatch(playback, PreStart);
+                Patching.RemovePatch(oglvli, PostSetLevel);
+                Patching.RemovePatch(oginsl, PostSetLevelInsight);
+                Patching.RemovePatch(oginsu, MidUpdateInsight);
             }
         }
 

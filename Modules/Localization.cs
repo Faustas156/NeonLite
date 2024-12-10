@@ -26,8 +26,8 @@ namespace NeonLite.Modules
 
         static void Activate(bool _)
         {
-            NeonLite.Harmony.Patch(ogadd, prefix: Helpers.HM(ChangeSource));
-            NeonLite.Harmony.Patch(ogall, prefix: Helpers.HM(LocalizeAll));
+            Patching.AddPatch(ogadd, ChangeSource, Patching.PatchTarget.Prefix);
+            Patching.AddPatch(ogall, LocalizeAll, Patching.PatchTarget.Prefix);
             NeonLite.OnBundleLoad += SetupFontSet;
         }
 

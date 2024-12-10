@@ -26,9 +26,9 @@ namespace NeonLite.Modules.UI
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, postfix: Helpers.HM(OnTimerUpdate));
+                Patching.AddPatch(original, OnTimerUpdate, Patching.PatchTarget.Postfix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(OnTimerUpdate));
+                Patching.RemovePatch(original, OnTimerUpdate);
 
             active = activate;
         }

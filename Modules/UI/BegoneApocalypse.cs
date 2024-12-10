@@ -21,9 +21,9 @@ namespace NeonLite.Modules.UI
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, postfix: Helpers.HM(RemoveApocalypse));
+                Patching.AddPatch(original, RemoveApocalypse, Patching.PatchTarget.Postfix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(RemoveApocalypse));
+                Patching.RemovePatch(original, RemoveApocalypse);
 
             active = activate;
         }

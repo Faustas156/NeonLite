@@ -44,9 +44,9 @@ namespace NeonLite.Modules.Misc
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, prefix: Helpers.HM(PreLocalize));
+                Patching.AddPatch(original, PreLocalize, Patching.PatchTarget.Prefix);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(PreLocalize));
+                Patching.RemovePatch(original, PreLocalize);
 
             active = activate;
         }

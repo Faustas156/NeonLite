@@ -90,24 +90,24 @@ namespace NeonLite.Modules.Misc
             if (activate)
             {
 #if XBOX
-                NeonLite.Harmony.Patch(ogtransform, prefix: Helpers.HM(PreTransformRankingsToScoreData));
+                Patching.AddPatch(ogtransform, PreTransformRankingsToScoreData, Patching.PatchTarget.Prefix);
 #else
-                NeonLite.Harmony.Patch(ogscore, prefix: Helpers.HM(PreGetScoreDataAtGlobalRank));
-                NeonLite.Harmony.Patch(ogdllb, postfix: Helpers.HM(PostGetDownloadedLeaderboardEntry));
+                Patching.AddPatch(ogscore, PreGetScoreDataAtGlobalRank, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogdllb, PostGetDownloadedLeaderboardEntry, Patching.PatchTarget.Postfix);
 #endif
-                NeonLite.Harmony.Patch(ogset, postfix: Helpers.HM(PostSetScore));
-                NeonLite.Harmony.Patch(ogrecv, postfix: Helpers.HM(PostRecieve));
+                Patching.AddPatch(ogset, PostSetScore, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogrecv, PostRecieve, Patching.PatchTarget.Postfix);
             }
             else
             {
 #if XBOX
-                NeonLite.Harmony.Unpatch(ogtransform, Helpers.MI(PreTransformRankingsToScoreData));
+                Patching.RemovePatch(ogtransform, PreTransformRankingsToScoreData);
 #else
-                NeonLite.Harmony.Unpatch(ogscore, Helpers.MI(PreGetScoreDataAtGlobalRank));
-                NeonLite.Harmony.Unpatch(ogdllb, Helpers.MI(PostGetDownloadedLeaderboardEntry));
+                Patching.RemovePatch(ogscore, PreGetScoreDataAtGlobalRank);
+                Patching.RemovePatch(ogdllb, PostGetDownloadedLeaderboardEntry);
 #endif
-                NeonLite.Harmony.Unpatch(ogset, Helpers.MI(PostSetScore));
-                NeonLite.Harmony.Unpatch(ogrecv, Helpers.MI(PostRecieve));
+                Patching.RemovePatch(ogset, PostSetScore);
+                Patching.RemovePatch(ogrecv, PostRecieve);
             }
 
             active = activate;

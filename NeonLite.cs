@@ -95,6 +95,7 @@ namespace NeonLite
                     continue;
                 }
             }
+            Patching.RunPatches();
             activateEarly = true;
         }
 
@@ -149,6 +150,7 @@ namespace NeonLite
                 }
             }
             activateLate = true;
+            Patching.RunPatches(false);
 
             Settings.Migrate();
 
@@ -221,6 +223,8 @@ namespace NeonLite
                     }
                 }
             }
+
+            Patching.RunPatches(false);
 
             //modules.UnionWith(addedModules);
             modules.AddRange(addedModules);

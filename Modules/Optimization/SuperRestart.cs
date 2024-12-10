@@ -96,29 +96,29 @@ namespace NeonLite.Modules.Optimization
         {
             if (activate)
             {
-                NeonLite.Harmony.Patch(oglvlsetup, postfix: Helpers.HM(OverridePlayLevel));
-                NeonLite.Harmony.Patch(ogsetact, prefix: Helpers.HM(SetActiveScene));
-                NeonLite.Harmony.Patch(ogpthrukill, prefix: Helpers.HM(Never));
+                Patching.AddPatch(oglvlsetup, OverridePlayLevel, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogsetact, SetActiveScene, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogpthrukill, Never, Patching.PatchTarget.Prefix);
 
-                NeonLite.Harmony.Patch(ogobjmspwn, postfix: Helpers.HM(MarkForDestroy));
-                NeonLite.Harmony.Patch(ogenemyspwn, postfix: Helpers.HM(MarkForDestroyEnemy));
-                NeonLite.Harmony.Patch(ogobjpspwn, postfix: Helpers.HM(MarkForDestroy));
-                NeonLite.Harmony.Patch(ogcardspwnc, postfix: Helpers.HM(MarkForDestroyCard));
-                NeonLite.Harmony.Patch(ogcardspwn, postfix: Helpers.HM(MarkForDestroyCard2));
-                NeonLite.Harmony.Patch(ogtripdie, postfix: Helpers.HM(MarkForDestroyTripwire));
-                NeonLite.Harmony.Patch(ogmimicatk, postfix: Helpers.HM(MarkForDestroyMimic));
-                NeonLite.Harmony.Patch(ogfracexpl, postfix: Helpers.HM(MarkForDestroyFracture));
-                NeonLite.Harmony.Patch(ogdmgtxts, postfix: Helpers.HM(MarkForDestroyDamageText));
-                NeonLite.Harmony.Patch(ogghplstrt, postfix: Helpers.HM(MarkForDestroyGhost));
-                NeonLite.Harmony.Patch(ogutprlres, transpiler: Helpers.HM(MarkForDestroyPreload));
+                Patching.AddPatch(ogobjmspwn, MarkForDestroy, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogenemyspwn, MarkForDestroyEnemy, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogobjpspwn, MarkForDestroy, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogcardspwnc, MarkForDestroyCard, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogcardspwn, MarkForDestroyCard2, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogtripdie, MarkForDestroyTripwire, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogmimicatk, MarkForDestroyMimic, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogfracexpl, MarkForDestroyFracture, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogdmgtxts, MarkForDestroyDamageText, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogghplstrt, MarkForDestroyGhost, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogutprlres, MarkForDestroyPreload, Patching.PatchTarget.Transpiler);
 
-                NeonLite.Harmony.Patch(ogmenuload, postfix: Helpers.HM(PostMenuLoad));
+                Patching.AddPatch(ogmenuload, PostMenuLoad, Patching.PatchTarget.Postfix);
 
-                NeonLite.Harmony.Patch(ogobjpdspwn, postfix: Helpers.HM(UnmarkForDestroyPool));
+                Patching.AddPatch(ogobjpdspwn, UnmarkForDestroyPool, Patching.PatchTarget.Postfix);
 
-                NeonLite.Harmony.Patch(ogmmupd, prefix: Helpers.HM(PreMMUpdate));
-                NeonLite.Harmony.Patch(ogmmupd, postfix: Helpers.HM(PostMMUpdate));
-                NeonLite.Harmony.Patch(ogmmpause, prefix: Helpers.HM(MMPausing));
+                Patching.AddPatch(ogmmupd, PreMMUpdate, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogmmupd, PostMMUpdate, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(ogmmpause, MMPausing, Patching.PatchTarget.Prefix);
 
                 foreach ((var type, var name, var args) in prefixToRegister)
                 {
@@ -127,7 +127,7 @@ namespace NeonLite.Modules.Optimization
 
                     var func = AccessTools.Method(type, name, args);
                     var manual = AccessTools.Method(typeof(SuperRestart), "AddToRegistry", generics: [type]);
-                    NeonLite.Harmony.Patch(func, prefix: manual.ToNewHarmonyMethod());
+                    Patching.AddPatch(func, manual.ToNewHarmonyMethod(), Patching.PatchTarget.Prefix);
                 }
             }
             else
@@ -141,32 +141,32 @@ namespace NeonLite.Modules.Optimization
 
                 GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
 
-                NeonLite.Harmony.Unpatch(oglvlsetup, Helpers.MI(OverridePlayLevel));
-                NeonLite.Harmony.Unpatch(ogsetact, Helpers.MI(SetActiveScene));
-                NeonLite.Harmony.Unpatch(ogpthrukill, Helpers.MI(Never));
-                NeonLite.Harmony.Unpatch(ogobjmspwn, Helpers.MI(MarkForDestroy));
-                NeonLite.Harmony.Unpatch(ogenemyspwn, Helpers.MI(MarkForDestroyEnemy));
-                NeonLite.Harmony.Unpatch(ogobjpspwn, Helpers.MI(MarkForDestroy));
-                NeonLite.Harmony.Unpatch(ogcardspwnc, Helpers.MI(MarkForDestroyCard));
-                NeonLite.Harmony.Unpatch(ogcardspwn, Helpers.MI(MarkForDestroyCard2));
-                NeonLite.Harmony.Unpatch(ogtripdie, Helpers.MI(MarkForDestroyTripwire));
-                NeonLite.Harmony.Unpatch(ogmimicatk, Helpers.MI(MarkForDestroyMimic));
-                NeonLite.Harmony.Unpatch(ogfracexpl, Helpers.MI(MarkForDestroyFracture));
-                NeonLite.Harmony.Unpatch(ogdmgtxts, Helpers.MI(MarkForDestroyDamageText));
-                NeonLite.Harmony.Unpatch(ogghplstrt, Helpers.MI(MarkForDestroyGhost));
-                NeonLite.Harmony.Unpatch(ogutprlres, Helpers.MI(MarkForDestroyPreload));
-                NeonLite.Harmony.Unpatch(ogmenuload, Helpers.MI(PostMenuLoad));
-                NeonLite.Harmony.Unpatch(ogobjpdspwn, Helpers.MI(UnmarkForDestroyPool));
-                NeonLite.Harmony.Unpatch(ogmmupd, Helpers.MI(PreMMUpdate));
-                NeonLite.Harmony.Unpatch(ogmmupd, Helpers.MI(PostMMUpdate));
-                NeonLite.Harmony.Unpatch(ogmmpause, Helpers.MI(MMPausing));
+                Patching.RemovePatch(oglvlsetup, OverridePlayLevel);
+                Patching.RemovePatch(ogsetact, SetActiveScene);
+                Patching.RemovePatch(ogpthrukill, Never);
+                Patching.RemovePatch(ogobjmspwn, MarkForDestroy);
+                Patching.RemovePatch(ogenemyspwn, MarkForDestroyEnemy);
+                Patching.RemovePatch(ogobjpspwn, MarkForDestroy);
+                Patching.RemovePatch(ogcardspwnc, MarkForDestroyCard);
+                Patching.RemovePatch(ogcardspwn, MarkForDestroyCard2);
+                Patching.RemovePatch(ogtripdie, MarkForDestroyTripwire);
+                Patching.RemovePatch(ogmimicatk, MarkForDestroyMimic);
+                Patching.RemovePatch(ogfracexpl, MarkForDestroyFracture);
+                Patching.RemovePatch(ogdmgtxts, MarkForDestroyDamageText);
+                Patching.RemovePatch(ogghplstrt, MarkForDestroyGhost);
+                Patching.RemovePatch(ogutprlres, MarkForDestroyPreload);
+                Patching.RemovePatch(ogmenuload, PostMenuLoad);
+                Patching.RemovePatch(ogobjpdspwn, UnmarkForDestroyPool);
+                Patching.RemovePatch(ogmmupd, PreMMUpdate);
+                Patching.RemovePatch(ogmmupd, PostMMUpdate);
+                Patching.RemovePatch(ogmmpause, MMPausing);
 
                 foreach ((var type, var name, var args) in prefixToRegister)
                 {
                     var func = AccessTools.Method(type, name, args);
                     var manual = AccessTools.Method(typeof(SuperRestart), "AddToRegistry", generics: [type]);
 
-                    NeonLite.Harmony.Unpatch(func, manual);
+                    Patching.RemovePatch(func, manual);
                 }
             }
 

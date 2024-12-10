@@ -35,9 +35,9 @@ namespace NeonLite.Modules.Misc
         static void Activate(bool activate)
         {
             if (activate)
-                NeonLite.Harmony.Patch(original, transpiler: Helpers.HM(PutInSeed));
+                Patching.AddPatch(original, PutInSeed, Patching.PatchTarget.Transpiler);
             else
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(PutInSeed));
+                Patching.RemovePatch(original, PutInSeed);
             active = activate;
         }
 

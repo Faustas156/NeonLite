@@ -24,13 +24,13 @@ namespace NeonLite.Modules.Misc
         {
             if (activate && (!active || first))
             {
-                NeonLite.Harmony.Patch(original, prefix: Helpers.HM(PreShowcase));
-                NeonLite.Harmony.Patch(ognewgame, prefix: Helpers.HM(PreNewGame));
+                Patching.AddPatch(original, PreShowcase, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ognewgame, PreNewGame, Patching.PatchTarget.Prefix);
             }
             else if (!activate && active)
             {
-                NeonLite.Harmony.Unpatch(original, Helpers.MI(PreShowcase));
-                NeonLite.Harmony.Unpatch(ognewgame, Helpers.MI(PreNewGame));
+                Patching.RemovePatch(original, PreShowcase);
+                Patching.RemovePatch(ognewgame, PreNewGame);
             }
 
             first = false;
