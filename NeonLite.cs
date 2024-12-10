@@ -39,6 +39,8 @@ namespace NeonLite
         static bool activateEarly;
         static bool activateLate;
 
+        public override void OnEarlyInitializeMelon() => Logger = LoggerInstance;
+
         public override void OnInitializeMelon()
         {
             Settings.Setup();
@@ -49,7 +51,6 @@ namespace NeonLite
             Anticheat.Register(MelonAssembly);
 #endif
             Harmony = HarmonyInstance;
-            Logger = LoggerInstance;
 
             LoadModules(MelonAssembly);
 
@@ -157,6 +158,8 @@ namespace NeonLite
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LoadModules(MelonAssembly assembly)
         {
+            Logger.Msg($"Loading modules from {assembly.Assembly.GetName().Name}");
+
             var addedModules = assembly.Assembly.GetTypes().Where(t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t));
             if (setupCalled)
             {
@@ -220,6 +223,7 @@ namespace NeonLite
 
             //modules.UnionWith(addedModules);
             modules.AddRange(addedModules);
+            LoadManager.modules.AddRange(addedModules.Where(t => AccessTools.Method(t, "OnLevelLoad") != null));
         }
     }
 }

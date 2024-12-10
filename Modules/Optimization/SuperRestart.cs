@@ -12,32 +12,40 @@ using System.Reflection.Emit;
 using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace NeonLite.Modules.Optimization
 {
-    internal class SuperRestart : IModule
+    public class SuperRestart : IModule
     {
 #pragma warning disable CS0414
         const bool priority = true;
         static bool active = false;
 
-        public static MelonPreferences_Entry<bool> setting;
+        internal static MelonPreferences_Entry<bool> setting;
         static MelonPreferences_Entry<bool> noStaging;
         static MelonPreferences_Entry<bool> pauseStaging;
-
+        static MelonPreferences_Entry<int> gcTimer;
         static void Setup()
         {
             setting = Settings.Add(Settings.h, "Misc", "superRestart", "Quick Restart", "Completely overrides the level loading routine on restart to be faster.", true);
             noStaging = Settings.Add(Settings.h, "Misc", "noStaging", "Skip Staging Screen", "Skips the staging screen while using Quick Restart.", true);
             pauseStaging = Settings.Add(Settings.h, "Misc", "pauseStaging", "Pause Restarts to Staging", null, true);
             pauseStaging.IsHidden = true;
+            gcTimer = Settings.Add(Settings.h, "Misc", "gcTimer", "Restarts to call GC", null, 100);
+            gcTimer.IsHidden = true;
             setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
             active = setting.Value;
+
+            var useScreenshot = Settings.Add(Settings.h, "Misc", "useScreenshot", "Minimize Flashing", "Use a screenshot of the stage to minimize flashing.", true);
+            useScreenshot.OnEntryValueChanged.Subscribe((_, after) => LoadingScreenshot.Activate(after));
+            LoadingScreenshot.active = useScreenshot.Value;
         }
 
         static readonly MethodInfo oglvlsetup = AccessTools.Method(typeof(Game), "LevelSetupRoutine");
@@ -126,6 +134,12 @@ namespace NeonLite.Modules.Optimization
             {
                 destroy.Clear();
                 reserveList.Clear();
+                forceStaging = false;
+                ClearRegistry();
+                if (LoadingScreenshot.i)
+                    LoadingScreenshot.i.Stop();
+
+                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
 
                 NeonLite.Harmony.Unpatch(oglvlsetup, Helpers.MI(OverridePlayLevel));
                 NeonLite.Harmony.Unpatch(ogsetact, Helpers.MI(SetActiveScene));
@@ -168,12 +182,24 @@ namespace NeonLite.Modules.Optimization
 
 
         static int activeScene;
+        static int restartCount;
         static IEnumerator OverridePlayLevel(IEnumerator __result, Game __instance, LevelData newLevel, LevelData ____currentLevel)
         {
             if (newLevel == ____currentLevel && destroy.Count > 0 && !blacklisted.Contains(newLevel.levelID))
             {
+                if (LoadingScreenshot.i)
+                    LoadingScreenshot.i.Screenshot();
+                if (gcTimer.Value != -1 && ++restartCount >= gcTimer.Value)
+                {
+                    restartCount = 0;
+                    GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
+                }
+
                 MainMenu.Instance().SetState(MainMenu.State.Loading, true, true, true, false);
                 yield return QuickLevelSetup(__instance, newLevel, StagingHappens() || mmUpdating);
+
+                if (restartCount == 0)
+                    GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
             }
             else
             {
@@ -184,13 +210,20 @@ namespace NeonLite.Modules.Optimization
                 }//*/
                 GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
 
+                if (LoadingScreenshot.i)
+                    LoadingScreenshot.i.Stop();
+
                 activeScene = 0;
+                restartCount = 0;
                 destroy.Clear();
                 reserveList.Clear();
+                forceStaging = false;
+                ClearRegistry();
                 while (__result.MoveNext())
                     yield return __result.Current;
 
-                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
+                if (newLevel && newLevel.type != LevelData.LevelType.Hub)
+                    GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
             }
         }
         static void SetActiveScene(int activeSceneIndex) => activeScene = activeSceneIndex;
@@ -275,7 +308,7 @@ namespace NeonLite.Modules.Optimization
         {
             while (__result.MoveNext())
                 yield return __result.Current;
-            if (blacklisted.Contains(Singleton<Game>.Instance.GetCurrentLevel().levelID))
+            if (!LoadManager.currentLevel || blacklisted.Contains(Singleton<Game>.Instance.GetCurrentLevel().levelID))
                 yield break;
             var s = SceneManager.GetActiveScene();
             SceneManager.SetActiveScene(SceneManager.GetSceneAt(SceneManager.sceneCount - 1));
@@ -337,7 +370,6 @@ namespace NeonLite.Modules.Optimization
             regList.Item1.Add(__instance);
         }
 
-
         static IEnumerable<T> InRegistry<T>(bool clear = false, bool sanitize = true) where T : Object
         {
             if (!registry.ContainsKey(typeof(T)))
@@ -353,6 +385,14 @@ namespace NeonLite.Modules.Optimization
             {
                 if (!sanitize || iterCopy[i])
                     yield return iterCopy[i] as T;
+            }
+        }
+        static void ClearRegistry()
+        {
+            foreach (var kv in registry)
+            {
+                kv.Value.Item1.Clear();
+                kv.Value.Item2.Clear();
             }
         }
 
@@ -401,7 +441,8 @@ namespace NeonLite.Modules.Optimization
                 game.SetActiveScene(target);
                 Helpers.EndProfiling();
             }
-            game.SetWaitForStaging(true);
+
+            game.SetWaitForStaging(staging);
             var playthru = (LevelPlaythrough)currentPlaythrough.GetValue(game);
             playthru.Reset();
 
@@ -540,9 +581,11 @@ namespace NeonLite.Modules.Optimization
             destroy.Clear();
             RM.time.SetTargetTimescale(1, true);
 
+            if (restartCount == 0)
+                GC.Collect();
             while (!op.isDone)
             {
-                GarbageCollector.CollectIncremental(nanosecond);
+                //GarbageCollector.CollectIncremental(nanosecond);
                 yield return null;
             }
             //ResetPlayer();
@@ -572,7 +615,10 @@ namespace NeonLite.Modules.Optimization
             SceneManager.SetActiveScene(s);
             Helpers.EndProfiling();
             foreach (var region in InRegistry<OnRegion>(true))
+            {
+                AddToRegistry(region);
                 region.enabled = true;
+            }
             foreach (var spawner in Helpers.ProfileLoop(InRegistry<CardPickupSpawner>(true), "Respawn Cards"))
             {
                 if (spawner.spawnOnStart)
@@ -589,11 +635,6 @@ namespace NeonLite.Modules.Optimization
                 enemydict.SetValue(wave, new Dictionary<Enemy, bool>());
                 enemycount.SetValue(wave, 0);
             }
-            foreach (var gate in Helpers.ProfileLoop(InRegistry<LevelGate>(true), "Gate Particles"))
-            {
-                if (gate.teleportParticles)
-                    gate.teleportParticles.Stop();
-            }
 
             foreach (var encounter in Helpers.ProfileLoop(InRegistry<EnemyEncounter>(true), "Reset Encounter"))
                 encounter.Setup();
@@ -604,18 +645,29 @@ namespace NeonLite.Modules.Optimization
             Object.FindObjectOfType<Setup>().ApplyHeightFogMat();
             yield return null;
 
-            LoadManager.HandleLoads(game.GetCurrentLevel());
+            foreach (var gate in Helpers.ProfileLoop(InRegistry<LevelGate>(true), "Gate Particles"))
+            {
+                AddToRegistry(gate);
+                if (!gate.Unlocked)
+                {
+                    gate.teleportParticles.Stop();
+                    gate.teleportParticles.Clear();
+                }
+            } // this is super late but come on
+
+            yield return LoadManager.HandleLoads(game.GetCurrentLevel());
             if (staging)
             {
                 MainMenu.Instance().SetState(MainMenu.State.Staging, true, true, true, false);
                 while ((bool)waitForStaging.GetValue(game) || MainMenu.Instance().GetCurrentState() != MainMenu.State.Staging)
                 {
-                    GarbageCollector.CollectIncremental(nanosecond);
+                    //GarbageCollector.CollectIncremental(nanosecond);
                     yield return null;
                 }
             }
 
             yield return RM.mechController.ForceSetup();
+
             AudioController.Play("MECH_ENTER");
 
             RM.time.SetTargetTimescale(1, true);
@@ -704,7 +756,10 @@ namespace NeonLite.Modules.Optimization
             MainMenu.Instance().SetState(MainMenu.State.None, true, true, true, false);
         }
 
-        static bool StagingHappens() => !noStaging.Value || LevelRush.IsLevelRush();
+        static bool forceStaging = false;
+        public static void ForceStagingNextRestart() => forceStaging = true;
+
+        static bool StagingHappens() => forceStaging || !noStaging.Value || LevelRush.IsLevelRush();
         static bool mmUpdating = false;
         static void PreMMUpdate() => mmUpdating = true;
         static void PostMMUpdate() => mmUpdating = false;
@@ -765,4 +820,99 @@ namespace NeonLite.Modules.Optimization
             transform.rotation = rotation;
         }
     }
+
+    class LoadingScreenshot : MonoBehaviour, IModule
+    {
+        const bool priority = false;
+        internal static bool active = true;
+        static bool tried = false;
+
+        static GameObject prefab;
+
+        internal static LoadingScreenshot i;
+
+        static void Setup()
+        {
+            NeonLite.OnBundleLoad += bundle =>
+            {
+                prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/LoadingRawImage.prefab");
+                if (tried)
+                    Activate(true);
+            };
+        }
+
+        internal static void Activate(bool activate)
+        {
+            if (activate)
+            {
+                tried = true;
+                if (prefab)
+                    Utils.InstantiateUI(prefab, "Loading Screenshot", MainMenu.Instance()._screenLoading.background.transform).AddComponent<LoadingScreenshot>();
+            }
+            else
+            {
+                i.Stop();
+                Destroy(i.gameObject);
+            }
+        }
+
+        RawImage rawImage;
+        Resolution res;
+        RenderTexture renderTexture;
+        Texture2D texture;
+
+        Image bg;
+        bool inUse = false;
+
+        void Awake()
+        {
+            i = this;
+            rawImage = GetComponent<RawImage>();
+            rawImage.color = rawImage.color.Alpha(0);
+            SetResolution(Screen.currentResolution);
+            bg = transform.parent.GetComponent<Image>();
+        }
+
+        void SetResolution(Resolution resolution)
+        {
+            res = resolution;
+            Destroy(renderTexture);
+            Destroy(texture);
+            renderTexture = new(res.width, res.height, 1, RenderTextureFormat.ARGB32);
+            texture = new(res.width, res.height, TextureFormat.ARGB32, false);
+            texture.Apply(false, true);
+        }
+
+        void Update()
+        {
+            var curRes = Screen.currentResolution;
+            if (curRes.width != res.width || curRes.height != res.height)
+                SetResolution(curRes);
+        }
+
+        internal void Screenshot()
+        {
+            inUse = true;
+
+            var cam = Camera.main;
+            var current = cam.targetTexture;
+
+            cam.targetTexture = renderTexture;
+            cam.Render();
+
+            cam.targetTexture = current;
+           
+            Graphics.CopyTexture(renderTexture, texture);
+            rawImage.texture = texture;
+
+            rawImage.color = rawImage.color.Alpha(1);
+        }
+
+        internal void Stop()
+        {
+            inUse = false;
+            rawImage.color = rawImage.color.Alpha(0);
+        }
+    }
+
 }
