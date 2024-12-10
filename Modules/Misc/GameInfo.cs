@@ -195,6 +195,19 @@ namespace NeonLite.Modules.Misc
 
                 NeonLite.holder.AddComponent<RestartManager>();
 
+                NeonLite.Game.OnLevelLoadComplete += () =>
+                {
+                    if (!lastLevel || lastLevel.type == LevelData.LevelType.Hub)
+                        return;
+
+                    restarts.TryGetValue(lastLevel.levelID, out var ri);
+                    ri.queued++;
+                    ri.session++;
+                    restarts[lastLevel.levelID] = ri;
+                    instance?.totalAttemptsI.UpdateText(ri.total + ri.queued);
+                    instance?.seshAttemptsI.UpdateText(ri.session, ri.completed);
+                };
+
                 NeonLite.Game.winAction += () =>
                 {
                     var ri = restarts[lastLevel.levelID];
@@ -215,9 +228,6 @@ namespace NeonLite.Modules.Misc
                 else
                 {
                     restarts.TryGetValue(level.levelID, out var ri);
-                    ri.queued++;
-                    ri.session++;
-                    restarts[level.levelID] = ri;
                     instance?.totalAttemptsI.UpdateText(ri.total + ri.queued);
                     instance?.seshAttemptsI.UpdateText(ri.session, ri.completed);
                 }
