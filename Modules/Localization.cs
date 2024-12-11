@@ -26,8 +26,8 @@ namespace NeonLite.Modules
 
         static void Activate(bool _)
         {
-            Patching.AddPatch(ogadd, ChangeSource, Patching.PatchTarget.Prefix);
-            Patching.AddPatch(ogall, LocalizeAll, Patching.PatchTarget.Prefix);
+            Patching.AddPatch(ogadd, ChangeSource, Patching.PatchTarget.Prefix, true);
+            Patching.AddPatch(ogall, LocalizeAll, Patching.PatchTarget.Prefix, true);
             NeonLite.OnBundleLoad += SetupFontSet;
         }
 

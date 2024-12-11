@@ -3,7 +3,6 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Jobs;
 using Unity.Collections;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -39,8 +38,8 @@ namespace NeonLite
 
         static readonly Dictionary<MethodInfo, List<PatchInfo>> patches = [];
 
-        public static bool AddPatch(MethodInfo method, Delegate patch, PatchTarget target) => AddPatch(method, Helpers.HM(patch), target);
-        public static bool AddPatch(MethodInfo method, HarmonyMethod patch, PatchTarget target)
+        public static bool AddPatch(MethodInfo method, Delegate patch, PatchTarget target, bool instant = false) => AddPatch(method, Helpers.HM(patch), target, instant);
+        public static bool AddPatch(MethodInfo method, HarmonyMethod patch, PatchTarget target, bool instant = false)
         {
             if (!patches.ContainsKey(method))
                 patches[method] = [];
@@ -50,8 +49,37 @@ namespace NeonLite
             patchlist.Add(new PatchInfo
             {
                 patch = patch,
-                target = target
+                target = target,
+                registered = instant
             });
+
+            if (instant)
+            {
+                Helpers.StartProfiling($"Instant-patch {patch.methodName}");
+                var processor = NeonLite.Harmony.CreateProcessor(method);
+                var patchInfo = patchlist.Last();
+                switch (target)
+                {
+                    case PatchTarget.Prefix:
+                        processor.AddPrefix(patch);
+                        break;
+                    case PatchTarget.Postfix:
+                        processor.AddPostfix(patch);
+                        break;
+                    case PatchTarget.Transpiler:
+                        processor.AddTranspiler(patch);
+                        break;
+                    case PatchTarget.Finalizer:
+                        processor.AddFinalizer(patch);
+                        break;
+                    case PatchTarget.ILManip:
+                        processor.AddILManipulator(patch);
+                        break;
+                }
+
+                processor.Patch();
+                Helpers.EndProfiling();
+            }
 
             return true;
         }
@@ -72,8 +100,11 @@ namespace NeonLite
             return false;
         }
 
+        internal static Thread patchRunner;
         internal static void RunPatches(bool parallel = true)
         {
+            Helpers.StartProfiling($"Run Patches ({parallel})");
+
             ConcurrentBag<PatchJob> bag = null;
             if (parallel)
                 bag = [];
@@ -81,6 +112,10 @@ namespace NeonLite
             {
                 if (kv.Value.All(x => x.registered))
                     continue;
+
+                if (!parallel)
+                    Helpers.StartProfiling($"{kv.Key.DeclaringType.FullName}.{kv.Key.Name}");
+
                 var curJob = new PatchJob()
                 {
                     methodName = $"{kv.Key.DeclaringType.FullName}.{kv.Key.Name}",
@@ -90,7 +125,11 @@ namespace NeonLite
                 if (parallel)
                     bag.Add(curJob);
                 else
+                {
+                    Helpers.StartProfiling($"Instant-patch all");
                     curJob.Execute();
+                    Helpers.EndProfiling();
+                }
 
                 for (int i = 0; i < kv.Value.Count; ++i)
                 {
@@ -98,14 +137,21 @@ namespace NeonLite
                     patch.registered = true;
                     kv.Value[i] = patch;
                 }
+                if (!parallel)
+                    Helpers.EndProfiling();
             }
 
             if (parallel)
-                new Thread(() => Parallel.ForEach(bag, x => x.Execute())).Start();
+            {
+                patchRunner = new Thread(() => Parallel.ForEach(bag, x => x.Execute()));
+                patchRunner.Start();
+            }
+            Helpers.EndProfiling();
         }
 
         struct PatchJob
         {
+            internal static readonly object locker = new object();
             public string methodName;
             public PatchProcessor processor;
             public NativeArray<PatchInfo> patchInfos;
@@ -125,7 +171,10 @@ namespace NeonLite
                 foreach (var patch in patchInfos)
                 {
                     if (NeonLite.DEBUG)
-                        NeonLite.Logger.Msg($"{methodName}:{patch.patch.method.Name} on #{Thread.CurrentThread.ManagedThreadId}");
+                    {
+                        lock (locker)
+                            NeonLite.Logger.Msg($"{methodName}:{patch.patch.method.Name} on #{Thread.CurrentThread.ManagedThreadId}");
+                    }
 
                     if (current[patch.target])
                     {

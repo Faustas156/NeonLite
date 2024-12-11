@@ -218,7 +218,7 @@ namespace NeonLite.Modules
             {
                 var sl = Helpers.HM(PostSetLevel);
                 sl.priority = Priority.First;
-                NeonLite.Harmony.Patch(ogslvl, postfix: sl);
+                Patching.AddPatch(ogslvl, sl, Patching.PatchTarget.Postfix);
                 Patching.AddPatch(ogmbls, PostSetLevelData, Patching.PatchTarget.Postfix);
                 Patching.AddPatch(ogset, PostSetScore, Patching.PatchTarget.Postfix);
                 Patching.AddPatch(oggolw, PreOnWin, Patching.PatchTarget.Prefix);

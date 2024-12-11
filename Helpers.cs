@@ -15,6 +15,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Unity.Profiling;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace NeonLite
 {
@@ -87,17 +88,24 @@ namespace NeonLite
 
 #if ENABLE_PROFILER
         static readonly Stack<ProfilerMarker> currentMarkers = [];
+        static readonly Stack<Tuple<string, Stopwatch>> currentWatches = [];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void StartProfiling(string name) 
         {
+            if (NeonLite.DEBUG)
+                currentWatches.Push(new(name, new Stopwatch()));
             currentMarkers.Push(new(ProfilerCategory.Scripts, name));
             currentMarkers.Peek().Begin();
+            if (NeonLite.DEBUG)
+            {
+                NeonLite.Logger.Msg($"{name} - START");
+                currentWatches.Peek().Item2.Start();
+            }
         }
         public static IEnumerable<T> ProfileLoop<T>(IEnumerable<T> loop, string name)
         {
-            currentMarkers.Push(new(ProfilerCategory.Scripts, $"{name}"));
-            currentMarkers.Peek().Begin();
+            StartProfiling(name);
             int i = 0;
             foreach (T t in loop)
             {
@@ -108,12 +116,25 @@ namespace NeonLite
             EndProfiling();
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void EndProfiling() => currentMarkers.Pop().End();
+        public static void EndProfiling(string _) => EndProfiling();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EndProfiling()
+        {
+            currentMarkers.Pop().End();
+            if (NeonLite.DEBUG)
+            {
+                (var name, var watch) = currentWatches.Pop();
+                watch.Stop();
+                NeonLite.Logger.Msg($"{name} - {watch.Elapsed.TotalMilliseconds}ms");
+            }
+        }
 #else
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void StartProfiling(string _) { }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> ProfileLoop<T>(IEnumerable<T> loop, string _) => loop;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EndProfiling(string _) { }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void EndProfiling() { }
 #endif

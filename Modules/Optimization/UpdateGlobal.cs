@@ -40,10 +40,10 @@ namespace NeonLite.Modules.Optimization
                     DoPopup();
                 else
                     popupPrepped = true;
-                NeonLite.Harmony.Patch(oglbupld, Helpers.HM(PreLBUploaded));
-                NeonLite.Harmony.Patch(original, Helpers.HM(ChangeCallback));
-                NeonLite.Harmony.Patch(ogtlvis, Helpers.HM(OnTitleShow));
-                NeonLite.Harmony.Patch(oggdgn, Helpers.HM(NeonScoreDebug));
+                Patching.AddPatch(oglbupld, Helpers.HM(PreLBUploaded), Patching.PatchTarget.Prefix);
+                Patching.AddPatch(original, Helpers.HM(ChangeCallback), Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogtlvis, Helpers.HM(OnTitleShow), Patching.PatchTarget.Prefix);
+                Patching.AddPatch(oggdgn, Helpers.HM(NeonScoreDebug), Patching.PatchTarget.Prefix);
             }
             else
             {

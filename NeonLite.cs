@@ -54,10 +54,13 @@ namespace NeonLite
 
             LoadModules(MelonAssembly);
 
+            Helpers.StartProfiling("NeonLite Setup Pass");
             foreach (var module in modules)
             {
                 if (DEBUG)
                     Logger.Msg($"{module} Setup");
+
+                Helpers.StartProfiling($"{module}");
 
                 try
                 {
@@ -69,7 +72,13 @@ namespace NeonLite
                     Logger.Error(e);
                     continue;
                 }
+                finally
+                {
+                    Helpers.EndProfiling();
+                }
             }
+            Helpers.EndProfiling();
+
             setupCalled = true;
             VersionText.ver = Info.Version;
         }
@@ -79,10 +88,14 @@ namespace NeonLite
             if (activateEarly)
                 return;
 
+            Helpers.StartProfiling("NeonLite Activate-priority Pass");
+
             foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
                 if (DEBUG)
                     Logger.Msg($"{module} Activate");
+
+                Helpers.StartProfiling($"{module}");
 
                 try
                 {
@@ -94,9 +107,15 @@ namespace NeonLite
                     Logger.Error(e);
                     continue;
                 }
+                finally
+                {
+                    Helpers.EndProfiling();
+                }
             }
+            Helpers.EndProfiling();
             Patching.RunPatches();
             activateEarly = true;
+
         }
 
         internal static void LoadAssetBundle()
@@ -133,10 +152,12 @@ namespace NeonLite
             mmHolder.transform.localScale = Vector3.one;
 
             // perform the later inits
+            Helpers.StartProfiling("NeonLite Activate-nonpriority Pass");
             foreach (var module in modules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
                 if (DEBUG)
                     Logger.Msg($"{module} Activate");
+                Helpers.StartProfiling($"{module}");
 
                 try
                 {
@@ -148,8 +169,15 @@ namespace NeonLite
                     Logger.Error(e);
                     continue;
                 }
+                finally
+                {
+                    Helpers.EndProfiling();
+                }
             }
+            Helpers.EndProfiling();
+
             activateLate = true;
+            Patching.patchRunner.Join();
             Patching.RunPatches(false);
 
             Settings.Migrate();
@@ -166,10 +194,14 @@ namespace NeonLite
             var addedModules = assembly.Assembly.GetTypes().Where(t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t));
             if (setupCalled)
             {
+                Helpers.StartProfiling($"NeonLite Setup Pass - {assembly.Assembly.GetName().Name}");
+
                 foreach (var module in addedModules)
                 {
                     if (DEBUG)
                         Logger.Msg($"{module} Setup");
+
+                    Helpers.StartProfiling($"{module}");
 
                     try
                     {
@@ -181,15 +213,23 @@ namespace NeonLite
                         Logger.Error(e);
                         continue;
                     }
+                    finally
+                    {
+                        Helpers.EndProfiling();
+                    }
                 }
+                Helpers.EndProfiling();
             }
 
             if (activateEarly)
             {
+                Helpers.StartProfiling($"NeonLite Activate-priority Pass - {assembly.Assembly.GetName().Name}");
+
                 foreach (var module in addedModules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
                 {
                     if (DEBUG)
                         Logger.Msg($"{module} Activate");
+                    Helpers.StartProfiling($"{module}");
 
                     try
                     {
@@ -201,15 +241,23 @@ namespace NeonLite
                         Logger.Error(e);
                         continue;
                     }
+                    finally
+                    {
+                        Helpers.EndProfiling();
+                    }
                 }
+                Helpers.EndProfiling();
             }
 
             if (activateLate)
             {
+                Helpers.StartProfiling($"NeonLite Activate-nonpriority Pass - {assembly.Assembly.GetName().Name}");
+
                 foreach (var module in addedModules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
                 {
                     if (DEBUG)
                         Logger.Msg($"{module} Activate");
+                    Helpers.StartProfiling($"{module}");
 
                     try
                     {
@@ -221,10 +269,16 @@ namespace NeonLite
                         Logger.Error(e);
                         continue;
                     }
+                    finally
+                    {
+                        Helpers.EndProfiling();
+                    }
                 }
+                Helpers.EndProfiling();
             }
 
-            Patching.RunPatches(false);
+            if (activateEarly)
+                Patching.RunPatches(false);
 
             //modules.UnionWith(addedModules);
             modules.AddRange(addedModules);
