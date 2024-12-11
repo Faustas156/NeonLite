@@ -102,18 +102,18 @@ namespace NeonLite.Modules.UI
 
             if (activate)
             {
-
+                Patching.AddPatch(original, OnPlaying, Patching.PatchTarget.Prefix);
                 if (prefab && !instance)
                 {
                     NeonLite.Game.winAction += LevelWin;
                     Utils.InstantiateUI(prefab, "Speedometer", NeonLite.mmHolder.transform).AddComponent<Speedometer>();
-                    Patching.AddPatch(original, OnPlaying, Patching.PatchTarget.Postfix);
                 }
             }
             else
             {
                 Patching.RemovePatch(original, OnPlaying);
                 NeonLite.Game.winAction -= LevelWin;
+
                 if (instance)
                     Destroy(instance.gameObject);
             }
@@ -121,15 +121,14 @@ namespace NeonLite.Modules.UI
 
         static void OnPlaying(MainMenu.State newState)
         {
-            if (newState == MainMenu.State.None && lastLevel && lastLevel.type != LevelData.LevelType.Hub)
+            if (newState == MainMenu.State.None && LoadManager.currentLevel && LoadManager.currentLevel.type != LevelData.LevelType.Hub)
                 instance.show = true;
             else
                 instance.show = false;
         }
         static void LevelWin() => instance.show = false;
-        static void OnLevelLoad(LevelData level)
+        static void OnLevelLoad(LevelData _)
         {
-            lastLevel = level;
             instance.show = false;
             if (altfbi == -1 && Localization.fbi != -1)
                 PrepareAltFont();
