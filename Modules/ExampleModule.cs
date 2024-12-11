@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-
 namespace NeonLite.Modules
 {
     // This is an example template module that does nothing but print things to log every few seconds.

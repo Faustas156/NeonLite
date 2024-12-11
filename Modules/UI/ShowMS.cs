@@ -69,7 +69,7 @@ namespace NeonLite.Modules.UI
             if (num >= 100)
                 for (int i = (int)Math.Log10(num); i >= 2; --i)
                     timerBuilder.Append((char)(num / (int)Math.Pow(10, i) % 10 + '0'));
-            
+
             num %= 100;
             timerBuilder.Append((char)((num / 10) + '0'));
             timerBuilder.Append((char)((num % 10) + '0'));

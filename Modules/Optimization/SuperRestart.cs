@@ -1,7 +1,6 @@
 ﻿using ClockStone;
 using Guirao.UltimateTextDamage;
 using HarmonyLib;
-using JetBrains.Annotations;
 using MelonLoader;
 using System;
 using System.Collections;
@@ -9,11 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
-using TMPro;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
@@ -427,9 +421,6 @@ namespace NeonLite.Modules.Optimization
         {
             RM.time.SetTargetTimescale(0, true);
 
-            var frame = Application.targetFrameRate == -1 ? 60 : Application.targetFrameRate;
-            var nanosecond = (ulong)(1.0 / frame * 1e+9);
-
             RM.Pointer.Visible = false;
             RM.acceptInput = false;
             RM.acceptInputPauseMenu = false;
@@ -446,20 +437,20 @@ namespace NeonLite.Modules.Optimization
             var playthru = (LevelPlaythrough)currentPlaythrough.GetValue(game);
             playthru.Reset();
 
-            foreach (var tripwire in Helpers.ProfileLoop(InRegistry<TripwireWeapon>(true), "Tripwire Cancels"))
+            foreach (var tripwire in InRegistry<TripwireWeapon>(true).ProfileLoop("Tripwire Cancels"))
                 TripwireWeapon.CancelTripRoutines();
-            foreach (var beam in Helpers.ProfileLoop(InRegistry<BeamWeapon>(true), "Beam Weapon Cancels"))
+            foreach (var beam in InRegistry<BeamWeapon>(true).ProfileLoop("Beam Weapon Cancels"))
                 beam.CancelBeamTrackingRoutine();
 
             var audioObjects = AudioController.GetPlayingAudioObjects(true);
-            foreach (var audio in Helpers.ProfileLoop(audioObjects, "Audio Object Stops"))
+            foreach (var audio in audioObjects.ProfileLoop("Audio Object Stops"))
             {
                 if (audio.transform.parent != MainMenu.Instance().transform)
                     audio.Stop(0);
             }
             AudioObjectSplineMover.ReleaseAudioObjects();
 
-            foreach (var ghost in Helpers.ProfileLoop(InRegistry<GhostPlayback>(true), "GhostPlayback Resets"))
+            foreach (var ghost in InRegistry<GhostPlayback>(true).ProfileLoop("GhostPlayback Resets"))
             {
                 if (ghost.gameObject.scene.name == "Player")
                     GhostPlaybackLord.i.ghostPlaybacks.Remove(ghost);
@@ -472,32 +463,32 @@ namespace NeonLite.Modules.Optimization
 
             //yield return null;
 
-            foreach (var encounter in Helpers.ProfileLoop(InRegistry<EnemyEncounter>(), "Enemy Encounter Stops"))
+            foreach (var encounter in InRegistry<EnemyEncounter>().ProfileLoop("Enemy Encounter Stops"))
                 encounter.StopAllCoroutines();
 
-            foreach (var spawner in Helpers.ProfileLoop(InRegistry<CardPickupSpawner>(), "Card Pickup Stops"))
+            foreach (var spawner in InRegistry<CardPickupSpawner>().ProfileLoop("Card Pickup Stops"))
                 spawner.StopAllCoroutines();
-            foreach (var spawner in Helpers.ProfileLoop(InRegistry<ObjectSpawner>(), "Object Spawner Stops"))
+            foreach (var spawner in InRegistry<ObjectSpawner>().ProfileLoop("Object Spawner Stops"))
                 spawner.StopAllCoroutines();
-            foreach (var spawner in Helpers.ProfileLoop(InRegistry<EnemySpawner>(true), "Enemy Spawner Stops"))
+            foreach (var spawner in InRegistry<EnemySpawner>(true).ProfileLoop("Enemy Spawner Stops"))
                 spawner.StopAllCoroutines();
-            foreach (var spawner in Helpers.ProfileLoop(InRegistry<EnemyWaveSpecificObject>(true), "Wave Specific Object Disables"))
+            foreach (var spawner in InRegistry<EnemyWaveSpecificObject>(true).ProfileLoop("Wave Specific Object Disables"))
             {
                 if (spawner.holder)
                     spawner.holder.SetActive(false);
             }
 
-            foreach (var obj in Helpers.ProfileLoop(destroy, "Destroys"))
+            foreach (var obj in destroy.ProfileLoop("Destroys"))
             {
                 if (obj)
                     Object.Destroy(obj);
             }
-            foreach (var particle in Helpers.ProfileLoop(InRegistry<ParticleSystem>(true), "Particle Stops"))
+            foreach (var particle in InRegistry<ParticleSystem>(true).ProfileLoop("Particle Stops"))
             {
                 if (!particle.main.loop)
                     particle.Stop();
             }
-            foreach (var hint in Helpers.ProfileLoop(InRegistry<GhostHintOriginVFX>(true), "Hint Resets"))
+            foreach (var hint in InRegistry<GhostHintOriginVFX>(true).ProfileLoop("Hint Resets"))
             {
                 if ((bool)hintActive.GetValue(hint))
                 {
@@ -520,10 +511,10 @@ namespace NeonLite.Modules.Optimization
             }
             Helpers.EndProfiling();
 
-            foreach (var remember in Helpers.ProfileLoop(InRegistry<RememberTransform>(true), "Apply RememberTransform"))
+            foreach (var remember in InRegistry<RememberTransform>(true).ProfileLoop("Apply RememberTransform"))
                 remember.Apply();
 
-            foreach (var region in Helpers.ProfileLoop(InRegistry<OnRegion>(), "Handle OnRegions"))
+            foreach (var region in InRegistry<OnRegion>().ProfileLoop("Handle OnRegions"))
             {
                 region.enabled = false;
                 for (int i = 0; i < region.monoBehavioursToEnable.Length; ++i)
@@ -566,7 +557,7 @@ namespace NeonLite.Modules.Optimization
                 }
             }
 
-            foreach (var trigger in Helpers.ProfileLoop(InRegistry<LevelTrigger>(true), "Reset LevelTriggers"))
+            foreach (var trigger in InRegistry<LevelTrigger>(true).ProfileLoop("Reset LevelTriggers"))
             {
                 if (trigger.triggerAction == LevelTrigger.TriggerAction.EnableObjects)
                     foreach (var obj in trigger.gameObjects)
@@ -619,24 +610,24 @@ namespace NeonLite.Modules.Optimization
                 AddToRegistry(region);
                 region.enabled = true;
             }
-            foreach (var spawner in Helpers.ProfileLoop(InRegistry<CardPickupSpawner>(true), "Respawn Cards"))
+            foreach (var spawner in InRegistry<CardPickupSpawner>(true).ProfileLoop("Respawn Cards"))
             {
                 if (spawner.spawnOnStart)
                     spawner.SpawnCard();
             }
-            foreach (var spawner in Helpers.ProfileLoop(InRegistry<ObjectSpawner>(true), "Respawn ObjectSpawners"))
+            foreach (var spawner in InRegistry<ObjectSpawner>(true).ProfileLoop("Respawn ObjectSpawners"))
             {
                 if (spawner.spawnOnStart)
                     spawner.Spawn();
             }
 
-            foreach (var wave in Helpers.ProfileLoop(InRegistry<EnemyWave>(true), "Reset EnemyWaves"))
+            foreach (var wave in InRegistry<EnemyWave>(true).ProfileLoop("Reset EnemyWaves"))
             {
                 enemydict.SetValue(wave, new Dictionary<Enemy, bool>());
                 enemycount.SetValue(wave, 0);
             }
 
-            foreach (var encounter in Helpers.ProfileLoop(InRegistry<EnemyEncounter>(true), "Reset Encounter"))
+            foreach (var encounter in InRegistry<EnemyEncounter>(true).ProfileLoop("Reset Encounter"))
                 encounter.Setup();
 
             RM.Pointer.Visible = staging;
@@ -645,7 +636,7 @@ namespace NeonLite.Modules.Optimization
             Object.FindObjectOfType<Setup>().ApplyHeightFogMat();
             yield return null;
 
-            foreach (var gate in Helpers.ProfileLoop(InRegistry<LevelGate>(true), "Gate Particles"))
+            foreach (var gate in InRegistry<LevelGate>(true).ProfileLoop("Gate Particles"))
             {
                 AddToRegistry(gate);
                 if (!gate.Unlocked)
@@ -901,7 +892,7 @@ namespace NeonLite.Modules.Optimization
             cam.Render();
 
             cam.targetTexture = current;
-           
+
             Graphics.CopyTexture(renderTexture, texture);
             rawImage.texture = texture;
 

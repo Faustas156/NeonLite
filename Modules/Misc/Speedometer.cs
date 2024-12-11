@@ -1,13 +1,9 @@
-﻿using Boxophobic.StyledGUI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using I2.Loc;
 using MelonLoader;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -86,7 +82,7 @@ namespace NeonLite.Modules.Misc
             lateral = Settings.Add(Settings.h, "Speedometer", "lateral", "Show Lateral Velocity", null, true);
             yVel = Settings.Add(Settings.h, "Speedometer", "yVel", "Show Vertical Velocity", null, true);
             swapTimer = Settings.Add(Settings.h, "Speedometer", "swapTimer", "Show Swap Timer", null, false);
-            coyoteTimer  = Settings.Add(Settings.h, "Speedometer", "coyoteTimer", "Show Coyote Timer", null, true);
+            coyoteTimer = Settings.Add(Settings.h, "Speedometer", "coyoteTimer", "Show Coyote Timer", null, true);
 
             NeonLite.OnBundleLoad += bundle =>
             {

@@ -1,12 +1,11 @@
 ﻿using HarmonyLib;
 using System;
-using System.Reflection;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NeonLite
 {
@@ -30,10 +29,6 @@ namespace NeonLite
 
             public static bool operator ==(PatchInfo obj1, PatchInfo obj2) => obj1.patch == obj2.patch;
             public static bool operator !=(PatchInfo obj1, PatchInfo obj2) => obj1.patch != obj2.patch;
-        }
-        struct ProcessorPass(PatchProcessor p)
-        {
-            public PatchProcessor p = p;
         }
 
         static readonly Dictionary<MethodInfo, List<PatchInfo>> patches = [];
@@ -118,9 +113,9 @@ namespace NeonLite
 
                 var curJob = new PatchJob()
                 {
-                    methodName = $"{kv.Key.DeclaringType.FullName}.{kv.Key.Name}",
+                    methodName = NeonLite.DEBUG ? $"{kv.Key.DeclaringType.FullName}.{kv.Key.Name}" : "",
                     processor = NeonLite.Harmony.CreateProcessor(kv.Key),
-                    patchInfos = new(kv.Value.Where(x => !x.registered).ToArray(), Allocator.Persistent)
+                    patchInfos = kv.Value.Where(x => !x.registered).ToArray()
                 };
                 if (parallel)
                     bag.Add(curJob);
@@ -151,10 +146,10 @@ namespace NeonLite
 
         struct PatchJob
         {
-            internal static readonly object locker = new object();
+            internal static readonly object locker = new();
             public string methodName;
             public PatchProcessor processor;
-            public NativeArray<PatchInfo> patchInfos;
+            public PatchInfo[] patchInfos;
 
             public void Execute()
             {
@@ -209,8 +204,6 @@ namespace NeonLite
 
                 if (current.Any(kv => kv.Value))
                     processor.Patch();
-
-                patchInfos.Dispose();
             }
         }
     }

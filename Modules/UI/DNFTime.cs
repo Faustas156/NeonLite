@@ -1,5 +1,4 @@
 using HarmonyLib;
-using KinematicCharacterController;
 using MelonLoader;
 using NeonLite.Modules.Optimization;
 using System.Reflection;

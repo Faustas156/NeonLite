@@ -1,7 +1,7 @@
 ﻿#if !XBOX
-using System.Reflection;
 using HarmonyLib;
 using MelonLoader;
+using System.Reflection;
 
 namespace NeonLite.Modules.Optimization
 {

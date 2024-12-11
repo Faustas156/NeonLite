@@ -7,15 +7,15 @@
 using HarmonyLib;
 using NeonLite.Modules.UI;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Networking;
-using Unity.Profiling;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace NeonLite
 {
@@ -86,12 +86,12 @@ namespace NeonLite
             webRequest.SendWebRequest().completed += _ => callback(webRequest);
         }
 
-#if ENABLE_PROFILER
         static readonly Stack<ProfilerMarker> currentMarkers = [];
         static readonly Stack<Tuple<string, Stopwatch>> currentWatches = [];
 
+        [Conditional("ENABLE_PROFILER")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void StartProfiling(string name) 
+        public static void StartProfiling(string name)
         {
             if (NeonLite.DEBUG)
                 currentWatches.Push(new(name, new Stopwatch()));
@@ -103,7 +103,8 @@ namespace NeonLite
                 currentWatches.Peek().Item2.Start();
             }
         }
-        public static IEnumerable<T> ProfileLoop<T>(IEnumerable<T> loop, string name)
+#if ENABLE_PROFILER
+        public static IEnumerable<T> ProfileLoop<T>(this IEnumerable<T> loop, string name)
         {
             StartProfiling(name);
             int i = 0;
@@ -115,9 +116,15 @@ namespace NeonLite
             }
             EndProfiling();
         }
+#else
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> ProfileLoop<T>(this IEnumerable<T> loop, string _) => loop;
+#endif
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Conditional("ENABLE_PROFILER")]
         public static void EndProfiling(string _) => EndProfiling();
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Conditional("ENABLE_PROFILER")]
         public static void EndProfiling()
         {
             currentMarkers.Pop().End();
@@ -128,15 +135,5 @@ namespace NeonLite
                 NeonLite.Logger.Msg($"{name} - {watch.Elapsed.TotalMilliseconds}ms");
             }
         }
-#else
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void StartProfiling(string _) { }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<T> ProfileLoop<T>(IEnumerable<T> loop, string _) => loop;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void EndProfiling(string _) { }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void EndProfiling() { }
-#endif
     }
 }

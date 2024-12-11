@@ -13,7 +13,7 @@ namespace NeonLite.Modules
 #pragma warning disable CS0414
         const bool priority = false;
         public static bool active = true;
-        
+
         static bool hasSetup = false;
         static readonly HashSet<MelonAssembly> assemblies = [];
 
@@ -54,7 +54,7 @@ namespace NeonLite.Modules
                 if (textInstance)
                     Destroy(textInstance.gameObject);
             }
-            
+
             if (activate && !textInstance && prefab)
                 textInstance = Utils.InstantiateUI(prefab, "AnticheatText", NeonLite.mmHolder.transform).AddComponent<Anticheat>();
 
@@ -62,7 +62,8 @@ namespace NeonLite.Modules
             active = activate;
         }
 
-        static bool DontUpdateTime(long newTime, ref bool ____newBest, long ____timeBestMicroseconds) {
+        static bool DontUpdateTime(long newTime, ref bool ____newBest, long ____timeBestMicroseconds)
+        {
             ____newBest = newTime < ____timeBestMicroseconds;
             return false;
         }

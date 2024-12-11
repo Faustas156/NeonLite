@@ -2,7 +2,8 @@
 using UnityEngine;
 
 namespace NeonLite.Modules
-{    internal class VersionText : MonoBehaviour, IModule
+{
+    internal class VersionText : MonoBehaviour, IModule
     {
 #pragma warning disable CS0414
         const bool priority = false;

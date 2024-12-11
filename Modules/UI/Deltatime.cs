@@ -56,7 +56,7 @@ namespace NeonLite.Modules.UI
             LevelStats levelStats = GameDataManager.levelStats[NeonLite.Game.GetCurrentLevel().levelID];
             LevelRushData bestLevelRushData = LevelRush.GetLevelRushDataByType(LevelRush.GetCurrentLevelRushType());
             oldPB = LevelRush.IsLevelRush() ? (LevelRush.IsHellRush() ? bestLevelRushData.bestTime_HellMicroseconds : bestLevelRushData.bestTime_HeavenMicroseconds) : levelStats.GetTimeBestMicroseconds();
-            wasFinished = LevelRush.IsLevelRush() || levelStats.GetCompleted(); 
+            wasFinished = LevelRush.IsLevelRush() || levelStats.GetCompleted();
         }
 
         static void PostSetVisible()
@@ -86,7 +86,7 @@ namespace NeonLite.Modules.UI
                     dtLevel.transform.localPosition += new Vector3(-5, -30, 0);
                 }
                 dtLevel.SetActive(wasFinished);
-                
+
                 text = dtLevel.GetComponent<TextMeshProUGUI>();
                 text.SetText(deltaTimeString);
                 text.color = newBest ? Color.red : Color.green;

@@ -1,16 +1,15 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
-
-using UB = IManagedUpdateBehaviour;
+using UnityEngine;
 using FB = IManagedFixedUpdateBehaviour;
 using LB = IManagedLateUpdateBehaviour;
-using UnityEngine;
+using UB = IManagedUpdateBehaviour;
 
 namespace NeonLite.Modules.Optimization
 {
     // due to patching basically the entire class this isn't a module and instead is a regular patch class
     //[HarmonyPatch(typeof(UpdateManager))]
-    internal class UpdateManRewrite 
+    internal class UpdateManRewrite
     {
         [HarmonyPrefix]
         [HarmonyPatch("SubscribeToUpdate_Internal")]

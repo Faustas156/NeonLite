@@ -13,7 +13,7 @@ namespace NeonLite.Modules.Misc
 
         static GameObject button;
 
-        static void Setup() {}
+        static void Setup() { }
 
         static readonly MethodInfo oglvli = AccessTools.Method(typeof(MainMenu), "SetState");
 

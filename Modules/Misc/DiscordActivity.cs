@@ -67,7 +67,7 @@ namespace NeonLite.Modules.Misc
         {
             if (rushType == LevelRush.LevelRushType.None)
                 rushType = LevelRush.GetCurrentLevelRushType();
-            return LevelRush.GetIndexFromRushType(rushType) + (LevelRush.IsHellRush() ? ((int)LevelRush.LevelRushType.Count - 1): 0);
+            return LevelRush.GetIndexFromRushType(rushType) + (LevelRush.IsHellRush() ? ((int)LevelRush.LevelRushType.Count - 1) : 0);
         }
 
         static void Setup()

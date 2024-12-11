@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using MelonLoader;
 using System.Collections;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -83,7 +82,7 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPatch(typeof(Setup), "Start")]
         static void Preload()
         {
-            if (!active || preload) 
+            if (!active || preload)
                 return;
             preload = true;
             NeonLite.Logger.Msg("Started scene preload, please wait...!");
