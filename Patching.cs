@@ -101,9 +101,11 @@ namespace NeonLite
             return false;
         }
 
+        public static void RunPatches() => RunPatches(false);
+
         internal static Thread patchRunner;
         internal static bool firstPass = false;
-        internal static void RunPatches(bool parallel = true)
+        internal static void RunPatches(bool parallel)
         {
             Helpers.StartProfiling($"Run Patches ({parallel})");
 

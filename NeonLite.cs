@@ -111,7 +111,7 @@ namespace NeonLite
                 }
             }
             Helpers.EndProfiling();
-            Patching.RunPatches();
+            Patching.RunPatches(true);
             activateEarly = true;
 
         }
