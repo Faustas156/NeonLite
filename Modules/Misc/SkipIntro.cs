@@ -13,8 +13,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Misc", "noIntro", "Skip Intro", "Never hear the fabled \"We're called neons.\" speech when you start up your game.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         // static readonly MethodInfo original = AccessTools.Method(typeof(IntroCards), "Start");

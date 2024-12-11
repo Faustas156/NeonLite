@@ -12,8 +12,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI", "noMission", "Remove Start Mission Button", "Sick and tired of the big, bulky \"Start Mission\" button that appears? Now you can get rid of it, forever!", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MenuScreenLocation), "CreateActionButton");

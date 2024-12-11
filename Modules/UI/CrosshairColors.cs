@@ -23,8 +23,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Crosshair", "enabled", "Crosshair Colors", "Enables setting custom crosshair colors.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
             mainColor = Settings.Add(Settings.h, "Crosshair", "main", "Main Color", null, Color.gray);
             overheat = Settings.Add(Settings.h, "Crosshair", "overheat", "Overheat", "Purify/stomp/fireball hexagon", Color.grey);

@@ -21,8 +21,7 @@ namespace NeonLite.Modules.UI
         {
             setting = Settings.Add(Settings.h, "UI", "showMS", "Show full milliseconds in-game", "Show all 3 digits of milliseconds for the timer and finish.", true);
             extended = Settings.Add(Settings.h, "UI", "showMore", "Show full milliseconds everywhere", "Show all 3 digits of milliseconds everywhere applicable.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo ogtt = AccessTools.Method(typeof(PlayerUI), "UpdateTimerText");
@@ -91,8 +90,13 @@ namespace NeonLite.Modules.UI
             __instance.timerText.text = FormatTimeNoArgs(NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000);
             return false;
         }
-        static void OnRushFinish(ref MenuScreenLevelRushComplete __instance) => __instance.timeText.SetText(Helpers.FormatTime(NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000, true, '.', true));
-        static void OnLevelFinish(ref MenuScreenResults __instance) => __instance._resultsScreenLevelTime.SetText(Helpers.FormatTime(NeonLite.Game.GetCurrentLevelTimerMicroseconds() / 1000, true, '.', true));
+        static void OnRushFinish(ref MenuScreenLevelRushComplete __instance) => __instance.timeText.SetText(Helpers.FormatTime(LevelRush.GetCurrentLevelRushTimerMicroseconds() / 1000, true, '.', true));
+        static void OnLevelFinish(ref MenuScreenResults __instance)
+        {
+            LevelData currentLevel = Singleton<Game>.Instance.GetCurrentLevel();
+            LevelStats levelStats = GameDataManager.levelStats[currentLevel.levelID];
+            __instance._resultsScreenLevelTime.SetText(Helpers.FormatTime(levelStats.GetTimeLastMicroseconds() / 1000, true, '.', true));
+        }
         static bool GetTimerFormatted(long timeInMicroSeconds, ref string __result)
         {
             __result = Helpers.FormatTime(timeInMicroSeconds / 1000, forceAll || extended.Value, '.', true);

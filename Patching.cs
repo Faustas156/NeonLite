@@ -25,7 +25,10 @@ namespace NeonLite
             public PatchTarget target;
             public bool registered;
 
-            public override bool Equals(object obj) => obj is PatchInfo info && patch == info.patch;
+            public override readonly bool Equals(object obj) => obj is PatchInfo info && patch == info.patch;
+
+            // compiler would not shut up
+            public override readonly int GetHashCode() => -1372007919 + patch.GetHashCode();
 
             public static bool operator ==(PatchInfo obj1, PatchInfo obj2) => obj1.patch == obj2.patch;
             public static bool operator !=(PatchInfo obj1, PatchInfo obj2) => obj1.patch != obj2.patch;
@@ -89,6 +92,9 @@ namespace NeonLite
             if (p != default)
             {
                 patchlist.Remove(p);
+                if (p.registered)
+                    NeonLite.Harmony.Unpatch(method, patch);
+
                 return true;
             }
 
@@ -96,6 +102,7 @@ namespace NeonLite
         }
 
         internal static Thread patchRunner;
+        internal static bool firstPass = false;
         internal static void RunPatches(bool parallel = true)
         {
             Helpers.StartProfiling($"Run Patches ({parallel})");
@@ -141,6 +148,7 @@ namespace NeonLite
                 patchRunner = new Thread(() => Parallel.ForEach(bag, x => x.Execute()));
                 patchRunner.Start();
             }
+            firstPass = true;
             Helpers.EndProfiling();
         }
 

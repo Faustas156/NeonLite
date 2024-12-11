@@ -13,8 +13,7 @@ namespace NeonLite.Modules.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noReflections", "Disable reflection", "Disable the reflection glares that appear in levels.\n(Requires restart to re-enable.)", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;

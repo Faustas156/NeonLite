@@ -20,11 +20,12 @@ namespace NeonLite.Modules.Optimization
 
         static void Setup()
         {
-            setting = Settings.Add("NeonLite", "Misc", "updateGlobal", "Auto-update Global", "Updates your Global Neon Rank the instant you PB a stage.", true);
-            popup = Settings.Add("NeonLite", "Misc", "updateGlobalP", "Auto-update Global Popup", null, true);
-            popup.IsHidden = true;
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            setting = Settings.Add("NeonLite", "Optimization", "updateGlobal", "Auto-update Global", "Updates your Global Neon Rank the instant you PB a stage.", true);
+            popup = Settings.Add("NeonLite", "Optimization", "updateGlobalP", "Auto-update Global Popup", null, true, true);
+
+            setting.IsHidden = true;
+            return;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo oglbupld = AccessTools.Method(typeof(Leaderboards), "OnLeaderboardUploaded");

@@ -16,8 +16,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             setting = Settings.Add(Settings.h, "UI/In-game", "portrait", "Custom portrait", "Set a custom in-game portrait by entering the path to a local image (512x512).\nMake sure to remove quotes!", "");
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after != ""));
-            active = setting.Value != "";
+            active = setting.SetupForModule(Activate, (_, after) => after != "");
         }
 
         static void Activate(bool activate)

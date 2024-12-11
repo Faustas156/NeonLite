@@ -11,9 +11,8 @@ namespace NeonLite.Modules.Optimization
 
         static void Setup()
         {
-            var setting = Settings.Add(Settings.h, "Misc", "fakeLoading", "Loading optimizations", "Forces the game to not wait on loading screens.\nDisable if you have weird menu issues.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            var setting = Settings.Add(Settings.h, "Optimization", "fakeLoading", "Loading optimizations", "Forces the game to not wait on loading screens.\nDisable if you have weird menu issues.", true);
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo ogload = AccessTools.Method(typeof(MenuScreenLoading), "LoadScene");

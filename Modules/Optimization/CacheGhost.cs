@@ -16,9 +16,8 @@ namespace NeonLite.Modules.Optimization
 
         static void Setup()
         {
-            var setting = Settings.Add(Settings.h, "Misc", "cacheGhosts", "Cache Ghosts", "Caches the ghosts so they don't have to reload every restart.\nDisable if you're messing with ghosts manually.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            var setting = Settings.Add(Settings.h, "Optimization", "cacheGhosts", "Cache Ghosts", "Caches the ghosts so they don't have to reload every restart.\nDisable if you're messing with ghosts manually.", true);
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo ogload = AccessTools.Method(typeof(GhostUtils), "LoadLevelDataCompressed");

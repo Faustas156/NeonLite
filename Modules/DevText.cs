@@ -20,8 +20,7 @@ namespace NeonLite.Modules
         {
             NeonLite.OnBundleLoad += bundle =>
             {
-                if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg("devText onBundleLoad");
+                NeonLite.Logger.DebugMsg("devText onBundleLoad");
 
                 prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/DevText.prefab");
                 if (tried)

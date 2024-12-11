@@ -7,7 +7,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 
-namespace NeonLite.Modules.Misc
+namespace NeonLite.Modules.UI
 {
     // ORIGINAL CODE BY PUPPYPOWERTOOLS AUTHOR HECATE/PANDORAS FOX
     internal class Speedometer : MonoBehaviour, IModule
@@ -59,8 +59,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Speedometer", "enabled", "Speedometer", "Enables displaying additional information about the player.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
             alpha = Settings.Add(Settings.h, "Speedometer", "alpha", "Opacity", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             scale = Settings.Add(Settings.h, "Speedometer", "scale", "Scale", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 5));

@@ -19,9 +19,8 @@ namespace NeonLite.Modules.UI
 
         static void Setup()
         {
-            setting = Settings.Add("NeonLite", "UI/In-game", "ending", "Custom ending image", "Set a custom in-game ending image of White by entering the path to a local image (2048x2048).\nMake sure to remove quotes!", "", null);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after != ""));
-            active = setting.Value != "";
+            setting = Settings.Add("NeonLite", "UI", "endingImage", "Custom ending image", "Set a custom in-game ending image of White by entering the path to a local image (2048x2048).\nMake sure to remove quotes!", "", null);
+            active = setting.SetupForModule(Activate, (_, after) => after != "");
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible", null, null);
@@ -43,16 +42,14 @@ namespace NeonLite.Modules.UI
             Image character = __instance.characterImage;
 
             string path = setting.Value;
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg(path);
+            NeonLite.Logger.DebugMsg(path);
 
             if (!File.Exists(path))
                 return;
 
             if (!cache)
             {
-                if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg("build cache");
+                NeonLite.Logger.DebugMsg("build cache");
                 var file = File.ReadAllBytes(path);
                 var tex = LoadTexture(file);
 
@@ -64,8 +61,7 @@ namespace NeonLite.Modules.UI
                 cache = Sprite.Create(tex, character.sprite.rect, character.sprite.pivot);
             }
 
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg("set");
+            NeonLite.Logger.DebugMsg("set");
 
             character.sprite = cache;
         }

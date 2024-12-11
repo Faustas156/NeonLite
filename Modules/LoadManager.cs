@@ -190,8 +190,7 @@ namespace NeonLite.Modules
             Queue<MethodInfo> retries = [];
             foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
-                if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg($"{module} OnLevelLoad");
+                NeonLite.Logger.DebugMsg($"{module} OnLevelLoad");
 
                 Helpers.StartProfiling($"{module} OLL");
 
@@ -201,8 +200,7 @@ namespace NeonLite.Modules
                     var ret = method.Invoke(null, [level]);
                     if (ret != null && !(bool)ret)
                     {
-                        if (NeonLite.DEBUG)
-                            NeonLite.Logger.Msg($"{module} returned false, trying again later");
+                        NeonLite.Logger.DebugMsg($"{module} returned false, trying again later");
 
                         retries.Enqueue(method);
                     }
@@ -215,8 +213,7 @@ namespace NeonLite.Modules
 
                 Helpers.EndProfiling();
             }
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"Retries: {retries.Count}");
+            NeonLite.Logger.DebugMsg($"Retries: {retries.Count}");
 
             if (retries.Count == 0)
                 yield break;
@@ -231,8 +228,7 @@ namespace NeonLite.Modules
                 {
                     var method = retries.Dequeue();
 
-                    if (NeonLite.DEBUG)
-                        NeonLite.Logger.Msg($"{method.DeclaringType} OnLevelLoad");
+                    NeonLite.Logger.DebugMsg($"{method.DeclaringType} OnLevelLoad");
                     Helpers.StartProfiling($"{method.DeclaringType} OLL");
 
                     try

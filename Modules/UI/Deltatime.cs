@@ -23,8 +23,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "deltatime", "Deltatime", "Displays a time comparing to your last personal best.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo ogwin = AccessTools.Method(typeof(Game), "OnLevelWin");

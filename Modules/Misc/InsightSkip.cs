@@ -9,31 +9,28 @@ namespace NeonLite.Modules.Misc
 #pragma warning disable CS0414
         const bool priority = true;
         static bool active = false;
-        static bool first = true;
 
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Misc", "insightOff", "Skip Insight Screen", "No longer displays the \"Insight Crystal Dust (Empty)\" screen after finishing a sidequest level.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MainMenu), "SetItemShowcaseCard");
-        static readonly MethodInfo ognewgame = AccessTools.Method(typeof(MainMenu), "OnPressButtonStartGame");
+        static readonly MethodInfo ogstartgame = AccessTools.Method(typeof(MainMenu), "OnPressButtonStartGame");
         static void Activate(bool activate)
         {
-            if (activate && (!active || first))
+            if (activate)
             {
                 Patching.AddPatch(original, PreShowcase, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ognewgame, PreNewGame, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogstartgame, PreStartGame, Patching.PatchTarget.Prefix);
             }
-            else if (!activate && active)
+            else if (!activate)
             {
                 Patching.RemovePatch(original, PreShowcase);
-                Patching.RemovePatch(ognewgame, PreNewGame);
+                Patching.RemovePatch(ogstartgame, PreStartGame);
             }
 
-            first = false;
             active = activate;
         }
 
@@ -43,6 +40,11 @@ namespace NeonLite.Modules.Misc
             return false;
         }
 
-        static void PreNewGame() => Activate(false);
+        static void PreStartGame()
+        {
+            // if they haven't completed movement in this save
+            if (GameDataManager.levelStats[Singleton<Game>.Instance.GetGameData().GetLevelDataIDsList(false)[0]].GetTimeLastMicroseconds() < 0)
+                Activate(false);
+        }
     }
 }

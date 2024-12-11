@@ -15,15 +15,16 @@ namespace NeonLite.Modules.UI
 
         static bool hit = false;
         static MelonPreferences_Entry<string> sfxSetting;
+        static MelonPreferences_Entry<bool> resetOnDie;
         static GameObject frozenTime;
 
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "dnf", "Show DNFs", "Shows the time you would have got if you had killed all the demons in a level.", true);
             sfxSetting = Settings.Add(Settings.h, "UI/In-game", "dnfSound", "DNF Sound FX", "The sound to play when you DNF.\nBlank to disable.", "UI_CUTIN_IN");
+            resetOnDie = Settings.Add(Settings.h, "UI/In-game", "dnfReset", "Reset DNF Time on Enemy Death", null, true);
 
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo ogonsty = AccessTools.Method(typeof(LevelGate), "OnTriggerStay");
@@ -58,9 +59,6 @@ namespace NeonLite.Modules.UI
             if (__instance.Unlocked || hit || (LevelRush.IsLevelRush() && LevelRush.GetCurrentLevelRush().randomizedIndex.Length - 1 != LevelRush.GetCurrentLevelRush().currentLevelIndex))
                 return;
 
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg(other);
-
             hit = true;
             frozenTime = UnityEngine.Object.Instantiate(RM.ui.timerText.gameObject, RM.ui.timerText.transform);
             frozenTime.transform.localPosition += new Vector3(0, 35, 0);
@@ -69,6 +67,7 @@ namespace NeonLite.Modules.UI
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
             var time = EnsureTimer.CalculateOffset(EnsureTimer.cOverride ?? __instance.GetComponentInChildren<MeshCollider>());
             frozenText.color = best < time ? Color.red : Color.green;
+            frozenText.overflowMode = TextOverflowModes.Overflow;
             var local = Localization.Setup(frozenText);
             local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
             if (!string.IsNullOrEmpty(sfxSetting.Value))
@@ -77,6 +76,8 @@ namespace NeonLite.Modules.UI
 
         static void OnEnemyDie()
         {
+            if (!resetOnDie.Value) 
+                return;
             UnityEngine.Object.Destroy(frozenTime);
             hit = false;
         }

@@ -17,8 +17,7 @@ namespace NeonLite.Modules.Misc.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noShocker", "Disable shocker overlay", "Disable the white flash from shockers, including the explosion.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(ShockWeapon), "DoShock");

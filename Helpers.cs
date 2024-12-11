@@ -5,6 +5,7 @@
 #endif
 
 using HarmonyLib;
+using MelonLoader;
 using NeonLite.Modules.UI;
 using System;
 using System.Collections.Generic;
@@ -135,5 +136,17 @@ namespace NeonLite
                 NeonLite.Logger.Msg($"{name} - {watch.Elapsed.TotalMilliseconds}ms");
             }
         }
+
+        [Conditional("DEBUG")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void DebugMsg(this MelonLogger.Instance log, string msg)
+        {
+            if (NeonLite.DEBUG)
+                log.Msg(msg);
+        }
+
+        [Conditional("DEBUG")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void DebugMsg(this MelonLogger.Instance log, object obj) => DebugMsg(log, obj.ToString());
     }
 }

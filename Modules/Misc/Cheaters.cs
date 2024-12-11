@@ -33,8 +33,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Misc", "cheaters", "Cheater Banlist", "Highlights known cheaters as red on the leaderboard.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
             Helpers.DownloadURL(URL, request =>
             {

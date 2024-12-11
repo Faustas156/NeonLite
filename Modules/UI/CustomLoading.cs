@@ -20,8 +20,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             setting = Settings.Add("NeonLite", "UI", "loadingIcon", "Custom Loading Icon", "Set a custom loading icon relacing Mikey by entering the path to a local image (256x256).\nMake sure to remove quotes!", "", null);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after != ""));
-            active = setting.Value != "";
+            active = setting.SetupForModule(Activate, (_, after) => after != "");
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MenuScreenLoading), "SetVisible", null, null);
@@ -45,16 +44,14 @@ namespace NeonLite.Modules.UI
             var mikey = __instance.mikeyIndicator.GetComponentInChildren<Image>();
 
             string path = setting.Value;
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg(path);
+            NeonLite.Logger.DebugMsg(path);
 
             if (!File.Exists(path))
                 return;
 
             if (!cache)
             {
-                if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg("build cache");
+                NeonLite.Logger.DebugMsg("build cache");
                 var file = File.ReadAllBytes(path);
                 var tex = LoadTexture(file);
 
@@ -66,8 +63,7 @@ namespace NeonLite.Modules.UI
                 cache = Sprite.Create(tex, mikey.sprite.rect, mikey.sprite.pivot);
             }
 
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg("set");
+            NeonLite.Logger.DebugMsg("set");
 
             mikey.sprite = cache;
         }

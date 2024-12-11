@@ -18,8 +18,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Misc", "ghostDir", "Open Ghost Directory Button", "Adds a button to access the ghost directory of the selected/current level.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo oglvli = AccessTools.Method(typeof(LevelInfo), "SetLevel");

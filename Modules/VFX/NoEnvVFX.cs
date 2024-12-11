@@ -12,8 +12,7 @@ namespace NeonLite.Modules.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noEnvVFX", "Disable additional environment FX", "Disables stuff like chapter 11 lightning, and possibly other stuff.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(EnvironmentFX), "StartEventSchedule");

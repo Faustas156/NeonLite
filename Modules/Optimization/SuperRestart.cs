@@ -28,18 +28,14 @@ namespace NeonLite.Modules.Optimization
         static MelonPreferences_Entry<int> gcTimer;
         static void Setup()
         {
-            setting = Settings.Add(Settings.h, "Misc", "superRestart", "Quick Restart", "Completely overrides the level loading routine on restart to be faster.", true);
-            noStaging = Settings.Add(Settings.h, "Misc", "noStaging", "Skip Staging Screen", "Skips the staging screen while using Quick Restart.", true);
-            pauseStaging = Settings.Add(Settings.h, "Misc", "pauseStaging", "Pause Restarts to Staging", null, true);
-            pauseStaging.IsHidden = true;
-            gcTimer = Settings.Add(Settings.h, "Misc", "gcTimer", "Restarts to call GC", null, 100);
-            gcTimer.IsHidden = true;
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            setting = Settings.Add(Settings.h, "Optimization", "superRestart", "Quick Restart", "Completely overrides the level loading routine on restart to be faster.", true);
+            noStaging = Settings.Add(Settings.h, "Optimization", "noStagingSR", "Skip Staging Screen", "Skips the staging screen while using Quick Restart.", false);
+            pauseStaging = Settings.Add(Settings.h, "Optimization", "pauseStagingSR", "Pause Restarts to Staging", null, true, true);
+            gcTimer = Settings.Add(Settings.h, "Optimization", "gcTimerSR", "Restarts to call GC", null, 100, true);
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
-            var useScreenshot = Settings.Add(Settings.h, "Misc", "useScreenshot", "Minimize Flashing", "Use a screenshot of the stage to minimize flashing.", true);
-            useScreenshot.OnEntryValueChanged.Subscribe((_, after) => LoadingScreenshot.Activate(after));
-            LoadingScreenshot.active = useScreenshot.Value;
+            var useScreenshot = Settings.Add(Settings.h, "Optimization", "useScreenshotSR", "Minimize Flashing", "Use a screenshot of the stage to minimize flashing.\n**Requires Quick Restart.**", true);
+            LoadingScreenshot.active = useScreenshot.SetupForModule(LoadingScreenshot.Activate, (_, after) => after);
         }
 
         static readonly MethodInfo oglvlsetup = AccessTools.Method(typeof(Game), "LevelSetupRoutine");

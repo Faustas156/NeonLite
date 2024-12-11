@@ -19,8 +19,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             setting = Settings.Add(Settings.h, "Misc", "bossGhosts", "Ghosts Everywhere", "Allows you to record, playback, and toggle ghosts for every level.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo record = AccessTools.Method(typeof(GhostRecorder), "Start");

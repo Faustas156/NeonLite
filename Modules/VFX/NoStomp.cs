@@ -17,8 +17,7 @@ namespace NeonLite.Modules.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noStomp", "Disable stomp splashbang", "Disable the white flash and explosion that appear when you land a stomp.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MechController), "DoStompAbility");

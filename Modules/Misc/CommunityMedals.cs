@@ -94,9 +94,8 @@ namespace NeonLite.Modules
             hueShift = Settings.Add(Settings.h, "Medals", "hueShift", "Hue Shift", "Changes the hue of *all* medals (and related) help aid colorblind users in telling them apart.", 0f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             oldStyle = Settings.Add(Settings.h, "Medals", "oldStyle", "Stamp Style", "Display the community medals in the level info as it was pre-3.0.0.", false);
 
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
+            active = setting.SetupForModule(Activate, (_, after) => after);
             hueShift.OnEntryValueChanged.Subscribe((_, after) => HueShiftMat?.SetFloat("_Shift", after));
-            active = setting.Value;
 
             NeonLite.OnBundleLoad += AssetsDone;
         }
@@ -256,8 +255,7 @@ namespace NeonLite.Modules
         static void AssetsDone(AssetBundle bundle)
         {
             loaded = true;
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg("CommunityMedals onBundleLoad");
+            NeonLite.Logger.DebugMsg("CommunityMedals onBundleLoad");
             if (!activated)
                 return;
             loaded = false;
@@ -532,8 +530,7 @@ namespace NeonLite.Modules
             if (!Ready)
                 return;
 
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"{medalEarned} {oldInsightLevel} {previousMedal}");
+            NeonLite.Logger.DebugMsg($"{medalEarned} {oldInsightLevel} {previousMedal}");
 
             var level = NeonLite.Game.GetCurrentLevel();
             GameData gameData = NeonLite.Game.GetGameData();

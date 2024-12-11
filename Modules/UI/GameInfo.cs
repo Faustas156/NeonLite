@@ -2,7 +2,6 @@
 using I2.Loc;
 using MelonLoader;
 using MelonLoader.TinyJSON;
-using NeonLite.Modules.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +10,7 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 
-namespace NeonLite.Modules.Misc
+namespace NeonLite.Modules.UI
 {
     internal class GameInfo : MonoBehaviour, IModule
     {
@@ -48,8 +47,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/Info", "enabled", "Enable Game Info", "Enables additional information about the game and current level in the top left.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
             alpha = Settings.Add(Settings.h, "UI/Info", "alpha", "Opacity", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             scale = Settings.Add(Settings.h, "UI/Info", "scale", "Scale", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 5));
@@ -63,8 +61,7 @@ namespace NeonLite.Modules.Misc
 
             NeonLite.OnBundleLoad += bundle =>
             {
-                if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg("GameInfo onBundleLoad");
+                NeonLite.Logger.DebugMsg("GameInfo onBundleLoad");
 
                 prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/InfoText.prefab");
                 if (tried)
@@ -200,7 +197,8 @@ namespace NeonLite.Modules.Misc
                         return;
 
                     restarts.TryGetValue(lastLevel.levelID, out var ri);
-                    ri.queued++;
+                    if (!(LevelRush.IsLevelRush() || Anticheat.Active))
+                        ri.queued++;
                     ri.session++;
                     restarts[lastLevel.levelID] = ri;
                     instance?.totalAttemptsI.UpdateText(ri.total + ri.queued);

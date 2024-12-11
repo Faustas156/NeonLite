@@ -57,8 +57,7 @@ namespace NeonLite
             Helpers.StartProfiling("NeonLite Setup Pass");
             foreach (var module in modules)
             {
-                if (DEBUG)
-                    Logger.Msg($"{module} Setup");
+                Logger.DebugMsg($"{module} Setup");
 
                 Helpers.StartProfiling($"{module}");
 
@@ -92,8 +91,7 @@ namespace NeonLite
 
             foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
-                if (DEBUG)
-                    Logger.Msg($"{module} Activate");
+                Logger.DebugMsg($"{module} Activate");
 
                 Helpers.StartProfiling($"{module}");
 
@@ -155,8 +153,7 @@ namespace NeonLite
             Helpers.StartProfiling("NeonLite Activate-nonpriority Pass");
             foreach (var module in modules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
-                if (DEBUG)
-                    Logger.Msg($"{module} Activate");
+                Logger.DebugMsg($"{module} Activate");
                 Helpers.StartProfiling($"{module}");
 
                 try
@@ -198,8 +195,7 @@ namespace NeonLite
 
                 foreach (var module in addedModules)
                 {
-                    if (DEBUG)
-                        Logger.Msg($"{module} Setup");
+                    Logger.DebugMsg($"{module} Setup");
 
                     Helpers.StartProfiling($"{module}");
 
@@ -227,8 +223,7 @@ namespace NeonLite
 
                 foreach (var module in addedModules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
                 {
-                    if (DEBUG)
-                        Logger.Msg($"{module} Activate");
+                    Logger.DebugMsg($"{module} Activate");
                     Helpers.StartProfiling($"{module}");
 
                     try
@@ -255,8 +250,7 @@ namespace NeonLite
 
                 foreach (var module in addedModules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
                 {
-                    if (DEBUG)
-                        Logger.Msg($"{module} Activate");
+                    Logger.DebugMsg($"{module} Activate");
                     Helpers.StartProfiling($"{module}");
 
                     try

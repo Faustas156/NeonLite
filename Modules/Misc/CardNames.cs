@@ -26,8 +26,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Cards", "enabled", "Card Customizations", "Lets you customize the text on each card. Changes require full level restart.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
             elevate = Settings.Add(Settings.h, "Cards", "elevate", "Elevate Text", null, "Elevate");
             purify = Settings.Add(Settings.h, "Cards", "purify", "Purify Text", null, "Purify");

@@ -13,8 +13,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI", "noGreen", "Begone Apocalypse", "Get rid of the Apocalyptic view and replace it with the blue skies.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MenuScreenMapAesthetics), "Start");

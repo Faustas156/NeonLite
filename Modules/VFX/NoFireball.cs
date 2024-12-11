@@ -17,8 +17,7 @@ namespace NeonLite.Modules.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noFireball", "Disable fireball screen effect", "Disables the red outline from fireball.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static readonly MethodInfo original = AccessTools.Method(typeof(MechController), "FireballRoutine");

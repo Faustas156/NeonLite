@@ -43,8 +43,7 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPrefix]
         static void SetTrue()
         {
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg("RESET");
+            NeonLite.Logger.DebugMsg("RESET");
             lastMS = 0;
             currentMS = 0;
             ghostTimer = 0;
@@ -148,8 +147,7 @@ namespace NeonLite.Modules.Optimization
         internal static long CalculateOffset(Collider trigger)
         {
             var rigidbody = (extendedTrigger ? RM.drifter.playerDashDamageableTrigger as Component : RM.drifter).GetComponent<Rigidbody>();
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"trigger {trigger} rigidbody {rigidbody}");
+            NeonLite.Logger.DebugMsg($"trigger {trigger} rigidbody {rigidbody}");
 
             var preLayer = rigidbody.gameObject.layer;
             rigidbody.gameObject.layer = LayerMask.NameToLayer("Player");
@@ -253,15 +251,13 @@ namespace NeonLite.Modules.Optimization
             rigidbody.gameObject.layer = preLayer;
             if (!hit.collider)
             {
-                if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg($"missed, reporting 0%");
+                NeonLite.Logger.DebugMsg($"missed, reporting 0%");
 
                 return lastMS;
             }
 
             var percent = hit.distance / balanced;
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"percent {percent} {hit.distance}/{balanced}");
+            NeonLite.Logger.DebugMsg($"percent {percent} {hit.distance}/{balanced}");
 
             return (long)(preTime + (time - preTime) * percent);
         }
@@ -302,8 +298,7 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPriority(Priority.First)]
         static void SetTimeForFinish(CardPickup __instance, PlayerCardData ____currentCard, bool ____pickupAble)
         {
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"triggerstay {____currentCard.cardName}");
+            NeonLite.Logger.DebugMsg($"triggerstay {____currentCard.cardName}");
 
             if (____currentCard.consumableType != PlayerCardData.ConsumableType.LoreCollectible || !____pickupAble || locked)
                 return;

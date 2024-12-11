@@ -16,8 +16,8 @@ namespace NeonLite.Modules.UI
 
         static void Initialize(ref string localisationKey, ref OptionsMenuPanelInformation.OptionEntry optionEntry)
         {
-            if (localisationKey == "Interface/OPTIONS_01_FOV")
-                optionEntry.SliderMaximum = 160;
+            //if (localisationKey == "Interface/OPTIONS_01_FOV")
+            //    optionEntry.SliderMaximum = 160;
             if (localisationKey == "Interface/OPTIONS_02_MOUSESEN")
                 optionEntry.StepSize = 0.01f;
         }

@@ -41,9 +41,8 @@ namespace NeonLite.Modules.Optimization
 
         static void Setup()
         {
-            var setting = Settings.Add(Settings.h, "Misc", "fastStart", "Fast Startup", "Preloads essential scenes before the game even initializes to speed up the menu load.", true);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            var setting = Settings.Add(Settings.h, "Optimization", "fastStart", "Fast Startup", "Preloads essential scenes before the game even initializes to speed up the menu load.", true);
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
             //MelonCoroutines.Start(PreloadCoroutine());
         }
@@ -100,8 +99,7 @@ namespace NeonLite.Modules.Optimization
             if (!active)
                 return true;
 
-            if (NeonLite.DEBUG)
-                NeonLite.Logger.Msg($"SetInitState {initializationState}");
+            NeonLite.Logger.DebugMsg($"SetInitState {initializationState}");
 
             if (initializationState == GameInit.PrefsLoaded)
             {

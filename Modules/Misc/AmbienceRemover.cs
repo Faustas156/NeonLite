@@ -11,8 +11,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Misc", "ambienceOff", "Ambience Remover", "Removes the ambience from the game, even when muted.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;

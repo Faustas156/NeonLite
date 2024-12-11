@@ -1,6 +1,7 @@
-﻿using Discord;
+using Discord;
 using I2.Loc;
 using MelonLoader;
+using NeonLite.Modules.UI;
 using System;
 using System.IO;
 using System.Linq;
@@ -81,8 +82,7 @@ namespace NeonLite.Modules.Misc
             startup = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
 
             var setting = Settings.Add(Settings.h, "Discord", "enabled", "Discord Rich Presence", "Enables the use of Discord Rich Presence.", false);
-            setting.OnEntryValueChanged.Subscribe((_, after) => Activate(after));
-            active = setting.Value;
+            active = setting.SetupForModule(Activate, (_, after) => after);
 
             menuTitle = Settings.Add(Settings.h, "Discord", "menuTitle", "Headline in menu", null, "In menu");
             menuDesc = Settings.Add(Settings.h, "Discord", "menuDesc", "Description in menu", null, "Sleeping");
@@ -254,22 +254,19 @@ namespace NeonLite.Modules.Misc
                 activity.Timestamps.Start = (long)(((DateTimeOffset)dt).ToUnixTimeSeconds() - dt.Subtract(timeRecorded).TotalSeconds);
             }
 
-            if (NeonLite.DEBUG)
-            {
-                NeonLite.Logger.Msg("DISCORD STATUS");
-                NeonLite.Logger.Msg(activity.Details);
-                NeonLite.Logger.Msg(activity.State);
-                NeonLite.Logger.Msg(activity.Assets.SmallImage);
-                NeonLite.Logger.Msg(activity.Assets.LargeImage);
-            }
+            NeonLite.Logger.DebugMsg("DISCORD STATUS");
+            NeonLite.Logger.DebugMsg(activity.Details);
+            NeonLite.Logger.DebugMsg(activity.State);
+            NeonLite.Logger.DebugMsg(activity.Assets.SmallImage);
+            NeonLite.Logger.DebugMsg(activity.Assets.LargeImage);
 
 
             DiscordInstance.GetActivityManager().UpdateActivity(activity, result =>
             {
                 if (result != Result.Ok)
                     NeonLite.Logger.Error($"Discord UpdateActivity returned {result}");
-                else if (NeonLite.DEBUG)
-                    NeonLite.Logger.Msg("Discord returned good");
+                else
+                    NeonLite.Logger.DebugMsg("Discord returned good");
             });
 
             wasRushing = levelRush;
