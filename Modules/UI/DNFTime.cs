@@ -67,7 +67,7 @@ namespace NeonLite.Modules.UI
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
             var time = EnsureTimer.CalculateOffset(EnsureTimer.cOverride ?? __instance.GetComponentInChildren<MeshCollider>());
             frozenText.color = best < time ? Color.red : Color.green;
-            frozenText.overflowMode = TextOverflowModes.Overflow;
+            frozenText.enableWordWrapping = false;
             var local = Localization.Setup(frozenText);
             local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
             if (!string.IsNullOrEmpty(sfxSetting.Value))
