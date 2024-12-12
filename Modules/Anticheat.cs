@@ -59,7 +59,9 @@ namespace NeonLite.Modules
 
         static void Activate(bool activate)
         {
-            activate |= force.Value;
+            if (force != null)
+                activate |= force.Value;
+
             if (activate)
             {
                 var hm = Helpers.HM(DontUpdateTime);
