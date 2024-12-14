@@ -26,6 +26,8 @@ namespace NeonLite.Modules
         static float savedTimescale;
         static void DoTimescale()
         {
+            NeonLite.Logger.DebugMsg("DoTimescale");
+
             if (!RM.time)
                 return;
             savedTimescale = RM.time.GetTargetTimeScale();
@@ -33,12 +35,15 @@ namespace NeonLite.Modules
         }
         static void ResetTimescale()
         {
+            NeonLite.Logger.DebugMsg("ResetTimescale");
+
             if (RM.time)
                 RM.time?.SetTargetTimescale(savedTimescale, true);
         }
 
         [HarmonyPatch("LevelSetupRoutine", MethodType.Enumerator)]
         [HarmonyTranspiler]
+        [HarmonyPriority(Priority.First)]
         static IEnumerable<CodeInstruction> AddLoadCall(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             IEnumerable<CodeInstruction> Transpiler()
@@ -186,6 +191,8 @@ namespace NeonLite.Modules
 
         public static IEnumerator HandleLoads(LevelData level)
         {
+            NeonLite.Logger.DebugMsg("HandleLoads");
+
             currentLevel = level;
             Queue<MethodInfo> retries = [];
             foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "active").GetValue(null)))
@@ -218,7 +225,7 @@ namespace NeonLite.Modules
             if (retries.Count == 0)
                 yield break;
 
-            NeonLite.Logger.Msg("Stalling load...");
+            NeonLite.Logger.DebugMsg("Stalling load...");
 
             while (retries.Count > 0)
             {

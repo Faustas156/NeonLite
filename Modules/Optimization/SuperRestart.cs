@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace NeonLite.Modules.Optimization
 #pragma warning disable CS0414
         const bool priority = true;
         static bool active = false;
+        static bool ready = false;
 
         internal static MelonPreferences_Entry<bool> setting;
         static MelonPreferences_Entry<bool> noStaging;
@@ -122,6 +124,7 @@ namespace NeonLite.Modules.Optimization
             }
             else
             {
+                ready = false;
                 destroy.Clear();
                 reserveList.Clear();
                 forceStaging = false;
@@ -175,7 +178,7 @@ namespace NeonLite.Modules.Optimization
         static int restartCount;
         static IEnumerator OverridePlayLevel(IEnumerator __result, Game __instance, LevelData newLevel, LevelData ____currentLevel)
         {
-            if (newLevel == ____currentLevel && destroy.Count > 0 && !blacklisted.Contains(newLevel.levelID))
+            if (newLevel == ____currentLevel && destroy.Count > 0 && ready && !blacklisted.Contains(newLevel.levelID))
             {
                 if (LoadingScreenshot.i)
                     LoadingScreenshot.i.Screenshot();
@@ -193,6 +196,7 @@ namespace NeonLite.Modules.Optimization
             }
             else
             {
+                ready = false;
                 /*if (newLevel.type == LevelData.LevelType.Level)
                 {
                     yield return TrimmedLevelSetup(__instance, newLevel);
@@ -209,11 +213,15 @@ namespace NeonLite.Modules.Optimization
                 reserveList.Clear();
                 forceStaging = false;
                 ClearRegistry();
+
                 while (__result.MoveNext())
                     yield return __result.Current;
 
                 if (newLevel && newLevel.type != LevelData.LevelType.Hub)
+                {
                     GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
+                    ready = true;
+                }
             }
         }
         static void SetActiveScene(int activeSceneIndex) => activeScene = activeSceneIndex;
@@ -415,11 +423,14 @@ namespace NeonLite.Modules.Optimization
 
         static IEnumerator QuickLevelSetup(Game game, LevelData level, bool staging = true)
         {
+            AsyncOperation cop = null;
+            cop = UnityEngine.Resources.UnloadUnusedAssets();
             RM.time.SetTargetTimescale(0, true);
 
             RM.Pointer.Visible = false;
             RM.acceptInput = false;
             RM.acceptInputPauseMenu = false;
+            yield return new WaitForEndOfFrame();
 
             int target = !string.IsNullOrEmpty(level.environmentSceneAlt?.SceneName) ? 1 : 0;
             if (target != activeScene)
@@ -433,8 +444,12 @@ namespace NeonLite.Modules.Optimization
             var playthru = (LevelPlaythrough)currentPlaythrough.GetValue(game);
             playthru.Reset();
 
+
+            if (restartCount == 0)
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, false);
+
             foreach (var tripwire in InRegistry<TripwireWeapon>(true).ProfileLoop("Tripwire Cancels"))
-                TripwireWeapon.CancelTripRoutines();
+                tripwire.CancelTripRoutine();
             foreach (var beam in InRegistry<BeamWeapon>(true).ProfileLoop("Beam Weapon Cancels"))
                 beam.CancelBeamTrackingRoutine();
 
@@ -456,6 +471,7 @@ namespace NeonLite.Modules.Optimization
 
             SceneManager.UnloadSceneAsync("Player");
             var op = SceneManager.LoadSceneAsync("Player", LoadSceneMode.Additive);
+            op.allowSceneActivation = false;
 
             //yield return null;
 
@@ -477,7 +493,11 @@ namespace NeonLite.Modules.Optimization
             foreach (var obj in destroy.ProfileLoop("Destroys"))
             {
                 if (obj)
+                {
+                    foreach (var mat in obj.GetComponentsInParent<Renderer>().SelectMany(x => x.materials))
+                        Object.Destroy(mat);
                     Object.Destroy(obj);
+                }
             }
             foreach (var particle in InRegistry<ParticleSystem>(true).ProfileLoop("Particle Stops"))
             {
@@ -564,17 +584,18 @@ namespace NeonLite.Modules.Optimization
                 ltrigTriggered.SetValue(trigger, false);
             }
 
+            ObjectManager.Instance.Reset();
             Utils.ClearPreloadedObjectsFromResources();
             destroy.Clear();
             RM.time.SetTargetTimescale(1, true);
 
             if (restartCount == 0)
-                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+            op.allowSceneActivation = true;
             while (!op.isDone)
-            {
-                //GarbageCollector.CollectIncremental(nanosecond);
-                yield return null;
-            }
+                yield return new WaitForEndOfFrame();
+
             //ResetPlayer();
 
             playthru.Reset();
@@ -630,13 +651,14 @@ namespace NeonLite.Modules.Optimization
             RM.time.SetTargetTimescale(0, true);
 
             Object.FindObjectOfType<Setup>().ApplyHeightFogMat();
-            yield return null;
+            do yield return new WaitForEndOfFrame();
+            while (!cop?.isDone ?? false);
 
             foreach (var gate in InRegistry<LevelGate>(true).ProfileLoop("Gate Particles"))
             {
                 AddToRegistry(gate);
                 if (!gate.Unlocked)
-                {
+                {   
                     gate.teleportParticles.Stop();
                     gate.teleportParticles.Clear();
                 }
@@ -649,7 +671,7 @@ namespace NeonLite.Modules.Optimization
                 while ((bool)waitForStaging.GetValue(game) || MainMenu.Instance().GetCurrentState() != MainMenu.State.Staging)
                 {
                     //GarbageCollector.CollectIncremental(nanosecond);
-                    yield return null;
+                    yield return new WaitForEndOfFrame();
                 }
             }
 

@@ -25,13 +25,13 @@ namespace NeonLite
             public PatchTarget target;
             public bool registered;
 
-            public override readonly bool Equals(object obj) => obj is PatchInfo info && patch == info.patch;
+            public override readonly bool Equals(object obj) => obj is PatchInfo info && patch?.method == info.patch?.method;
 
             // compiler would not shut up
-            public override readonly int GetHashCode() => -1372007919 + patch.GetHashCode();
+            public override readonly int GetHashCode() => -1372007919 + patch?.method.GetHashCode() ?? 0;
 
-            public static bool operator ==(PatchInfo obj1, PatchInfo obj2) => obj1.patch == obj2.patch;
-            public static bool operator !=(PatchInfo obj1, PatchInfo obj2) => obj1.patch != obj2.patch;
+            public static bool operator ==(PatchInfo obj1, PatchInfo obj2) => obj1.patch?.method == obj2.patch?.method;
+            public static bool operator !=(PatchInfo obj1, PatchInfo obj2) => obj1.patch?.method != obj2.patch?.method;
         }
 
         static readonly Dictionary<MethodInfo, List<PatchInfo>> patches = [];
@@ -42,20 +42,20 @@ namespace NeonLite
             if (!patches.ContainsKey(method))
                 patches[method] = [];
             var patchlist = patches[method];
-            if (patchlist.FirstOrDefault(x => x.patch == patch).patch == patch)
-                return false;
-            patchlist.Add(new PatchInfo
+            var info = new PatchInfo
             {
                 patch = patch,
                 target = target,
                 registered = instant
-            });
+            };
+            if (patchlist.FirstOrDefault(x => x == info) != default)
+                return false;
+            patchlist.Add(info);
 
             if (instant)
             {
                 Helpers.StartProfiling($"Instant-patch {patch.methodName}");
                 var processor = NeonLite.Harmony.CreateProcessor(method);
-                var patchInfo = patchlist.Last();
                 switch (target)
                 {
                     case PatchTarget.Prefix:
