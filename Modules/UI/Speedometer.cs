@@ -64,8 +64,8 @@ namespace NeonLite.Modules.UI
             alpha = Settings.Add(Settings.h, "Speedometer", "alpha", "Opacity", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             scale = Settings.Add(Settings.h, "Speedometer", "scale", "Scale", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 5));
 
-            xp = Settings.Add(Settings.h, "Speedometer", "x", "X Position", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
-            yp = Settings.Add(Settings.h, "Speedometer", "y", "Y Position", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
+            xp = Settings.Add(Settings.h, "Speedometer", "x", "X Position", null, .5f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
+            yp = Settings.Add(Settings.h, "Speedometer", "y", "Y Position", null, .5f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
 
             defaultC = Settings.Add(Settings.h, "Speedometer", "flatColor", "Text color (Default)", null, Color.yellow);
             dashingC = Settings.Add(Settings.h, "Speedometer", "dashColor", "Text color (Dashing)", null, Color.blue);
