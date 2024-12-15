@@ -41,6 +41,11 @@ namespace NeonLite.Modules
                 RM.time?.SetTargetTimescale(savedTimescale, true);
         }
 
+        [HarmonyPatch("LevelSetupRoutine")]
+        [HarmonyPrefix]
+        [HarmonyPriority(Priority.First)]
+        static void SetCurrentLevel(LevelData newLevel) => currentLevel = newLevel; 
+
         [HarmonyPatch("LevelSetupRoutine", MethodType.Enumerator)]
         [HarmonyTranspiler]
         [HarmonyPriority(Priority.First)]
@@ -52,6 +57,7 @@ namespace NeonLite.Modules
                 List<Label> mminstLabels = [];
                 List<int> setStates = [];
                 List<int> mmInsts = [];
+                List<bool> staging = [];
 
                 var inst = instructions.ToArray();
 
@@ -106,6 +112,7 @@ namespace NeonLite.Modules
                         mmInsts.Add(idx - wholeCall.Length - 1);
                         mminstLabels.Add(generator.DefineLabel());
                         switchLabels.Add(generator.DefineLabel());
+                        staging.Add((MainMenu.State)(int)(sbyte)wholeCall[0].operand == MainMenu.State.Staging);
                     }
                 }
 
@@ -133,12 +140,10 @@ namespace NeonLite.Modules
                         // RM.time.SetTargetTimescale(0, true)
                         yield return CodeInstruction.Call(typeof(LoadManager), "DoTimescale");
 
-                        // this.current = LoadManager.HandleLoads(game._currentLevel)
+                        // this.current = LoadManager.HandleLoads()
                         // this.state = stateToSet
                         yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                         yield return new CodeInstruction(OpCodes.Dup); // this, this
-                        yield return new CodeInstruction(OpCodes.Ldloc_1); // this, this, game
-                        yield return CodeInstruction.LoadField(typeof(Game), "_currentLevel"); // this, this, curlevel
                         yield return CodeInstruction.Call(typeof(LoadManager), "HandleLoads"); // this, this, handleloads
                         yield return new CodeInstruction(OpCodes.Stfld, current); // this
                         yield return new CodeInstruction(OpCodes.Ldc_I4, stateToSetStart++); // this, statetoset
@@ -179,21 +184,21 @@ namespace NeonLite.Modules
         [HarmonyPatch(typeof(MenuScreenLoading), "LoadScene")]
         [HarmonyPostfix]
         [HarmonyPriority(Priority.First)]
-        static IEnumerator PostMenuLoad(IEnumerator __result, string sceneName)
+        static IEnumerator PostMenuLoad(IEnumerator __result)
         {
             while (__result.MoveNext())
                 yield return __result.Current;
             if (!quittingToTitle)
                 yield break;
             quittingToTitle = false;
-            yield return HandleLoads(null);
+            currentLevel = null;
+            yield return HandleLoads();
         }
 
-        public static IEnumerator HandleLoads(LevelData level)
+        public static IEnumerator HandleLoads()
         {
             NeonLite.Logger.DebugMsg("HandleLoads");
 
-            currentLevel = level;
             Queue<MethodInfo> retries = [];
             foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "active").GetValue(null)))
             {
@@ -204,7 +209,7 @@ namespace NeonLite.Modules
                 try
                 {
                     var method = AccessTools.Method(module, "OnLevelLoad");
-                    var ret = method.Invoke(null, [level]);
+                    var ret = method.Invoke(null, [currentLevel]);
                     if (ret != null && !(bool)ret)
                     {
                         NeonLite.Logger.DebugMsg($"{module} returned false, trying again later");
@@ -240,7 +245,7 @@ namespace NeonLite.Modules
 
                     try
                     {
-                        var ret = method.Invoke(null, [level]);
+                        var ret = method.Invoke(null, [currentLevel]);
                         if (!(bool)ret)
                             retries.Enqueue(method);
                     }

@@ -148,5 +148,8 @@ namespace NeonLite
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void DebugMsg(this MelonLogger.Instance log, object obj) => DebugMsg(log, obj.ToString());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetValue<T>(this FieldInfo fieldInfo, object instance) => (T)fieldInfo.GetValue(instance);
     }
 }

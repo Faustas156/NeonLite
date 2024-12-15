@@ -80,6 +80,7 @@ namespace NeonLite
 
             setupCalled = true;
             VersionText.ver = Info.Version;
+            Logger.Msg($"Version: {Info.Version}"); 
         }
 
         internal static void ActivatePriority()

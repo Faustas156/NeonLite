@@ -160,7 +160,7 @@ namespace NeonLite.Modules
         {
             var stats = GameDataManager.GetLevelStats(level);
             if (!stats.GetCompleted())
-                return -1;
+                return 0;
 
             if (time == -1)
                 time = stats._timeBestMicroseconds;

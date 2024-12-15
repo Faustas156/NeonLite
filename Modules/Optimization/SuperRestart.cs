@@ -28,12 +28,14 @@ namespace NeonLite.Modules.Optimization
         static MelonPreferences_Entry<bool> noStaging;
         static MelonPreferences_Entry<bool> pauseStaging;
         static MelonPreferences_Entry<int> gcTimer;
+        static MelonPreferences_Entry<int> memTimer;
         static void Setup()
         {
             setting = Settings.Add(Settings.h, "Optimization", "superRestart", "Quick Restart", "Completely overrides the level loading routine on restart to be faster.", true);
             noStaging = Settings.Add(Settings.h, "Optimization", "noStagingSR", "Skip Staging Screen", "Skips the staging screen while using Quick Restart.", false);
             pauseStaging = Settings.Add(Settings.h, "Optimization", "pauseStagingSR", "Pause Restarts to Staging", null, true, true);
-            gcTimer = Settings.Add(Settings.h, "Optimization", "gcTimerSR", "Restarts to call GC", null, 100, true);
+            gcTimer = Settings.Add(Settings.h, "Optimization", "gcTimerSR", "Restarts to call GC", null, 50, true);
+            memTimer = Settings.Add(Settings.h, "Optimization", "memTimerSR", "Restarts to call Resource cleanup", null, 10, true);
             active = setting.SetupForModule(Activate, (_, after) => after);
 
             var useScreenshot = Settings.Add(Settings.h, "Optimization", "useScreenshotSR", "Minimize Flashing", "Use a screenshot of the stage to minimize flashing.\n**Requires Quick Restart.**", true);
@@ -62,6 +64,7 @@ namespace NeonLite.Modules.Optimization
 
         static readonly MethodInfo ogmmupd = AccessTools.Method(typeof(MainMenu), "Update");
         static readonly MethodInfo ogmmpause = AccessTools.Method(typeof(MainMenu), "PauseGame");
+        static readonly MethodInfo ogmmdiagend = AccessTools.Method(typeof(MainMenu), "OnDialogueEnd");
 
         static readonly List<Tuple<Type, string, Type[]>> prefixToRegister = [
             new(typeof(OnRegion), "Start", null),
@@ -70,6 +73,7 @@ namespace NeonLite.Modules.Optimization
             new(typeof(ParticleSystem), "Play", null),
             new(typeof(GhostHintOriginVFX), "OnTriggerEnter", null),
             new(typeof(GhostPlayback), "ProcessTriggers", null),
+            new(typeof(GhostPlayback), "ResetTimer", null),
             new(typeof(CardPickupSpawner), "SpawnCard", []),
             new(typeof(CardPickupSpawner), "SpawnCard", [typeof(float)]),
             new(typeof(BeamWeapon), "StartBeamTrackingRoutine", null),
@@ -82,6 +86,7 @@ namespace NeonLite.Modules.Optimization
             new(typeof(RememberTransform), "Apply", null),
             new(typeof(LevelTrigger), "OnTriggered", null),
             new(typeof(TripwireWeapon), "OnTripped", null),
+            new(typeof(FailStateDetector_Deluxe), "Start", null),
         ];
 
         static void Activate(bool activate)
@@ -111,6 +116,7 @@ namespace NeonLite.Modules.Optimization
                 Patching.AddPatch(ogmmupd, PreMMUpdate, Patching.PatchTarget.Prefix);
                 Patching.AddPatch(ogmmupd, PostMMUpdate, Patching.PatchTarget.Postfix);
                 Patching.AddPatch(ogmmpause, MMPausing, Patching.PatchTarget.Prefix);
+                Patching.AddPatch(ogmmdiagend, Reset, Patching.PatchTarget.Prefix);
 
                 foreach ((var type, var name, var args) in prefixToRegister)
                 {
@@ -124,11 +130,7 @@ namespace NeonLite.Modules.Optimization
             }
             else
             {
-                ready = false;
-                destroy.Clear();
-                reserveList.Clear();
-                forceStaging = false;
-                ClearRegistry();
+                Reset();
                 if (LoadingScreenshot.i)
                     LoadingScreenshot.i.Stop();
 
@@ -153,6 +155,7 @@ namespace NeonLite.Modules.Optimization
                 Patching.RemovePatch(ogmmupd, PreMMUpdate);
                 Patching.RemovePatch(ogmmupd, PostMMUpdate);
                 Patching.RemovePatch(ogmmpause, MMPausing);
+                Patching.RemovePatch(ogmmdiagend, Reset);
 
                 foreach ((var type, var name, var args) in prefixToRegister)
                 {
@@ -168,6 +171,18 @@ namespace NeonLite.Modules.Optimization
 
         static bool Never() => false;
 
+        static void Reset()
+        {
+            ready = false;
+            activeScene = 0;
+            restartCountGC = 0;
+            restartCountRC = 0;
+            destroy.Clear();
+            reserveList.Clear();
+            forceStaging = false;
+            ClearRegistry();
+        }
+
         static readonly HashSet<string> blacklisted = [
             "HUB_HEAVEN",
             "TUT_ORIGIN"
@@ -175,28 +190,30 @@ namespace NeonLite.Modules.Optimization
 
 
         static int activeScene;
-        static int restartCount;
+        static int restartCountGC;
+        static int restartCountRC;
         static IEnumerator OverridePlayLevel(IEnumerator __result, Game __instance, LevelData newLevel, LevelData ____currentLevel)
         {
-            if (newLevel == ____currentLevel && destroy.Count > 0 && ready && !blacklisted.Contains(newLevel.levelID))
+            if (newLevel == ____currentLevel && ready && !blacklisted.Contains(newLevel.levelID))
             {
                 if (LoadingScreenshot.i)
                     LoadingScreenshot.i.Screenshot();
-                if (gcTimer.Value != -1 && ++restartCount >= gcTimer.Value)
+                if (gcTimer.Value != -1 && ++restartCountGC >= gcTimer.Value)
                 {
-                    restartCount = 0;
+                    restartCountGC = 0;
                     GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
                 }
+                if (memTimer.Value != -1 && ++restartCountRC >= memTimer.Value)
+                    restartCountRC = 0;
 
                 MainMenu.Instance().SetState(MainMenu.State.Loading, true, true, true, false);
                 yield return QuickLevelSetup(__instance, newLevel, StagingHappens() || mmUpdating);
 
-                if (restartCount == 0)
+                if (restartCountGC == 0)
                     GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
             }
             else
             {
-                ready = false;
                 /*if (newLevel.type == LevelData.LevelType.Level)
                 {
                     yield return TrimmedLevelSetup(__instance, newLevel);
@@ -207,12 +224,7 @@ namespace NeonLite.Modules.Optimization
                 if (LoadingScreenshot.i)
                     LoadingScreenshot.i.Stop();
 
-                activeScene = 0;
-                restartCount = 0;
-                destroy.Clear();
-                reserveList.Clear();
-                forceStaging = false;
-                ClearRegistry();
+                Reset();
 
                 while (__result.MoveNext())
                     yield return __result.Current;
@@ -246,21 +258,19 @@ namespace NeonLite.Modules.Optimization
         static readonly FieldInfo tempObjs = AccessTools.Field(typeof(UltimateTextDamageManager), "m_tempObjects");
         static void MarkForDestroyDamageText(UltimateTextDamageManager __instance)
         {
-            var objs = (List<GameObject>)tempObjs.GetValue(__instance);
+            var objs = tempObjs.GetValue<List<GameObject>>(__instance);
             foreach (var obj in objs)
             {
                 obj.name = "UltimateTextDamageManager Temp";
                 destroy.Add(obj);
             }
         }
-        static readonly FieldInfo ghostObject = AccessTools.Field(typeof(GhostPlayback), "m_ghostObject");
-        static readonly FieldInfo cloneBullet = AccessTools.Field(typeof(GhostPlayback), "m_cloneBullet");
-        static void MarkForDestroyGhost(GhostPlayback __instance)
+        static void MarkForDestroyGhost(GhostPlayback __instance, GameObject ___m_ghostObject, GhostBullet ___m_cloneBullet)
         {
             if (__instance.ghostType != GhostUtils.GhostType.PersonalGhost)
                 return;
-            destroy.Add((GameObject)ghostObject.GetValue(__instance));
-            destroy.Add(((GhostBullet)cloneBullet.GetValue(__instance)).gameObject);
+            destroy.Add(___m_ghostObject);
+            destroy.Add(___m_cloneBullet.gameObject);
         }
 
         static IEnumerable<CodeInstruction> MarkForDestroyPreload(IEnumerable<CodeInstruction> instructions)
@@ -287,7 +297,7 @@ namespace NeonLite.Modules.Optimization
             public GameObject newObj;
         }
 
-        static readonly List<ReserveInfo> reserveList = [];
+        static readonly List<ReserveInfo> reserveList = new(50);
         static readonly Type[] rememberTransformTypes = [typeof(DFlattener), typeof(MoveTransform), typeof(RotateTransform), typeof(RotateAroundAxis), typeof(ShakePosition)];
 
         static bool ParentsAreMarked(GameObject obj)
@@ -306,7 +316,8 @@ namespace NeonLite.Modules.Optimization
         {
             while (__result.MoveNext())
                 yield return __result.Current;
-            if (!LoadManager.currentLevel || blacklisted.Contains(Singleton<Game>.Instance.GetCurrentLevel().levelID))
+            NeonLite.Logger.DebugMsg($"PostMenuLoad {sceneName}");
+            if (!LoadManager.currentLevel || blacklisted.Contains(Singleton<Game>.Instance.GetCurrentLevel()?.levelID))
                 yield break;
             var s = SceneManager.GetActiveScene();
             SceneManager.SetActiveScene(SceneManager.GetSceneAt(SceneManager.sceneCount - 1));
@@ -357,7 +368,7 @@ namespace NeonLite.Modules.Optimization
                 destroy.Remove(obj);
         }
 
-        static readonly Dictionary<Type, Tuple<List<Object>, HashSet<Object>>> registry = [];
+        static readonly Dictionary<Type, Tuple<List<Object>, HashSet<Object>>> registry = new(prefixToRegister.Count);
         static void AddToRegistry<T>(T __instance) where T : Object
         {
             if (!registry.ContainsKey(typeof(T)))
@@ -403,6 +414,7 @@ namespace NeonLite.Modules.Optimization
         static readonly FieldInfo enemydict = AccessTools.Field(typeof(EnemyWave), "enemyDict");
         static readonly FieldInfo spawnerList = AccessTools.Field(typeof(EnemyWave), "_enemySpawner");
 
+        static readonly FieldInfo ghostTriggers = AccessTools.Field(typeof(GhostPlayback), "m_ghostTriggers");
         static readonly FieldInfo hintActive = AccessTools.Field(typeof(GhostHintOriginVFX), "_activated");
         static readonly MethodInfo hintSetActive = AccessTools.Method(typeof(GhostHintOriginVFX), "SetActivated");
 
@@ -424,13 +436,22 @@ namespace NeonLite.Modules.Optimization
         static IEnumerator QuickLevelSetup(Game game, LevelData level, bool staging = true)
         {
             AsyncOperation cop = null;
-            cop = UnityEngine.Resources.UnloadUnusedAssets();
+            if (restartCountRC == 0)
+                cop = UnityEngine.Resources.UnloadUnusedAssets();
             RM.time.SetTargetTimescale(0, true);
 
-            RM.Pointer.Visible = false;
+            RM.Pointer.Visible = NeonLite.DEBUG;
             RM.acceptInput = false;
             RM.acceptInputPauseMenu = false;
+
+            SceneManager.UnloadSceneAsync("Player");
             yield return new WaitForEndOfFrame();
+            if (restartCountGC == 0)
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, false);
+
+            yield return null;
+            var op = SceneManager.LoadSceneAsync("Player", LoadSceneMode.Additive);
+            op.allowSceneActivation = false;
 
             int target = !string.IsNullOrEmpty(level.environmentSceneAlt?.SceneName) ? 1 : 0;
             if (target != activeScene)
@@ -441,12 +462,6 @@ namespace NeonLite.Modules.Optimization
             }
 
             game.SetWaitForStaging(staging);
-            var playthru = (LevelPlaythrough)currentPlaythrough.GetValue(game);
-            playthru.Reset();
-
-
-            if (restartCount == 0)
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, false);
 
             foreach (var tripwire in InRegistry<TripwireWeapon>(true).ProfileLoop("Tripwire Cancels"))
                 tripwire.CancelTripRoutine();
@@ -461,17 +476,13 @@ namespace NeonLite.Modules.Optimization
             }
             AudioObjectSplineMover.ReleaseAudioObjects();
 
-            foreach (var ghost in InRegistry<GhostPlayback>(true).ProfileLoop("GhostPlayback Resets"))
+            foreach (var ghost in InRegistry<GhostPlayback>(true, false).ProfileLoop("GhostPlayback Resets"))
             {
-                if (ghost.gameObject.scene.name == "Player")
+                if (!ghost || ghost.gameObject.scene.name == "Player")
                     GhostPlaybackLord.i.ghostPlaybacks.Remove(ghost);
-                else
+                else if (ghostTriggers.GetValue(ghost) != null)
                     ghost.ResetTimer();
             }
-
-            SceneManager.UnloadSceneAsync("Player");
-            var op = SceneManager.LoadSceneAsync("Player", LoadSceneMode.Additive);
-            op.allowSceneActivation = false;
 
             //yield return null;
 
@@ -502,11 +513,14 @@ namespace NeonLite.Modules.Optimization
             foreach (var particle in InRegistry<ParticleSystem>(true).ProfileLoop("Particle Stops"))
             {
                 if (!particle.main.loop)
+                {
                     particle.Stop();
+                    particle.Clear();
+                }
             }
             foreach (var hint in InRegistry<GhostHintOriginVFX>(true).ProfileLoop("Hint Resets"))
             {
-                if ((bool)hintActive.GetValue(hint))
+                if (hintActive.GetValue<bool>(hint))
                 {
                     hintSetActive.Invoke(hint, [false]);
                     AudioController.Stop("HINT_RESET", 0);
@@ -516,12 +530,12 @@ namespace NeonLite.Modules.Optimization
             Helpers.StartProfiling("Boss Encounter");
             if (RM.bossEncounter)
             {
-                ((IList)bossCList.GetValue(RM.bossEncounter)).Clear();
+                bossCList.GetValue<IList>(RM.bossEncounter);
                 bossIntroFX.SetValue(RM.bossEncounter, false);
                 bossPlaying.SetValue(RM.bossEncounter, false);
                 bossState.SetValue(RM.bossEncounter, 0);
                 bossTransition.Invoke(RM.bossEncounter, [0]);
-                var timedict = (Dictionary<BossEncounter.State, float>)bossTimers.GetValue(RM.bossEncounter);
+                var timedict = bossTimers.GetValue<Dictionary<BossEncounter.State, float>>(RM.bossEncounter);
                 foreach (var k in timedict.Keys.ToArray())
                     timedict[k] = 0;
             }
@@ -589,16 +603,12 @@ namespace NeonLite.Modules.Optimization
             destroy.Clear();
             RM.time.SetTargetTimescale(1, true);
 
-            if (restartCount == 0)
+            if (restartCountGC == 0)
                 GC.WaitForPendingFinalizers();
 
             op.allowSceneActivation = true;
             while (!op.isDone)
-                yield return new WaitForEndOfFrame();
-
-            //ResetPlayer();
-
-            playthru.Reset();
+                yield return null;
 
             Helpers.StartProfiling($"Handle Reserves - {reserveList.Count}");
             var s = SceneManager.GetActiveScene();
@@ -640,17 +650,21 @@ namespace NeonLite.Modules.Optimization
 
             foreach (var wave in InRegistry<EnemyWave>(true).ProfileLoop("Reset EnemyWaves"))
             {
-                enemydict.SetValue(wave, new Dictionary<Enemy, bool>());
+                enemydict.GetValue<Dictionary<Enemy, bool>>(wave).Clear();
                 enemycount.SetValue(wave, 0);
             }
 
             foreach (var encounter in InRegistry<EnemyEncounter>(true).ProfileLoop("Reset Encounter"))
                 encounter.Setup();
 
-            RM.Pointer.Visible = staging;
             RM.time.SetTargetTimescale(0, true);
+            var playthru = currentPlaythrough.GetValue<LevelPlaythrough>(game);
+            playthru.Reset();
 
             Object.FindObjectOfType<Setup>().ApplyHeightFogMat();
+            // do this b4 so it doesn't feel "laggy"
+            var onLoad = onlvlload.GetValue<MulticastDelegate>(game);
+
             do yield return new WaitForEndOfFrame();
             while (!cop?.isDone ?? false);
 
@@ -658,20 +672,24 @@ namespace NeonLite.Modules.Optimization
             {
                 AddToRegistry(gate);
                 if (!gate.Unlocked)
-                {   
+                {
                     gate.teleportParticles.Stop();
                     gate.teleportParticles.Clear();
                 }
             } // this is super late but come on
 
-            yield return LoadManager.HandleLoads(game.GetCurrentLevel());
+            yield return LoadManager.HandleLoads();
+            RM.Pointer.Visible = staging;
+            if (LoadingScreenshot.i)
+                LoadingScreenshot.i.Stop();
+
             if (staging)
             {
                 MainMenu.Instance().SetState(MainMenu.State.Staging, true, true, true, false);
-                while ((bool)waitForStaging.GetValue(game) || MainMenu.Instance().GetCurrentState() != MainMenu.State.Staging)
+                while (MainMenu.Instance().GetCurrentState() == MainMenu.State.Staging || waitForStaging.GetValue<bool>(game))
                 {
                     //GarbageCollector.CollectIncremental(nanosecond);
-                    yield return new WaitForEndOfFrame();
+                    yield return null;
                 }
             }
 
@@ -681,13 +699,11 @@ namespace NeonLite.Modules.Optimization
 
             RM.time.SetTargetTimescale(1, true);
             MainMenu.Instance().SetState(MainMenu.State.None, true, true, true, false);
-            playthru.Reset();
             if (LevelRush.IsLevelRush())
                 playthru.SetLevelRushTimeMicroseconds(LevelRush.GetCurrentLevelRushTimerMicroseconds());
             RM.acceptInput = true;
             RM.acceptInputPauseMenu = true;
-            var onLoad = (MulticastDelegate)onlvlload.GetValue(game);
-            foreach (Delegate dlg in onLoad.GetInvocationList())
+            foreach (Delegate dlg in onLoad?.GetInvocationList() ?? [])
                 dlg.DynamicInvoke();
         }
 

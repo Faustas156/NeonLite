@@ -26,6 +26,7 @@ namespace NeonLite.Modules.Misc
         static MelonPreferences_Entry<bool> seshTimer;
 
         static Discord.Discord DiscordInstance;
+        const long ID = 1268765228167073802L;
         static Activity activity = new();
 
         static LevelData lastLevel;
@@ -104,7 +105,7 @@ namespace NeonLite.Modules.Misc
             {
                 try
                 {
-                    DiscordInstance = new(1268765228167073802L, (ulong)CreateFlags.NoRequireDiscord);
+                    DiscordInstance = new(ID, (ulong)CreateFlags.NoRequireDiscord);
                     NeonLite.holder.AddComponent<DiscordActivity>();
                     NeonLite.Game.winAction += LevelWin;
                 }
@@ -242,7 +243,7 @@ namespace NeonLite.Modules.Misc
             else
             {
                 activity.Assets.SmallImage = "";
-                if (level.levelID != lastLevelID)
+                if (level && level.levelID != lastLevelID)
                     timeRecorded = DateTime.Now;
             }
 
