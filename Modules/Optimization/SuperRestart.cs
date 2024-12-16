@@ -686,11 +686,8 @@ namespace NeonLite.Modules.Optimization
             if (staging)
             {
                 MainMenu.Instance().SetState(MainMenu.State.Staging, true, true, true, false);
-                while (MainMenu.Instance().GetCurrentState() == MainMenu.State.Staging || waitForStaging.GetValue<bool>(game))
-                {
-                    //GarbageCollector.CollectIncremental(nanosecond);
+                while (MainMenu.Instance().GetCurrentState() != MainMenu.State.Staging || waitForStaging.GetValue<bool>(game))
                     yield return null;
-                }
             }
 
             yield return RM.mechController.ForceSetup();
