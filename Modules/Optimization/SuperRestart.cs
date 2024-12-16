@@ -530,7 +530,7 @@ namespace NeonLite.Modules.Optimization
             Helpers.StartProfiling("Boss Encounter");
             if (RM.bossEncounter)
             {
-                bossCList.GetValue<IList>(RM.bossEncounter);
+                bossCList.GetValue<IList>(RM.bossEncounter).Clear();
                 bossIntroFX.SetValue(RM.bossEncounter, false);
                 bossPlaying.SetValue(RM.bossEncounter, false);
                 bossState.SetValue(RM.bossEncounter, 0);
@@ -650,7 +650,7 @@ namespace NeonLite.Modules.Optimization
 
             foreach (var wave in InRegistry<EnemyWave>(true).ProfileLoop("Reset EnemyWaves"))
             {
-                enemydict.GetValue<Dictionary<Enemy, bool>>(wave).Clear();
+                enemydict.GetValue<IDictionary>(wave).Clear();
                 enemycount.SetValue(wave, 0);
             }
 

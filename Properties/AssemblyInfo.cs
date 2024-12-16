@@ -32,9 +32,9 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.0.9.4")]
-[assembly: AssemblyFileVersion("3.0.9.4")]
+[assembly: AssemblyVersion("3.0.9.5")]
+[assembly: AssemblyFileVersion("3.0.9.5")]
 
-[assembly: MelonInfo(typeof(NeonLite.NeonLite), "NeonLite", "3.0.9+4", "Faustas, MOPSKATER, stxticOVFL")]
+[assembly: MelonInfo(typeof(NeonLite.NeonLite), "NeonLite", "3.0.9+5", "Faustas, MOPSKATER, stxticOVFL")]
 [assembly: MelonGame("Little Flag Software, LLC", "Neon White")]
 [assembly: MelonPriority(-1000)]
