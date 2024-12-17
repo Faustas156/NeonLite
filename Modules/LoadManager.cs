@@ -138,7 +138,7 @@ namespace NeonLite.Modules
                     else if (code.Calls(instance) && mmInsts.IndexOf(i) != -1)
                     {
                         // RM.time.SetTargetTimescale(0, true)
-                        yield return CodeInstruction.Call(typeof(LoadManager), "DoTimescale");
+                        yield return CodeInstruction.Call(typeof(LoadManager), "DoTimescale").MoveLabelsFrom(code);
 
                         // this.current = LoadManager.HandleLoads()
                         // this.state = stateToSet

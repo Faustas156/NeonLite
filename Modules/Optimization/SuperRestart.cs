@@ -169,6 +169,12 @@ namespace NeonLite.Modules.Optimization
             active = activate;
         }
 
+        static void OnLevelLoad(LevelData level)
+        {
+            if (level == null)
+                Reset();
+        }
+
         static bool Never() => false;
 
         static void Reset()
