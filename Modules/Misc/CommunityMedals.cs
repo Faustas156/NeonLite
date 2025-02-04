@@ -103,7 +103,7 @@ namespace NeonLite.Modules
             NeonLite.OnBundleLoad += AssetsDone;
         }
 
-        static bool Load(string js, bool add = true)
+        static bool Load(string js)
         {
             try
             {
@@ -143,20 +143,10 @@ namespace NeonLite.Modules
 
                     }
 
-                    if (add)
-                    {
-                        medalTimes.Add(pk.Key, [
-                            .. initial,
-                        .. community
-                        ]);
-                    }
-                    else
-                    {
-                        medalTimes[pk.Key] = [
-                            .. initial,
-                        .. community
-                        ];
-                    }
+                    medalTimes[pk.Key] = [
+                        .. initial,
+                    .. community
+                    ];
                 }
             }
             catch (Exception e)
@@ -202,7 +192,6 @@ namespace NeonLite.Modules
 
         static void DownloadOGMedals()
         {
-
             Helpers.DownloadURL(URL, request =>
             {
                 string backup = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", filename);
@@ -223,7 +212,7 @@ namespace NeonLite.Modules
                 {
                     Helpers.DownloadURL(overrideURL.Value, request =>
                     {
-                        var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text, false);
+                        var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text);
                         if (!load)
                             NeonLite.Logger.Warning("Failed to load extended community medals.");
                     });
