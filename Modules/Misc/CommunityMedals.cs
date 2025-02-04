@@ -84,6 +84,7 @@ namespace NeonLite.Modules
         public static MelonPreferences_Entry<bool> setting;
         internal static MelonPreferences_Entry<bool> oldStyle;
         public static MelonPreferences_Entry<float> hueShift;
+        internal static MelonPreferences_Entry<string> overrideURL;
 
         public static Material HueShiftMat { get; private set; } = null;
         static Material defaultMat;
@@ -93,14 +94,16 @@ namespace NeonLite.Modules
             setting = Settings.Add(Settings.h, "Medals", "comMedals", "Community Medals", "Shows new community medals past the developer red times to aim for.", true);
             hueShift = Settings.Add(Settings.h, "Medals", "hueShift", "Hue Shift", "Changes the hue of *all* medals (and related) help aid colorblind users in telling them apart.", 0f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             oldStyle = Settings.Add(Settings.h, "Medals", "oldStyle", "Stamp Style", "Display the community medals in the level info as it was pre-3.0.0.", false);
+            overrideURL = Settings.Add(Settings.h, "Medals", "overrideURL", "Extension URL", "Specifies additional community medals JSON URL to apply on top of the existing community medals.", "");
 
             active = setting.SetupForModule(Activate, (_, after) => after);
             hueShift.OnEntryValueChanged.Subscribe((_, after) => HueShiftMat?.SetFloat("_Shift", after));
+            overrideURL.OnEntryValueChanged.Subscribe((_, after) => RefetchMedals());
 
             NeonLite.OnBundleLoad += AssetsDone;
         }
 
-        static bool Load(string js)
+        static bool Load(string js, bool add = true)
         {
             try
             {
@@ -140,10 +143,20 @@ namespace NeonLite.Modules
 
                     }
 
-                    medalTimes.Add(pk.Key, [
-                        .. initial,
+                    if (add)
+                    {
+                        medalTimes.Add(pk.Key, [
+                            .. initial,
                         .. community
-                    ]);
+                        ]);
+                    }
+                    else
+                    {
+                        medalTimes[pk.Key] = [
+                            .. initial,
+                        .. community
+                        ];
+                    }
                 }
             }
             catch (Exception e)
@@ -181,26 +194,51 @@ namespace NeonLite.Modules
         static readonly MethodInfo ogmrsm = AccessTools.Method(typeof(MenuScreenResults), "SetMedal");
         static readonly MethodInfo ogmosv = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible");
 
+        public static void RefetchMedals()
+        {
+            fetched = false;
+            OnLevelLoad(null);
+        }
+
+        static void DownloadOGMedals()
+        {
+
+            Helpers.DownloadURL(URL, request =>
+            {
+                string backup = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", filename);
+                Helpers.CreateDirectories(backup);
+                var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text);
+                if (load)
+                    File.WriteAllText(backup, request.downloadHandler.text);
+                else if (!File.Exists(backup) || !Load(File.ReadAllText(backup)))
+                {
+                    NeonLite.Logger.Warning("Could not load up to date community medals. Loading the backup resource; this could be really outdated!");
+                    if (!Load(Encoding.UTF8.GetString(Resources.r.communitymedals)))
+                        NeonLite.Logger.Error("Failed to load community medals.");
+                }
+                else
+                    load = true;
+
+                if (load && overrideURL.Value != "")
+                {
+                    Helpers.DownloadURL(overrideURL.Value, request =>
+                    {
+                        var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text, false);
+                        if (!load)
+                            NeonLite.Logger.Warning("Failed to load extended community medals.");
+                    });
+                }
+            });
+        }
 
         internal static void OnLevelLoad(LevelData _)
         {
             if (!fetched)
             {
+                medalTimes.Clear();
                 fetched = true;
-                Helpers.DownloadURL(URL, request =>
-                {
-                    string backup = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", filename);
-                    Helpers.CreateDirectories(backup);
-                    var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text);
-                    if (load)
-                        File.WriteAllText(backup, request.downloadHandler.text);
-                    else if (!File.Exists(backup) || !Load(File.ReadAllText(backup)))
-                    {
-                        NeonLite.Logger.Warning("Could not load up to date community medals. Loading the backup resource; this could be really outdated!");
-                        if (!Load(Encoding.UTF8.GetString(Resources.r.communitymedals)))
-                            NeonLite.Logger.Error("Failed to load community medals.");
-                    }
-                });
+
+                DownloadOGMedals();
             }
 
             if (loaded)
@@ -321,16 +359,23 @@ namespace NeonLite.Modules
             if (!Ready)
                 return;
 
+            Image aceImage = __instance._aceMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>();
+            Image goldImage = __instance._goldMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>();
+            Image silverImage = __instance._silverMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>();
+
+            Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
+            if (stamps.Length < 3) return;
+
             if (!active || level == null || !medalTimes.ContainsKey(level.levelID))
             {
-                if (oldStyle.Value)
-                {
-                    __instance._aceMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[I(MedalEnum.Ace)];
-                    __instance._goldMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[I(MedalEnum.Gold)];
-                    __instance._silverMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>().sprite = Medals[I(MedalEnum.Silver)];
-                }
+                aceImage.sprite = Medals[I(MedalEnum.Ace)];
+                goldImage.sprite = Medals[I(MedalEnum.Gold)];
+                silverImage.sprite = Medals[I(MedalEnum.Silver)];
 
-                __instance.devTime.color = Colors[(int)MedalEnum.Dev];
+                stamps[1].sprite = Stamps[I(MedalEnum.Dev)];
+                stamps[2].sprite = Stamps[I(MedalEnum.Dev)];
+
+                __instance.devTime.color = Colors[I(MedalEnum.Dev)];    
                 DestroyNextTime(__instance);
 
                 return;
@@ -342,15 +387,9 @@ namespace NeonLite.Modules
 
             if (!levelStats.GetCompleted()) return;
 
-            Image[] stamps = __instance.devStamp.GetComponentsInChildren<Image>();
-            if (stamps.Length < 3) return;
 
             AdjustMaterial(stamps[1]);
             AdjustMaterial(stamps[2]);
-
-            Image aceImage = __instance._aceMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>();
-            Image goldImage = __instance._goldMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>();
-            Image silverImage = __instance._silverMedalBG.transform.parent.Find("Medal Icon").GetComponent<Image>();
 
             AdjustMaterial(aceImage);
             AdjustMaterial(goldImage);
@@ -367,19 +406,26 @@ namespace NeonLite.Modules
 
             if (medalEarned < I(MedalEnum.Dev) && (!level.isSidequest || !levelStats.GetCompleted() || oldStyle.Value))
             {
-                aceImage.GetComponent<Image>().sprite = Medals[I(MedalEnum.Ace)];
+                aceImage.sprite = Medals[I(MedalEnum.Ace)];
                 goldImage.sprite = Medals[I(MedalEnum.Gold)];
                 silverImage.sprite = Medals[I(MedalEnum.Silver)];
                 return;
             }
 
             if (!level.isSidequest)
-                __instance._levelMedal.sprite = Medals[Math.Min(medalEarned, I(MedalEnum.Sapphire))];
+                __instance._levelMedal.sprite = Medals[medalEarned];
             else
                 __instance._crystalHolderFilledImage.sprite = Crystals[medalEarned];
 
+            stamps[1].sprite = Stamps[medalEarned];
+            stamps[2].sprite = Stamps[medalEarned];
+
             if (oldStyle.Value)
             {
+                aceImage.sprite = Medals[I(MedalEnum.Ace)];
+                goldImage.sprite = Medals[I(MedalEnum.Gold)];
+                silverImage.sprite = Medals[I(MedalEnum.Silver)];
+
                 __instance.devTime.SetText(Helpers.FormatTime(communityTimes[medalEarned] / 1000, medalEarned != I(MedalEnum.Dev) || ShowMS.extended.Value, '.', true));
                 __instance.devTime.color = AdjustedColor(Colors[medalEarned]);
                 if (medalEarned < I(MedalEnum.Sapphire))
@@ -391,9 +437,6 @@ namespace NeonLite.Modules
                 }
                 else
                     DestroyNextTime(__instance);
-
-                stamps[1].sprite = Stamps[medalEarned];
-                stamps[2].sprite = Stamps[medalEarned];
 
                 if (level.isSidequest)
                 {
@@ -441,9 +484,6 @@ namespace NeonLite.Modules
                     __instance.devStamp.SetActive(true);
                     __instance.devTime.text = Helpers.FormatTime(communityTimes[I(MedalEnum.Plus)] / 1000, true, '.', true);
                     __instance.devTime.color = AdjustedColor(Colors[medalEarned]);
-
-                    stamps[1].sprite = Stamps[medalEarned];
-                    stamps[2].sprite = Stamps[medalEarned];
                 }
                 else
                     __instance.devStamp.SetActive(false);
@@ -490,7 +530,7 @@ namespace NeonLite.Modules
             if (medalEarned < I(MedalEnum.Dev))
                 return;
 
-            __instance._medal.sprite = Medals[Math.Min(medalEarned, I(MedalEnum.Sapphire))];
+            __instance._medal.sprite = Medals[medalEarned];
             __instance._imageLoreBacking.enabled = !ld.isSidequest;
 
             if (ld.isSidequest)

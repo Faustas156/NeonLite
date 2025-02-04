@@ -177,7 +177,7 @@ namespace NeonLite.Modules.Optimization
 
         static bool Never() => false;
 
-        static void Reset()
+        public static void Reset()
         {
             ready = false;
             activeScene = 0;
@@ -189,9 +189,14 @@ namespace NeonLite.Modules.Optimization
             ClearRegistry();
         }
 
-        static readonly HashSet<string> blacklisted = [
+        public static readonly HashSet<string> blacklisted = [
             "HUB_HEAVEN",
-            "TUT_ORIGIN"
+            "TUT_ORIGIN",
+            "SIDEQUEST_GREEN_MEMORY",
+            "SIDEQUEST_GREEN_MEMORY_2",
+            "SIDEQUEST_GREEN_MEMORY_3",
+            "SIDEQUEST_GREEN_MEMORY_4",
+            "GRID_BOSS_RAPTURE" // TEMP
         ];
 
 
