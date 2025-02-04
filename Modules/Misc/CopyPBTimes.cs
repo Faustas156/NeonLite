@@ -1,4 +1,5 @@
 using HarmonyLib;
+using MelonLoader;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -12,12 +13,41 @@ namespace NeonLite.Modules.Misc
         const bool active = true;
 
         static GameObject button;
+        static GameObject titleButton;
 
-        static void Setup() { }
+        static MelonPreferences_Entry<bool> titleButtonS;
+
+        static void Setup() {
+            titleButtonS = Settings.Add(Settings.h, "UI", "copyPBTitle", "Copy PB Times in Title", "Allows you to copy your PB times from the title screen.", true);
+        }
 
         static readonly MethodInfo oglvli = AccessTools.Method(typeof(MainMenu), "SetState");
+        static readonly MethodInfo ogtitle = AccessTools.Method(typeof(MenuScreenTitle), "OnSetVisible");
 
-        static void Activate(bool activate) => Patching.AddPatch(oglvli, PostSetState, Patching.PatchTarget.Postfix);
+        static void Activate(bool activate)
+        {
+            Patching.AddPatch(oglvli, PostSetState, Patching.PatchTarget.Postfix);
+            Patching.AddPatch(ogtitle, AddTitleButton, Patching.PatchTarget.Postfix);
+        }
+
+        static void AddTitleButton(MenuScreenTitle __instance)
+        {
+            if (!titleButton)
+            {
+                titleButton = Utils.InstantiateUI(__instance.quitButton, "Copy PB Title Button Holder", __instance.quitButton.transform.parent);
+                titleButton.transform.SetSiblingIndex(titleButton.transform.parent.childCount - 2);
+
+                __instance.buttonsToLoad.Insert(__instance.buttonsToLoad.Count - 1, titleButton.GetComponent<MenuButtonHolder>());
+                __instance.LoadButtons();
+
+                var bh = titleButton.GetComponent<MenuButtonHolder>();
+                bh.ButtonRef.onClick.RemoveAllListeners();
+                bh.ButtonRef.onClick.AddListener(CopyAllTimes);
+            }
+
+            titleButton.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPYPBS");
+            titleButton.SetActive(titleButtonS.Value);
+        }
 
         static void PostSetState(MainMenu.State newState)
         {
@@ -70,7 +100,7 @@ namespace NeonLite.Modules.Misc
             {
                 foreach (var m in campaign.missionData)
                 {
-                    if (m.missionID.StartsWith("M_SIDEQUESTS_"))
+                    if (m.missionType == MissionData.MissionType.SideQuest)
                     {
                         if (m.missionID == "M_SIDEQUESTS_YELLOW")
                             yellow = m;
@@ -80,10 +110,10 @@ namespace NeonLite.Modules.Misc
                             violet = m;
                         continue;
                     }
+                    else if (m.missionType != MissionData.MissionType.MainQuest)
+                        continue;
                     foreach (var l in m.levels)
-                    {
                         final.AppendLine(Helpers.FormatTime(gd.GetLevelStats(l.levelID).GetTimeBestMicroseconds() / 1000, true, '.'));
-                    }
                 }
             }
 
@@ -94,9 +124,10 @@ namespace NeonLite.Modules.Misc
             foreach (var l in yellow.levels)
                 final.AppendLine(Helpers.FormatTime(gd.GetLevelStats(l.levelID).GetTimeBestMicroseconds() / 1000, true, '.'));
 
-
             GUIUtility.systemCopyBuffer = final.ToString();
-            button.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPIED");
+
+            button?.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPIED");
+            titleButton?.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPIED");
         }
 
     }
