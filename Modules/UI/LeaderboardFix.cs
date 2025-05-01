@@ -10,7 +10,7 @@ namespace NeonLite.Modules.UI
     {
 #pragma warning disable CS0414
         const bool priority = true;
-        const bool active = false;
+        const bool active = true;
 
         static void Activate(bool _)
         {
