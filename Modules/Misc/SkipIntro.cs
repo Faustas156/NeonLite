@@ -16,12 +16,12 @@ namespace NeonLite.Modules.Misc
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        // static readonly MethodInfo original = AccessTools.Method(typeof(IntroCards), "Start");
+        // static readonly MethodInfo original = Helpers.Method(typeof(IntroCards), "Start");
         static void Activate(bool activate)
         {
             /*
             if (activate)
-                Patching.AddPatch(original, SkipIntroCards, Patching.PatchTarget.Prefix);
+                Patching.TogglePatch(activate, original, SkipIntroCards, Patching.PatchTarget.Prefix);
             else
                 Patching.RemovePatch(original, SkipIntroCards);//*/
 

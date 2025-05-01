@@ -10,22 +10,18 @@ namespace NeonLite.Modules.Optimization
         const bool priority = true;
         static bool active = true;
 
-        static void Setup() { }
-
         static readonly MethodInfo[] toPatch = [
-            AccessTools.Method(typeof(UpdateManager), "UnsubscribeFromUpdate"),
-            AccessTools.Method(typeof(UpdateManager), "UnsubscribeFromLateUpdate"),
-            AccessTools.Method(typeof(UpdateManager), "UnsubscribeFromFixedUpdate"),
+            Helpers.Method(typeof(UpdateManager), "UnsubscribeFromUpdate"),
+            Helpers.Method(typeof(UpdateManager), "UnsubscribeFromLateUpdate"),
+            Helpers.Method(typeof(UpdateManager), "UnsubscribeFromFixedUpdate"),
         ];
 
         static readonly FieldInfo appIsQuitting = AccessTools.Field(typeof(Singleton<UpdateManager>), "applicationIsQuitting");
 
-        static void Activate(bool activate)
+        static void Activate(bool _)
         {
             foreach (var method in toPatch)
-            {
                 Patching.AddPatch(method, ProtectInstance, Patching.PatchTarget.Prefix);
-            }
         }
 
         static bool ProtectInstance() => !(bool)appIsQuitting.GetValue(null);

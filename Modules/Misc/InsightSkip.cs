@@ -16,20 +16,10 @@ namespace NeonLite.Modules.Misc
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MainMenu), "SetItemShowcaseCard");
-        static readonly MethodInfo ogstartgame = AccessTools.Method(typeof(MainMenu), "OnPressButtonStartGame");
         static void Activate(bool activate)
         {
-            if (activate)
-            {
-                Patching.AddPatch(original, PreShowcase, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogstartgame, PreStartGame, Patching.PatchTarget.Prefix);
-            }
-            else if (!activate)
-            {
-                Patching.RemovePatch(original, PreShowcase);
-                Patching.RemovePatch(ogstartgame, PreStartGame);
-            }
+            Patching.TogglePatch(activate, typeof(MainMenu), "SetItemShowcaseCard", PreShowcase, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(MainMenu), "OnPressButtonStartGame", PreStartGame, Patching.PatchTarget.Prefix);
 
             active = activate;
         }

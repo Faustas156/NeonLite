@@ -40,55 +40,40 @@ namespace NeonLite.Modules
         }
         static void MaybeActivate(bool _) => Activate(assemblies.Count > 0);
 
-        static readonly MethodInfo ogutms = AccessTools.Method(typeof(LevelStats), "UpdateTimeMicroseconds");
-
 #if XBOX
-        static readonly MethodInfo oglbui = AccessTools.Method(typeof(LeaderboardIntegrationBitcode), "LoadLeaderboardAndConditionallySubmitScore");
+        static readonly MethodInfo oglbui = Helpers.Method(typeof(LeaderboardIntegrationBitcode), "LoadLeaderboardAndConditionallySubmitScore");
 #else
-        static readonly MethodInfo oglbui = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "OnFindLeaderboardForUpload");
+        static readonly MethodInfo oglbui = Helpers.Method(typeof(LeaderboardIntegrationSteam), "OnFindLeaderboardForUpload");
 #endif
 
 #if XBOX
-        static readonly MethodInfo oggrsc = AccessTools.Method(typeof(GhostRecorder), "SaveCompressedAsync");
+        static readonly MethodInfo oggrsc = Helpers.Method(typeof(GhostRecorder), "SaveCompressedAsync");
 #else
-        static readonly MethodInfo oggrsc = AccessTools.Method(typeof(GhostRecorder), "SaveCompressed");
+        static readonly MethodInfo oggrsc = Helpers.Method(typeof(GhostRecorder), "SaveCompressed");
 #endif
-
-        static readonly MethodInfo ogmsrosv = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible");
-        static readonly MethodInfo oglaliset = AccessTools.Method(typeof(LeaderboardsAndLevelInfo), "SetLevel");
 
         static void Activate(bool activate)
         {
             if (force != null)
                 activate |= force.Value;
 
+            var hm = Helpers.HM(DontUpdateTime);
+            hm.priority = Priority.First;
+            Patching.TogglePatch(activate, typeof(LevelStats), "UpdateTimeMicroseconds", hm, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, oglbui, UploadScoreStopper, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, oggrsc, NoSaveCompressed, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(MenuScreenResults), "OnSetVisible", CorrectTimers, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(LeaderboardsAndLevelInfo), "SetLevel", NeverNew, Patching.PatchTarget.Prefix);
+
             if (activate)
             {
-                var hm = Helpers.HM(DontUpdateTime);
-                hm.priority = Priority.First;
-                Patching.AddPatch(ogutms, hm, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(oglbui, UploadScoreStopper, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(oggrsc, NoSaveCompressed, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogmsrosv, CorrectTimers, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(oglaliset, NeverNew, Patching.PatchTarget.Prefix);
-
                 if (Patching.firstPass)
                     Patching.RunPatches(false);
+                if (!textInstance && prefab)
+                    textInstance = Utils.InstantiateUI(prefab, "AnticheatText", NeonLite.mmHolder.transform).AddComponent<Anticheat>();
             }
-            else
-            {
-                Patching.RemovePatch(ogutms, DontUpdateTime);
-                Patching.RemovePatch(oglbui, UploadScoreStopper);
-                Patching.RemovePatch(oggrsc, NoSaveCompressed);
-                Patching.RemovePatch(ogmsrosv, CorrectTimers);
-                Patching.RemovePatch(oglaliset, NeverNew);
-
-                if (textInstance)
-                    Destroy(textInstance.gameObject);
-            }
-
-            if (activate && !textInstance && prefab)
-                textInstance = Utils.InstantiateUI(prefab, "AnticheatText", NeonLite.mmHolder.transform).AddComponent<Anticheat>();
+            else if (textInstance)
+                Destroy(textInstance.gameObject);
 
             hasSetup = true;
             active = activate;
@@ -119,7 +104,7 @@ namespace NeonLite.Modules
             {
                 m_bScoreChanged = 0
             };
-            AccessTools.Method(typeof(LeaderboardIntegrationSteam), "OnLeaderboardScoreUploaded2").Invoke(null, [fakeUp, false]);
+            Helpers.Method(typeof(LeaderboardIntegrationSteam), "OnLeaderboardScoreUploaded2").Invoke(null, [fakeUp, false]);
             return false;
         }
 #endif
@@ -133,24 +118,31 @@ namespace NeonLite.Modules
         public static void Register(MelonAssembly assembly)
         {
             assemblies.Add(assembly);
-            Activate(assemblies.Count > 0);
+            if (hasSetup)
+                Activate(assemblies.Count > 0);
+            else
+                active = assemblies.Count > 0;
         }
 
         public static void Unregister(MelonAssembly assembly)
         {
             assemblies.Remove(assembly);
-            Activate(assemblies.Count > 0);
+            if (hasSetup)
+                Activate(assemblies.Count > 0);
+            else
+                active = assemblies.Count > 0;
         }
 
         TextMeshProUGUI text;
         Canvas c;
 
-        void Start()
+        void Awake()
         {
             text = GetComponent<TextMeshProUGUI>();
             text.alpha = .7f;
 
             c = GetComponentInParent<Canvas>();
+            Update();
         }
 
         void Update() => transform.localPosition = c.ViewportToCanvasPosition(new Vector3(0f, 0f, 0));

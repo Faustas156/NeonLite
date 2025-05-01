@@ -10,16 +10,12 @@ namespace NeonLite.Modules.UI
     {
 #pragma warning disable CS0414
         const bool priority = true;
-        static bool active = false;
+        const bool active = false;
 
-        static void Setup() => active = true;
-
-        static readonly MethodInfo original = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "DownloadEntries");
         static void Activate(bool _)
         {
-            Patching.AddPatch(original, AddToScoreData, Patching.PatchTarget.Transpiler);
-            var friendsDL = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "OnLeaderboardScoresFriendsDownloaded");
-            Patching.AddPatch(friendsDL, PatchSteamFriends, Patching.PatchTarget.Transpiler);
+            Patching.AddPatch(typeof(LeaderboardIntegrationSteam), "DownloadEntries", AddToScoreData, Patching.PatchTarget.Transpiler);
+            Patching.AddPatch(typeof(LeaderboardIntegrationSteam), "OnLeaderboardScoresFriendsDownloaded", PatchSteamFriends, Patching.PatchTarget.Transpiler);
         }
 
         static IEnumerable<CodeInstruction> AddToScoreData(IEnumerable<CodeInstruction> instructions)

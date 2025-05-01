@@ -75,39 +75,16 @@ namespace NeonLite.Modules.Misc
             return true;
         }
 
-#if XBOX
-        static readonly MethodInfo ogtransform = AccessTools.Method(typeof(LeaderboardIntegrationBitcode), "TransformRankingsToScoreData");
-#else
-        static readonly MethodInfo ogscore = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "GetScoreDataAtGlobalRank");
-        static readonly MethodInfo ogdllb = AccessTools.Method(typeof(SteamUserStats), "GetDownloadedLeaderboardEntry");
-#endif
-        static readonly MethodInfo ogset = AccessTools.Method(typeof(LeaderboardScore), "SetScore");
-        static readonly MethodInfo ogrecv = AccessTools.Method(typeof(Leaderboards), "DisplayScores_AsyncRecieve");
-
         static void Activate(bool activate)
         {
-            if (activate)
-            {
 #if XBOX
-                Patching.AddPatch(ogtransform, PreTransformRankingsToScoreData, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(LeaderboardIntegrationBitcode), "TransformRankingsToScoreData", PreTransformRankingsToScoreData, Patching.PatchTarget.Prefix);
 #else
-                Patching.AddPatch(ogscore, PreGetScoreDataAtGlobalRank, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogdllb, PostGetDownloadedLeaderboardEntry, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(LeaderboardIntegrationSteam), "GetScoreDataAtGlobalRank", PreGetScoreDataAtGlobalRank, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(SteamUserStats), "GetDownloadedLeaderboardEntry", PostGetDownloadedLeaderboardEntry, Patching.PatchTarget.Postfix);
 #endif
-                Patching.AddPatch(ogset, PostSetScore, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogrecv, PostRecieve, Patching.PatchTarget.Postfix);
-            }
-            else
-            {
-#if XBOX
-                Patching.RemovePatch(ogtransform, PreTransformRankingsToScoreData);
-#else
-                Patching.RemovePatch(ogscore, PreGetScoreDataAtGlobalRank);
-                Patching.RemovePatch(ogdllb, PostGetDownloadedLeaderboardEntry);
-#endif
-                Patching.RemovePatch(ogset, PostSetScore);
-                Patching.RemovePatch(ogrecv, PostRecieve);
-            }
+            Patching.TogglePatch(activate, typeof(LeaderboardScore), "SetScore", PostSetScore, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(Leaderboards), "DisplayScores_AsyncRecieve", PostRecieve, Patching.PatchTarget.Postfix);
 
             active = activate;
         }

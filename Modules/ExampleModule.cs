@@ -3,7 +3,7 @@
 namespace NeonLite.Modules
 {
     // This is an example template module that does nothing but print things to log every few seconds.
-    // Make sure to remove the wrapped debug when you copy this!
+    // Make sure to remove the wrapped #if DEBUG when you copy this!
 #if DEBUG
     internal class ExampleModule : MonoBehaviour, IModule
     {
@@ -30,7 +30,7 @@ namespace NeonLite.Modules
 
         // Activate will be called either at the start of the game or on mod menu setup depending on the priority.
         // It may be called because of a setting, passed with a bool that says whether or not to activate it.
-        // Here is where you should handle Harmony (un)patching and component addition and destruction.
+        // Here is where you should handle (un)patching using one of the Patching functions and component addition and destruction.
         static void Activate(bool activate)
         {
             NeonLite.Logger.Msg($"ExampleModule Activate {activate}!");
@@ -47,7 +47,9 @@ namespace NeonLite.Modules
         // This will print the level when the level finishes loading, but not before the staging screen finishes.
         static void OnLevelLoad(LevelData level)
         {
-            NeonLite.Logger.Msg($"ExampleModule OnLevelLoad {level.levelID}!");
+            // level will be null if we're loading the menu!
+            const string m = "Menu";
+            NeonLite.Logger.Msg($"ExampleModule OnLevelLoad {level?.levelID ?? m}!");
         }
 
         void Update()

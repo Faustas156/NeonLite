@@ -8,14 +8,24 @@ using UB = IManagedUpdateBehaviour;
 namespace NeonLite.Modules.Optimization
 {
     // due to patching basically the entire class this isn't a module and instead is a regular patch class
-    //[HarmonyPatch(typeof(UpdateManager))]
+    [HarmonyPatch(typeof(UpdateManager))]
     internal class UpdateManRewrite
     {
+        [HarmonyPostfix]
+        [HarmonyPatch(MethodType.Constructor)]
+        static void InitLists(List<UB> ____updateBehaviours, List<LB> ____lateUpdateBehaviours, List<FB> ____fixedUpdateBehaviours)
+        {
+            // set their capacity to more than we'll ever need
+            ____updateBehaviours.Capacity = 2048;
+            ____lateUpdateBehaviours.Capacity = 2048;
+            ____fixedUpdateBehaviours.Capacity = 2048;
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch("SubscribeToUpdate_Internal")]
         static bool SubscribeToUpdate_Internal(UB behaviour, bool ____updateActive, HashSet<UB> ____updateBehavioursToAddHashSet, HashSet<UB> ____updateBehaviourHashSet, List<UB> ____updateBehaviours, HashSet<UB> ____updateBehavioursToRemoveHashSet)
         {
-            if (behaviour == null)
+            if (!Singleton<Game>.Instance.Initialized || behaviour == null)
                 return false;
 
             if (____updateActive)
@@ -31,7 +41,7 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPatch("SubscribeToLateUpdate_Internal")]
         static bool SubscribeToLateUpdate_Internal(LB behaviour, bool ____lateUpdateActive, HashSet<LB> ____lateUpdateBehavioursToAddHashSet, HashSet<LB> ____lateUpdateBehaviourHashSet, List<LB> ____lateUpdateBehaviours, HashSet<LB> ____lateUpdateBehavioursToRemoveHashSet)
         {
-            if (behaviour == null)
+            if (!Singleton<Game>.Instance.Initialized || behaviour == null)
                 return false;
 
             if (____lateUpdateActive)
@@ -47,7 +57,7 @@ namespace NeonLite.Modules.Optimization
         [HarmonyPatch("SubscribeToFixedUpdate_Internal")]
         static bool SubscribeToFixedUpdate_Internal(FB behaviour, bool ____fixedUpdateActive, HashSet<FB> ____fixedUpdateBehavioursToAddHashSet, HashSet<FB> ____fixedUpdateBehaviourHashSet, List<FB> ____fixedUpdateBehaviours, HashSet<FB> ____fixedUpdateBehavioursToRemoveHashSet)
         {
-            if (behaviour == null)
+            if (!Singleton<Game>.Instance.Initialized || behaviour == null)
                 return false;
 
             if (____fixedUpdateActive)

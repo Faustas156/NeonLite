@@ -6,8 +6,6 @@ using UnityEngine;
 
 namespace NeonLite.Modules.VFX
 {
-    // we can't transpiler patch enumerators
-    [HarmonyPatch]
     internal class NoFireball : IModule
     {
 #pragma warning disable CS0414
@@ -20,8 +18,13 @@ namespace NeonLite.Modules.VFX
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MechController), "FireballRoutine");
-        static void Activate(bool activate) => active = activate;
+        static readonly MethodInfo original = Helpers.Method(typeof(MechController), "FireballRoutine").MoveNext();
+        static void Activate(bool activate)
+        {
+            Patching.TogglePatch(activate, original, StopParticles, Patching.PatchTarget.Transpiler);
+
+            active = activate;
+        }
 
         static void PlayOverride(ParticleSystem ps)
         {
@@ -31,13 +34,10 @@ namespace NeonLite.Modules.VFX
                 ps.Play();
         }
 
-
-        [HarmonyPatch(typeof(MechController), "FireballRoutine", MethodType.Enumerator)]
-        [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> StopParticles(IEnumerable<CodeInstruction> instructions)
         {
-            var play = AccessTools.Method(typeof(ParticleSystem), "Play");
-            var over = AccessTools.Method(typeof(NoFireball), "PlayOverride");
+            var play = Helpers.Method(typeof(ParticleSystem), "Play");
+            var over = Helpers.Method(typeof(NoFireball), "PlayOverride");
 
             foreach (var code in instructions)
             {

@@ -69,8 +69,6 @@ namespace NeonLite.Modules.UI
             };
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MainMenu), "SetState");
-
         static void Activate(bool activate)
         {
             active = activate;

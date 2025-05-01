@@ -9,10 +9,7 @@ namespace NeonLite.Modules.UI
         const bool priority = true;
         const bool active = true;
 
-        static void Setup() { }
-
-        static readonly MethodInfo original = AccessTools.Method(typeof(SliderUIPrefab), "Initialise");
-        static void Activate(bool activate) => Patching.AddPatch(original, Initialize, Patching.PatchTarget.Prefix);
+        static void Activate(bool _) => Patching.AddPatch(typeof(SliderUIPrefab), "Initialise", Initialize, Patching.PatchTarget.Prefix);
 
         static void Initialize(ref string localisationKey, ref OptionsMenuPanelInformation.OptionEntry optionEntry)
         {

@@ -23,11 +23,65 @@ namespace NeonLite
     static public class Helpers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static public MethodInfo MI(Delegate func) => func.GetMethodInfo();
+        static public MethodInfo MI(Delegate func) => func.Method;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static public HarmonyMethod HM(Delegate func) => new(MI(func));
+        static public HarmonyMethod HM(Delegate func) => new(func.Method);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public HarmonyMethod Set(this HarmonyMethod hm, int? priority = null)
+        {
+            if (priority.HasValue)
+                hm.priority = priority.Value;
+            return hm;
+        }
 
-        static readonly MethodInfo gdmSave = AccessTools.Method(typeof(GameDataManager), "GetPlayerSaveDataPath");
+        static readonly Dictionary<Type, Dictionary<string, MethodInfo>> cachedMethods = new(200);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public MethodInfo Method(Type type, string name, Type[] param = null, Type[] generics = null)
+        {
+            var key = $"{name}|{param?.Join()}|{generics?.Join()}";
+            if (!cachedMethods.TryGetValue(type, out var names) || !names.TryGetValue(key, out var method))
+            {
+                method = null;
+
+                if (param == null)
+                {
+                    try
+                    {
+                        method = type.GetMethod(name, AccessTools.allDeclared) ?? type.GetMethod(name, AccessTools.all);
+                    }
+                    catch
+                    {
+                    }
+                    if (method == null)
+                        param ??= [];
+                }
+
+                if (method == null)
+                    method = type.GetMethod(name, AccessTools.allDeclared, null, param, []) ?? type.GetMethod(name, AccessTools.all, null, param, []);
+
+                if (method != null)
+                {
+                    if (generics != null)
+                        method = method.MakeGenericMethod(generics);
+                    else if (cachedMethods.ContainsKey(type))
+                        cachedMethods[type][key] = method;
+                    else
+                        cachedMethods[type] = new(1)
+                        {
+                            [key] = method
+                        };
+                }
+                else
+                    NeonLite.Logger.DebugMsg($"Failed to find method {type} {name}!!!!");
+            }
+            return method;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MethodInfo MoveNext(this MethodInfo method) => AccessTools.EnumeratorMoveNext(method);
+
+        static readonly MethodInfo gdmSave = Method(typeof(GameDataManager), "GetPlayerSaveDataPath");
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public string GetSaveDirectory() => Path.Combine(Application.persistentDataPath, Path.GetDirectoryName((string)gdmSave.Invoke(null, null)));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -142,7 +196,10 @@ namespace NeonLite
         internal static void DebugMsg(this MelonLogger.Instance log, string msg)
         {
             if (NeonLite.DEBUG)
+            {
                 log.Msg(msg);
+                UnityEngine.Debug.Log($"[NeonLite] {msg}");
+            }
         }
 
         [Conditional("DEBUG")]

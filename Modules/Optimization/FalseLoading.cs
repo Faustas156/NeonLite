@@ -15,14 +15,9 @@ namespace NeonLite.Modules.Optimization
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo ogload = AccessTools.Method(typeof(MenuScreenLoading), "LoadScene");
-
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(ogload, RemoveFrontload, Patching.PatchTarget.Prefix);
-            else
-                Patching.RemovePatch(ogload, RemoveFrontload);
+            Patching.TogglePatch(activate, typeof(MenuScreenLoading), "LoadScene", RemoveFrontload, Patching.PatchTarget.Prefix);
 
             active = activate;
         }

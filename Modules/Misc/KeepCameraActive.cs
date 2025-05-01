@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using UnityEngine;
 
 namespace NeonLite.Modules.Misc
 {
@@ -11,10 +12,11 @@ namespace NeonLite.Modules.Misc
         const bool priority = true;
         const bool active = true;
 
-        static void Setup() { }
-
-        static readonly MethodInfo original = AccessTools.Method(typeof(MainMenu), "SetState");
-        static void Activate(bool _) => Patching.AddPatch(original, Transpiler, Patching.PatchTarget.Transpiler);
+        static void Activate(bool _)
+        {
+            Patching.AddPatch(typeof(MainMenu), "SetState", WhenTitleIsReady, Patching.PatchTarget.Prefix);
+            Patching.AddPatch(typeof(MainMenu), "SetState", Transpiler, Patching.PatchTarget.Transpiler);
+        }
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -32,6 +34,12 @@ namespace NeonLite.Modules.Misc
                 else if (--skip < 0)
                     yield return code;
             }
+        }
+
+        static void WhenTitleIsReady(MainMenu.State newState)
+        {
+            if (newState == MainMenu.State.Title)
+                NeonLite.mmHolder.GetComponent<CanvasGroup>().alpha = 1;
         }
 
     }

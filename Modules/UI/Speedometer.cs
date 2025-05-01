@@ -26,7 +26,7 @@ namespace NeonLite.Modules.UI
         CanvasGroup cg;
         bool show = false;
 
-        static LevelData lastLevel;
+        // static LevelData lastLevel;
 
         static MelonPreferences_Entry<float> xp;
         static MelonPreferences_Entry<float> yp;
@@ -93,8 +93,6 @@ namespace NeonLite.Modules.UI
             };
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MainMenu), "SetState");
-
         static void Activate(bool activate)
         {
             active = activate;
@@ -102,7 +100,7 @@ namespace NeonLite.Modules.UI
 
             if (activate)
             {
-                Patching.AddPatch(original, OnPlaying, Patching.PatchTarget.Prefix);
+                Patching.TogglePatch(activate, typeof(MainMenu), "SetState", OnPlaying, Patching.PatchTarget.Prefix);
                 if (prefab && !instance)
                 {
                     NeonLite.Game.winAction += LevelWin;
@@ -111,7 +109,7 @@ namespace NeonLite.Modules.UI
             }
             else
             {
-                Patching.RemovePatch(original, OnPlaying);
+                Patching.RemovePatch(typeof(MainMenu), "SetState", OnPlaying);
                 NeonLite.Game.winAction -= LevelWin;
 
                 if (instance)
@@ -121,6 +119,9 @@ namespace NeonLite.Modules.UI
 
         static void OnPlaying(MainMenu.State newState)
         {
+            if (!instance)
+                return;
+
             if (newState == MainMenu.State.None && LoadManager.currentLevel && LoadManager.currentLevel.type != LevelData.LevelType.Hub)
                 instance.show = true;
             else
@@ -158,10 +159,9 @@ namespace NeonLite.Modules.UI
             Relocalize();
         }
 
-        void Awake() => instance = this;
-
-        void Start()
+        void Awake()
         {
+            instance = this;
             c = GetComponentInParent<Canvas>();
             cg = GetComponent<CanvasGroup>();
 
@@ -219,6 +219,8 @@ namespace NeonLite.Modules.UI
             void Start() => AxKLocalizedTextLord.GetInstance().AddText(this);
             void LateUpdate()
             {
+                if (!RM.mechController)
+                    return;
                 var rot = RM.mechController.playerCamera.PlayerCam.transform.forward;
                 sb.Clear();
                 sb.Append(RM.drifter.mouseLookX.RotationX.ToString("0.00"));
@@ -371,6 +373,9 @@ namespace NeonLite.Modules.UI
             }
             void LateUpdate()
             {
+                if (!RM.mechController)
+                    return;
+
                 var vel = Math.Max(0, (float)stField.GetValue(RM.mechController));
                 text.text = minimal.Value ? vel.ToString("0.000") : localizeCache.Replace("{0}", vel.ToString("0.000"));
                 text.color = defaultC.Value;
@@ -401,6 +406,9 @@ namespace NeonLite.Modules.UI
             }
             void LateUpdate()
             {
+                if (!RM.mechController)
+                    return;
+
                 var vel = Math.Max(0, (float)cyField.GetValue(RM.drifter));
                 text.text = minimal.Value ? vel.ToString("0.000") : localizeCache.Replace("{0}", vel.ToString("0.000"));
                 if (vel > 0)

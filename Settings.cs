@@ -46,7 +46,9 @@ namespace NeonLite
         internal static MelonPreferences_Category CreateCategory(string holder, string name)
         {
             var c = MelonPreferences.CreateCategory($"{holder}/{name}");
-            catHolders[holder].Add(name, c);
+            catHolders[holder].Add(name ?? "", c);
+            if (string.IsNullOrEmpty(name))
+                c.DisplayName = holder;
             return c;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

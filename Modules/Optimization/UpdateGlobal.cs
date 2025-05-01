@@ -28,30 +28,19 @@ namespace NeonLite.Modules.Optimization
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo oglbupld = AccessTools.Method(typeof(Leaderboards), "OnLeaderboardUploaded");
-        static readonly MethodInfo original = AccessTools.Method(typeof(LeaderboardIntegrationSteam), "SetupLeaderboardForLevel");
-        static readonly MethodInfo ogtlvis = AccessTools.Method(typeof(MenuScreenTitle), "OnSetVisible");
-        static readonly MethodInfo oggdgn = AccessTools.Method(typeof(GameData), "GetGlobalNeonScore");
-
         static void Activate(bool activate)
         {
+            Patching.TogglePatch(activate, typeof(Leaderboards), "OnLeaderboardUploaded", Helpers.HM(PreLBUploaded), Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(LeaderboardIntegrationSteam), "SetupLeaderboardForLevel", Helpers.HM(ChangeCallback), Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(MenuScreenTitle), "OnSetVisible", Helpers.HM(OnTitleShow), Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(GameData), "GetGlobalNeonScore", Helpers.HM(NeonScoreDebug), Patching.PatchTarget.Prefix);
+
             if (activate)
             {
                 if (titleDone)
                     DoPopup();
                 else
                     popupPrepped = true;
-                Patching.AddPatch(oglbupld, Helpers.HM(PreLBUploaded), Patching.PatchTarget.Prefix);
-                Patching.AddPatch(original, Helpers.HM(ChangeCallback), Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogtlvis, Helpers.HM(OnTitleShow), Patching.PatchTarget.Prefix);
-                Patching.AddPatch(oggdgn, Helpers.HM(NeonScoreDebug), Patching.PatchTarget.Prefix);
-            }
-            else
-            {
-                Patching.RemovePatch(oglbupld, PreLBUploaded);
-                Patching.RemovePatch(original, ChangeCallback);
-                Patching.RemovePatch(ogtlvis, OnTitleShow);
-                Patching.RemovePatch(oggdgn, NeonScoreDebug);
             }
 
             active = activate;

@@ -27,27 +27,12 @@ namespace NeonLite.Modules.UI
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo ogonsty = AccessTools.Method(typeof(LevelGate), "OnTriggerStay");
-        static readonly MethodInfo ogstart = AccessTools.Method(typeof(LevelGate), "Start");
-        static readonly MethodInfo ogedie = AccessTools.Method(typeof(Enemy), "Die");
-        static readonly MethodInfo ogefdie = AccessTools.Method(typeof(Enemy), "ForceDie");
-
         static void Activate(bool activate)
         {
-            if (activate)
-            {
-                Patching.AddPatch(ogonsty, OnTrigger, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogstart, PostStart, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogedie, OnEnemyDie, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogefdie, OnEnemyDie, Patching.PatchTarget.Postfix);
-            }
-            else
-            {
-                Patching.RemovePatch(ogonsty, OnTrigger);
-                Patching.RemovePatch(ogstart, PostStart);
-                Patching.RemovePatch(ogedie, OnEnemyDie);
-                Patching.RemovePatch(ogefdie, OnEnemyDie);
-            }
+            Patching.TogglePatch(activate, typeof(LevelGate), "OnTriggerStay", OnTrigger, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(LevelGate), "Start", PostStart, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(Enemy), "Die", OnEnemyDie, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(Enemy), "ForceDie", OnEnemyDie, Patching.PatchTarget.Postfix);
 
             active = activate;
         }
@@ -76,7 +61,7 @@ namespace NeonLite.Modules.UI
 
         static void OnEnemyDie()
         {
-            if (!resetOnDie.Value) 
+            if (!resetOnDie.Value)
                 return;
             UnityEngine.Object.Destroy(frozenTime);
             hit = false;

@@ -20,13 +20,9 @@ namespace NeonLite.Modules.Misc.VFX
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(ShockWeapon), "DoShock");
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(original, StopFX, Patching.PatchTarget.Transpiler);
-            else
-                Patching.RemovePatch(original, StopFX);
+            Patching.TogglePatch(activate, typeof(ShockWeapon), "DoShock", StopFX, Patching.PatchTarget.Transpiler);
 
             active = activate;
         }

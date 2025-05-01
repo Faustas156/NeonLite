@@ -30,14 +30,10 @@ namespace NeonLite.Modules.Misc
             active = setting.Value >= 0;
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(LevelRushStats), "RandomizeIndex");
-
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(original, PutInSeed, Patching.PatchTarget.Transpiler);
-            else
-                Patching.RemovePatch(original, PutInSeed);
+            Patching.TogglePatch(activate, typeof(LevelRushStats), "RandomizeIndex", PutInSeed, Patching.PatchTarget.Transpiler);
+
             active = activate;
         }
 

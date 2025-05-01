@@ -69,6 +69,12 @@ namespace NeonLite.Modules.Misc
         {
             if (rushType == LevelRush.LevelRushType.None)
                 rushType = LevelRush.GetCurrentLevelRushType();
+            
+            // for now, just have it panic and revert to white
+            // customrush will probably have to hook onto it? which we can totally do 
+            if (rushType >= LevelRush.LevelRushType.Count)
+                rushType = LevelRush.LevelRushType.WhiteRush;
+
             return LevelRush.GetIndexFromRushType(rushType) + (LevelRush.IsHellRush() ? ((int)LevelRush.LevelRushType.Count - 1) : 0);
         }
 

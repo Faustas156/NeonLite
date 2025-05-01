@@ -42,89 +42,69 @@ namespace NeonLite.Modules.Optimization
             LoadingScreenshot.active = useScreenshot.SetupForModule(LoadingScreenshot.Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo oglvlsetup = AccessTools.Method(typeof(Game), "LevelSetupRoutine");
-        static readonly MethodInfo ogsetact = AccessTools.Method(typeof(Game), "SetActiveScene");
-        static readonly MethodInfo ogpthrukill = AccessTools.Method(typeof(LevelPlaythrough), "OnEnemyKill");
-
-        static readonly MethodInfo ogobjmspwn = AccessTools.Method(typeof(ObjectSpawner), "SpawnObject");
-        static readonly MethodInfo ogenemyspwn = AccessTools.Method(typeof(EnemySpawner), "InstantiateEnemy");
-        static readonly MethodInfo ogobjpspwn = AccessTools.Method(typeof(ObjectPool), "Spawn");
-        static readonly MethodInfo ogcardspwnc = AccessTools.Method(typeof(CardPickupSpawner), "ProcessObject");
-        static readonly MethodInfo ogcardspwn = AccessTools.Method(typeof(CardPickup), "Spawn");
-        static readonly MethodInfo ogtripdie = AccessTools.Method(typeof(EnemyTripwire), "Die");
-        static readonly MethodInfo ogmimicatk = AccessTools.Method(typeof(EnemyMimic), "Attack");
-        static readonly MethodInfo ogfracexpl = AccessTools.Method(typeof(BreakableFractureFX), "Explode");
-        static readonly MethodInfo ogdmgtxts = AccessTools.Method(typeof(UltimateTextDamageManager), "Start");
-        static readonly MethodInfo ogghplstrt = AccessTools.Method(typeof(GhostPlayback), "Start");
-        static readonly MethodInfo ogutprlres = AccessTools.Method(typeof(Utils), "PreloadFromResources");
-
-        static readonly MethodInfo ogmenuload = AccessTools.Method(typeof(MenuScreenLoading), "LoadScene");
-
-        static readonly MethodInfo ogobjpdspwn = AccessTools.Method(typeof(ObjectPool), "Despawn");
-
-        static readonly MethodInfo ogmmupd = AccessTools.Method(typeof(MainMenu), "Update");
-        static readonly MethodInfo ogmmpause = AccessTools.Method(typeof(MainMenu), "PauseGame");
-        static readonly MethodInfo ogmmdiagend = AccessTools.Method(typeof(MainMenu), "OnDialogueEnd");
-
-        static readonly List<Tuple<Type, string, Type[]>> prefixToRegister = [
-            new(typeof(OnRegion), "Start", null),
-            new(typeof(EnemyEncounter), "Setup", null),
-            new(typeof(LevelGate), "Start", null),
-            new(typeof(ParticleSystem), "Play", null),
-            new(typeof(GhostHintOriginVFX), "OnTriggerEnter", null),
-            new(typeof(GhostPlayback), "ProcessTriggers", null),
-            new(typeof(GhostPlayback), "ResetTimer", null),
-            new(typeof(CardPickupSpawner), "SpawnCard", []),
-            new(typeof(CardPickupSpawner), "SpawnCard", [typeof(float)]),
-            new(typeof(BeamWeapon), "StartBeamTrackingRoutine", null),
-            new(typeof(ObjectSpawner), "Spawn", []),
-            new(typeof(ObjectSpawner), "Spawn", [typeof(float)]),
-            new(typeof(EnemySpawner), "SpawnDelay", null),
-            new(typeof(EnemyWaveSpecificObject), "Spawn", null),
-            new(typeof(EnemyWave), "SpawnWave", null),
-            new(typeof(RememberTransform), "Start", null),
-            new(typeof(RememberTransform), "Apply", null),
-            new(typeof(LevelTrigger), "OnTriggered", null),
-            new(typeof(TripwireWeapon), "OnTripped", null),
-            new(typeof(FailStateDetector_Deluxe), "Start", null),
+        static readonly List<MethodInfo> prefixToRegister = [
+            Helpers.Method(typeof(OnRegion), "Start", null),
+            Helpers.Method(typeof(EnemyEncounter), "Setup", null),
+            Helpers.Method(typeof(LevelGate), "Start", null),
+            Helpers.Method(typeof(ParticleSystem), "Play", null),
+            Helpers.Method(typeof(GhostHintOriginVFX), "OnTriggerEnter", null),
+            Helpers.Method(typeof(GhostPlayback), "ProcessTriggers", null),
+            Helpers.Method(typeof(GhostPlayback), "ResetTimer", null),
+            Helpers.Method(typeof(CardPickupSpawner), "SpawnCard", []),
+            Helpers.Method(typeof(CardPickupSpawner), "SpawnCard", [typeof(float)]),
+            Helpers.Method(typeof(BeamWeapon), "StartBeamTrackingRoutine", null),
+            Helpers.Method(typeof(ObjectSpawner), "Spawn", []),
+            Helpers.Method(typeof(ObjectSpawner), "Spawn", [typeof(float)]),
+            Helpers.Method(typeof(EnemySpawner), "SpawnDelay", null),
+            Helpers.Method(typeof(EnemyWaveSpecificObject), "Spawn", null),
+            Helpers.Method(typeof(EnemyWave), "SpawnWave", null),
+            Helpers.Method(typeof(RememberTransform), "Start", null),
+            Helpers.Method(typeof(RememberTransform), "Apply", null),
+            Helpers.Method(typeof(LevelTrigger), "OnTriggered", null),
+            Helpers.Method(typeof(TripwireWeapon), "OnTripped", null),
+            Helpers.Method(typeof(FailStateDetector_Deluxe), "Start", null),
         ];
 
         static void Activate(bool activate)
         {
+            Patching.TogglePatch(activate, typeof(Game), "LevelSetupRoutine", OverridePlayLevel, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(Game), "SetActiveScene", SetActiveScene, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(LevelPlaythrough), "OnEnemyKill", Never, Patching.PatchTarget.Prefix);
+
+            Patching.TogglePatch(activate, typeof(ObjectSpawner), "SpawnObject", MarkForDestroy, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(EnemySpawner), "InstantiateEnemy", MarkForDestroyEnemy, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(ObjectPool), "Spawn", MarkForDestroy, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(CardPickupSpawner), "ProcessObject", MarkForDestroyCard, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(CardPickup), "Spawn", MarkForDestroyCard2, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(EnemyTripwire), "Die", MarkForDestroyTripwire, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(EnemyMimic), "Attack", MarkForDestroyMimic, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(BreakableFractureFX), "Explode", MarkForDestroyFracture, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(UltimateTextDamageManager), "Start", MarkForDestroyDamageText, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(GhostPlayback), "Start", MarkForDestroyGhost, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(Utils), "PreloadFromResources", MarkForDestroyPreload, Patching.PatchTarget.Transpiler);
+
+            Patching.TogglePatch(activate, typeof(MoveTransform), "Start", RememberMoveTransformSpeed, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(Enemy), "SearchForTarget", FixTargetLog, Patching.PatchTarget.Prefix);
+
+            Patching.TogglePatch(activate, typeof(MechController), "Die", OverrideDie, Patching.PatchTarget.Prefix);
+
+            Patching.TogglePatch(activate, typeof(MenuScreenLoading), "LoadScene", PostMenuLoad, Patching.PatchTarget.Postfix);
+
+            Patching.TogglePatch(activate, typeof(ObjectPool), "Despawn", UnmarkForDestroyPool, Patching.PatchTarget.Postfix);
+
+            Patching.TogglePatch(activate, typeof(MainMenu), "Update", PreMMUpdate, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(MainMenu), "Update", PostMMUpdate, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(MainMenu), "PauseGame", MMPausing, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(MainMenu), "OnDialogueEnd", Reset, Patching.PatchTarget.Prefix);
+
             if (activate)
             {
-                Patching.AddPatch(oglvlsetup, OverridePlayLevel, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogsetact, SetActiveScene, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogpthrukill, Never, Patching.PatchTarget.Prefix);
-
-                Patching.AddPatch(ogobjmspwn, MarkForDestroy, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogenemyspwn, MarkForDestroyEnemy, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogobjpspwn, MarkForDestroy, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogcardspwnc, MarkForDestroyCard, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogcardspwn, MarkForDestroyCard2, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogtripdie, MarkForDestroyTripwire, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogmimicatk, MarkForDestroyMimic, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogfracexpl, MarkForDestroyFracture, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogdmgtxts, MarkForDestroyDamageText, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogghplstrt, MarkForDestroyGhost, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogutprlres, MarkForDestroyPreload, Patching.PatchTarget.Transpiler);
-
-                Patching.AddPatch(ogmenuload, PostMenuLoad, Patching.PatchTarget.Postfix);
-
-                Patching.AddPatch(ogobjpdspwn, UnmarkForDestroyPool, Patching.PatchTarget.Postfix);
-
-                Patching.AddPatch(ogmmupd, PreMMUpdate, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogmmupd, PostMMUpdate, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogmmpause, MMPausing, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogmmdiagend, Reset, Patching.PatchTarget.Prefix);
-
-                foreach ((var type, var name, var args) in prefixToRegister)
+                foreach (var func in prefixToRegister)
                 {
-                    if (!registry.ContainsKey(type))
-                        registry[type] = new(new(30), new(30));
+                    if (!registry.ContainsKey(func.DeclaringType))
+                        registry[func.DeclaringType] = new(new(30), new(30));
 
-                    var func = AccessTools.Method(type, name, args);
-                    var manual = AccessTools.Method(typeof(SuperRestart), "AddToRegistry", generics: [type]);
+                    var manual = Helpers.Method(typeof(SuperRestart), "AddToRegistry", generics: [func.DeclaringType]);
                     Patching.AddPatch(func, manual.ToNewHarmonyMethod(), Patching.PatchTarget.Prefix);
                 }
             }
@@ -136,31 +116,9 @@ namespace NeonLite.Modules.Optimization
 
                 GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
 
-                Patching.RemovePatch(oglvlsetup, OverridePlayLevel);
-                Patching.RemovePatch(ogsetact, SetActiveScene);
-                Patching.RemovePatch(ogpthrukill, Never);
-                Patching.RemovePatch(ogobjmspwn, MarkForDestroy);
-                Patching.RemovePatch(ogenemyspwn, MarkForDestroyEnemy);
-                Patching.RemovePatch(ogobjpspwn, MarkForDestroy);
-                Patching.RemovePatch(ogcardspwnc, MarkForDestroyCard);
-                Patching.RemovePatch(ogcardspwn, MarkForDestroyCard2);
-                Patching.RemovePatch(ogtripdie, MarkForDestroyTripwire);
-                Patching.RemovePatch(ogmimicatk, MarkForDestroyMimic);
-                Patching.RemovePatch(ogfracexpl, MarkForDestroyFracture);
-                Patching.RemovePatch(ogdmgtxts, MarkForDestroyDamageText);
-                Patching.RemovePatch(ogghplstrt, MarkForDestroyGhost);
-                Patching.RemovePatch(ogutprlres, MarkForDestroyPreload);
-                Patching.RemovePatch(ogmenuload, PostMenuLoad);
-                Patching.RemovePatch(ogobjpdspwn, UnmarkForDestroyPool);
-                Patching.RemovePatch(ogmmupd, PreMMUpdate);
-                Patching.RemovePatch(ogmmupd, PostMMUpdate);
-                Patching.RemovePatch(ogmmpause, MMPausing);
-                Patching.RemovePatch(ogmmdiagend, Reset);
-
-                foreach ((var type, var name, var args) in prefixToRegister)
+                foreach (var func in prefixToRegister)
                 {
-                    var func = AccessTools.Method(type, name, args);
-                    var manual = AccessTools.Method(typeof(SuperRestart), "AddToRegistry", generics: [type]);
+                    var manual = Helpers.Method(typeof(SuperRestart), "AddToRegistry", generics: [func.DeclaringType]);
 
                     Patching.RemovePatch(func, manual);
                 }
@@ -185,8 +143,12 @@ namespace NeonLite.Modules.Optimization
             restartCountRC = 0;
             destroy.Clear();
             reserveList.Clear();
+            rememberSpeed.Clear();
             forceStaging = false;
             ClearRegistry();
+            if (dontSave)
+                GS.savingAllowed = true;
+            dontSave = false;
         }
 
         public static readonly HashSet<string> blacklisted = [
@@ -199,12 +161,16 @@ namespace NeonLite.Modules.Optimization
             "GRID_BOSS_RAPTURE" // TEMP
         ];
 
-
         static int activeScene;
         static int restartCountGC;
         static int restartCountRC;
+        static bool dontSave;
         static IEnumerator OverridePlayLevel(IEnumerator __result, Game __instance, LevelData newLevel, LevelData ____currentLevel)
         {
+            if (dontSave)
+                GS.savingAllowed = true;
+            dontSave = false;
+
             if (newLevel == ____currentLevel && ready && !blacklisted.Contains(newLevel.levelID))
             {
                 if (LoadingScreenshot.i)
@@ -247,6 +213,24 @@ namespace NeonLite.Modules.Optimization
                 }
             }
         }
+        static bool OverrideDie(MechController __instance, bool restartImmediately, bool playRestartSound, AudioObject ___audioBoostLoop)
+        {
+            if (!restartImmediately || !playRestartSound)
+                return true;
+            var g = Singleton<Game>.Instance;
+            if (LevelRush.IsLevelRush() && g.GetCurrentLevelTimerMicroseconds() > 0)
+                LevelRush.UpdateLevelRushTimerMicroseconds(g.GetCurrentLevelTimerMicroseconds());
+            if (___audioBoostLoop)
+                    ___audioBoostLoop.Stop();
+            if (RM.alertManager)
+                RM.alertManager.ClearAlert(false);
+            AudioController.Play("UI_LEVEL_RESET", MainMenu.Instance().transform);
+            dontSave = true;
+            GS.savingAllowed = false;
+            g.PlayLevel(g.GetCurrentLevel(), g.IsLevelPlayedFromArchive(), true);
+            return false;
+        }
+
         static void SetActiveScene(int activeSceneIndex) => activeScene = activeSceneIndex;
 
         static readonly HashSet<GameObject> destroy = [];
@@ -284,9 +268,16 @@ namespace NeonLite.Modules.Optimization
             destroy.Add(___m_cloneBullet.gameObject);
         }
 
+        static readonly Dictionary<MoveTransform, float> rememberSpeed = [];
+        static void RememberMoveTransformSpeed(MoveTransform __instance)
+        {
+            if (__instance.speedUpAfterSeconds >= 0 && !rememberSpeed.ContainsKey(__instance))
+                rememberSpeed.Add(__instance, __instance.speed);
+        }
+
         static IEnumerable<CodeInstruction> MarkForDestroyPreload(IEnumerable<CodeInstruction> instructions)
         {
-            var enqueue = AccessTools.Method(typeof(Queue<>).MakeGenericType(typeof(GameObject)), "Enqueue");
+            var enqueue = Helpers.Method(typeof(Queue<>).MakeGenericType(typeof(GameObject)), "Enqueue");
             foreach (var code in instructions)
             {
                 if (code.Calls(enqueue))
@@ -298,6 +289,7 @@ namespace NeonLite.Modules.Optimization
             }
         }
 
+        static bool FixTargetLog() => RM.mechController;
         struct ReserveInfo
         {
             public Transform parent;
@@ -427,12 +419,12 @@ namespace NeonLite.Modules.Optimization
 
         static readonly FieldInfo ghostTriggers = AccessTools.Field(typeof(GhostPlayback), "m_ghostTriggers");
         static readonly FieldInfo hintActive = AccessTools.Field(typeof(GhostHintOriginVFX), "_activated");
-        static readonly MethodInfo hintSetActive = AccessTools.Method(typeof(GhostHintOriginVFX), "SetActivated");
+        static readonly MethodInfo hintSetActive = Helpers.Method(typeof(GhostHintOriginVFX), "SetActivated");
 
         static readonly FieldInfo bossTimers = AccessTools.Field(typeof(BossEncounter), "_stateTimers");
         static readonly FieldInfo bossState = AccessTools.Field(typeof(BossEncounter), "_currentState");
         static readonly FieldInfo bossPlaying = AccessTools.Field(typeof(BossEncounter), "_isPlaying");
-        static readonly MethodInfo bossTransition = AccessTools.Method(typeof(BossEncounter), "Transition");
+        static readonly MethodInfo bossTransition = Helpers.Method(typeof(BossEncounter), "Transition");
         static readonly FieldInfo bossIntroFX = AccessTools.Field(typeof(BossEncounter), "_playedIntroTeleportFX");
 
         static readonly FieldInfo bossCList = AccessTools.Field(typeof(BossEncounter), "_crystals");
@@ -671,6 +663,8 @@ namespace NeonLite.Modules.Optimization
             RM.time.SetTargetTimescale(0, true);
             var playthru = currentPlaythrough.GetValue<LevelPlaythrough>(game);
             playthru.Reset();
+            if (LevelRush.IsLevelRush())
+                playthru.SetLevelRushTimeMicroseconds(LevelRush.GetCurrentLevelRushTimerMicroseconds());
 
             Object.FindObjectOfType<Setup>().ApplyHeightFogMat();
             // do this b4 so it doesn't feel "laggy"
@@ -700,6 +694,8 @@ namespace NeonLite.Modules.Optimization
                 while (MainMenu.Instance().GetCurrentState() != MainMenu.State.Staging || waitForStaging.GetValue<bool>(game))
                     yield return null;
             }
+            //else
+            //    RM.drifter.SetWaitForJumpRelease(true);
 
             yield return RM.mechController.ForceSetup();
 
@@ -707,15 +703,13 @@ namespace NeonLite.Modules.Optimization
 
             RM.time.SetTargetTimescale(1, true);
             MainMenu.Instance().SetState(MainMenu.State.None, true, true, true, false);
-            if (LevelRush.IsLevelRush())
-                playthru.SetLevelRushTimeMicroseconds(LevelRush.GetCurrentLevelRushTimerMicroseconds());
             RM.acceptInput = true;
             RM.acceptInputPauseMenu = true;
             foreach (Delegate dlg in onLoad?.GetInvocationList() ?? [])
                 dlg.DynamicInvoke();
         }
 
-        static readonly MethodInfo drifterStart = AccessTools.Method(typeof(FirstPersonDrifter), "Start");
+        static readonly MethodInfo drifterStart = Helpers.Method(typeof(FirstPersonDrifter), "Start");
 
         static void ResetPlayer()
         {
@@ -742,6 +736,8 @@ namespace NeonLite.Modules.Optimization
             }
             else if (comp is MoveTransform move)
             {
+                if (rememberSpeed.ContainsKey(move))
+                    move.speed = rememberSpeed[move];
                 moveScaledT.SetValue(move, 0);
                 moveTime.SetValue(move, 0);
                 var loop = (AudioObject)moveLoop.GetValue(move);
@@ -751,7 +747,7 @@ namespace NeonLite.Modules.Optimization
         }
 
 
-        static readonly MethodInfo loadadd = AccessTools.Method(typeof(Game), "LoadSceneAdditive");
+        static readonly MethodInfo loadadd = Helpers.Method(typeof(Game), "LoadSceneAdditive");
 
         static IEnumerator TrimmedLevelSetup(Game game, LevelData level)
         {
@@ -818,7 +814,7 @@ namespace NeonLite.Modules.Optimization
         {
             if (!behaviour)
                 return;
-            AccessTools.Method(behaviorType, "Start").Invoke(behaviour, []);
+            Helpers.Method(behaviorType, "Start").Invoke(behaviour, []);
             behaviour.enabled = true;
         }
         void OnDisable() => behaviour.enabled = false;

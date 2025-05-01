@@ -1,6 +1,7 @@
 using HarmonyLib;
 using MelonLoader;
 using NeonLite.Modules;
+using NeonLite.Modules.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,11 +40,15 @@ namespace NeonLite
         static bool activateEarly;
         static bool activateLate;
 
-        public override void OnEarlyInitializeMelon() => Logger = LoggerInstance;
+        public override void OnEarlyInitializeMelon()
+        {
+            Logger = LoggerInstance;
+            Settings.Setup();
+            FastStart.Setup();
+        }
 
         public override void OnInitializeMelon()
         {
-            Settings.Setup();
 #if DEBUG
             Settings.mainCategory.GetEntry<bool>("DEBUG").OnEntryValueChanged.Subscribe((_, a) => DEBUG = a);
             DEBUG = Settings.mainCategory.GetEntry<bool>("DEBUG").Value;
@@ -63,7 +68,7 @@ namespace NeonLite
 
                 try
                 {
-                    AccessTools.Method(module, "Setup").Invoke(null, null);
+                    Helpers.Method(module, "Setup", [])?.Invoke(null, null);
                 }
                 catch (Exception e)
                 {
@@ -80,7 +85,8 @@ namespace NeonLite
 
             setupCalled = true;
             VersionText.ver = Info.Version;
-            Logger.Msg($"Version: {Info.Version}"); 
+            Logger.Msg($"Version: {Info.Version}");
+            UnityEngine.Debug.Log($"NeonLite Version: {Info.Version}");
         }
 
         internal static void ActivatePriority()
@@ -98,7 +104,7 @@ namespace NeonLite
 
                 try
                 {
-                    AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                    Helpers.Method(module, "Activate", [typeof(bool)])?.Invoke(null, [true]);
                 }
                 catch (Exception e)
                 {
@@ -146,9 +152,12 @@ namespace NeonLite
             holder = new GameObject("NeonLite");
             UnityEngine.Object.DontDestroyOnLoad(holder);
 
-            mmHolder = new GameObject("NeonLite");
+            mmHolder = new GameObject("NeonLite", typeof(CanvasGroup));
             mmHolder.transform.SetParent(MainMenu.Instance().transform.Find("Canvas"), false);
             mmHolder.transform.localScale = Vector3.one;
+            var mmcg = mmHolder.GetComponent<CanvasGroup>();
+            mmcg.alpha = 0;
+            mmcg.blocksRaycasts = mmcg.interactable = false;
 
             // perform the later inits
             Helpers.StartProfiling("NeonLite Activate-nonpriority Pass");
@@ -159,7 +168,7 @@ namespace NeonLite
 
                 try
                 {
-                    AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                    Helpers.Method(module, "Activate", [typeof(bool)])?.Invoke(null, [true]);
                 }
                 catch (Exception e)
                 {
@@ -202,7 +211,7 @@ namespace NeonLite
 
                     try
                     {
-                        AccessTools.Method(module, "Setup").Invoke(null, null);
+                        Helpers.Method(module, "Setup", [])?.Invoke(null, null);
                     }
                     catch (Exception e)
                     {
@@ -229,7 +238,7 @@ namespace NeonLite
 
                     try
                     {
-                        AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                        Helpers.Method(module, "Activate", [typeof(bool)])?.Invoke(null, [true]);
                     }
                     catch (Exception e)
                     {
@@ -256,7 +265,7 @@ namespace NeonLite
 
                     try
                     {
-                        AccessTools.Method(module, "Activate").Invoke(null, [true]);
+                        Helpers.Method(module, "Activate", [typeof(bool)])?.Invoke(null, [true]);
                     }
                     catch (Exception e)
                     {
@@ -275,9 +284,8 @@ namespace NeonLite
             if (activateEarly)
                 Patching.RunPatches(false);
 
-            //modules.UnionWith(addedModules);
             modules.AddRange(addedModules);
-            LoadManager.modules.AddRange(addedModules.Where(t => AccessTools.Method(t, "OnLevelLoad") != null));
+            LoadManager.AddModules(addedModules);
         }
     }
 }

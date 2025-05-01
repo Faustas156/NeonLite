@@ -34,9 +34,7 @@ namespace NeonLite.Modules.Optimization
 
         static long ghostTimer;
 
-        static void Setup() { }
-
-        static void Activate(bool activate) => NeonLite.Game.OnLevelLoadComplete += SetTrue;
+        static void Activate(bool _) => NeonLite.Game.OnLevelLoadComplete += SetTrue;
 
         [HarmonyPatch(typeof(LevelPlaythrough), "Reset")]
         [HarmonyPatch(typeof(Game), "LevelSetupRoutine")]
@@ -72,7 +70,7 @@ namespace NeonLite.Modules.Optimization
         [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> UseGhostTimer(IEnumerable<CodeInstruction> instructions)
         {
-            var gettimer = AccessTools.Method(typeof(Game), "GetCurrentLevelTimerMicroseconds");
+            var gettimer = Helpers.Method(typeof(Game), "GetCurrentLevelTimerMicroseconds");
             foreach (var code in instructions)
             {
                 if (code.Calls(gettimer))

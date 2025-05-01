@@ -20,31 +20,24 @@ namespace NeonLite.Modules.Optimization
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo ogload = AccessTools.Method(typeof(GhostUtils), "LoadLevelDataCompressed");
 #if XBOX
-        static readonly MethodInfo ogsave = AccessTools.Method(typeof(GhostRecorder), "SaveCompressedInternalAsync");
+        static readonly MethodInfo ogsave = Helpers.Method(typeof(GhostRecorder), "SaveCompressedInternalAsync");
 #else
-        static readonly MethodInfo ogsave = AccessTools.Method(typeof(GhostRecorder), "SaveCompressedInternal");
+        static readonly MethodInfo ogsave = Helpers.Method(typeof(GhostRecorder), "SaveCompressedInternal");
 #endif
-        static readonly MethodInfo deserialize = AccessTools.Method(typeof(GhostUtils), "DeserializeLevelDataCompressed");
 
         static void Activate(bool activate)
         {
-            if (activate)
-            {
-                Patching.AddPatch(ogload, LoadDataRewrite, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogsave, OnGhostSave, Patching.PatchTarget.Prefix);
-            }
-            else
-            {
+            Patching.TogglePatch(activate, typeof(GhostUtils), "LoadLevelDataCompressed", LoadDataRewrite, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, ogsave, OnGhostSave, Patching.PatchTarget.Prefix);
+
+            if (!activate)
                 ghosts.Clear();
-                Patching.RemovePatch(ogload, LoadDataRewrite);
-                Patching.RemovePatch(ogsave, OnGhostSave);
-            }
 
             active = activate;
         }
 
+        static readonly MethodInfo deserialize = Helpers.Method(typeof(GhostUtils), "DeserializeLevelDataCompressed");
         static bool LoadDataRewrite(ref GhostSave ghostSave, GhostUtils.GhostType ghostType, ulong saveId, Action callback)
         {
             string path = "";

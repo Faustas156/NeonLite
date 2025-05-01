@@ -20,13 +20,9 @@ namespace NeonLite.Modules.VFX
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MechController), "DoStompAbility");
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(original, StopFX, Patching.PatchTarget.Transpiler);
-            else
-                Patching.RemovePatch(original, StopFX);
+            Patching.TogglePatch(activate, typeof(MechController), "DoStompAbility", StopFX, Patching.PatchTarget.Transpiler);
 
             active = activate;
         }

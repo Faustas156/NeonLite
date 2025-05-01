@@ -23,14 +23,12 @@ namespace NeonLite.Modules.UI
             active = setting.SetupForModule(Activate, (_, after) => after != "");
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible", null, null);
-
         static void Activate(bool activate)
         {
             if (activate && (!active || firstLoad))
-                Patching.AddPatch(original, PostSetVisible, Patching.PatchTarget.Postfix);
+                Patching.AddPatch(typeof(MenuScreenResults), "OnSetVisible", PostSetVisible, Patching.PatchTarget.Postfix);
             else if (!activate)
-                Patching.RemovePatch(original, PostSetVisible);
+                Patching.RemovePatch(typeof(MenuScreenResults), "OnSetVisible", PostSetVisible);
 
             cache = null;
             active = activate;

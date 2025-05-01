@@ -15,13 +15,12 @@ namespace NeonLite.Modules.UI
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MenuScreenLocation), "CreateActionButton");
         static void Activate(bool activate)
         {
             if (activate)
-                Patching.AddPatch(original, PreCreateButton, Patching.PatchTarget.Prefix);
+                Patching.TogglePatch(activate, typeof(MenuScreenLocation), "CreateActionButton", PreCreateButton, Patching.PatchTarget.Prefix);
             else
-                Patching.RemovePatch(original, PreCreateButton);
+                Patching.RemovePatch(typeof(MenuScreenLocation), "CreateActionButton", PreCreateButton);
 
             active = activate;
         }

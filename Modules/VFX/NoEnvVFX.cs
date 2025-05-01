@@ -15,13 +15,9 @@ namespace NeonLite.Modules.VFX
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(EnvironmentFX), "StartEventSchedule");
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(original, StopFX, Patching.PatchTarget.Prefix);
-            else
-                Patching.RemovePatch(original, StopFX);
+            Patching.TogglePatch(activate, typeof(EnvironmentFX), "StartEventSchedule", StopFX, Patching.PatchTarget.Prefix);
 
             active = activate;
         }

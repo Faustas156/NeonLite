@@ -23,6 +23,10 @@ namespace NeonLite.Modules.Misc
         static MelonPreferences_Entry<string> ammo;
         static MelonPreferences_Entry<string> health;
 
+        static MelonPreferences_Entry<string> katana;
+        static MelonPreferences_Entry<string> katanaM;
+        static MelonPreferences_Entry<string> fists;
+
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Cards", "enabled", "Card Customizations", "Lets you customize the text on each card. Changes require full level restart.", false);
@@ -37,17 +41,38 @@ namespace NeonLite.Modules.Misc
             boof = Settings.Add(Settings.h, "Cards", "boof", "Book of Life Text", null, "Book of Life");
             ammo = Settings.Add(Settings.h, "Cards", "ammo", "Ammo Text", null, "Ammo");
             health = Settings.Add(Settings.h, "Cards", "health", "Health Text", null, "Health");
+
+            setting = Settings.Add(Settings.h, "Cards", "allCards", "Show on All Cards", "Displays text for cards that normally don't have any.\nDoesn't require Card Customizations to be enabled.", false);
+            AllAbilities.active = setting.SetupForModule(AllAbilities.Activate, (_, after) => after);
+
+            katana = Settings.Add(Settings.h, "Cards", "katana", "Katana Text", null, "Katana");
+            katanaM = Settings.Add(Settings.h, "Cards", "katanaM", "Miracle Katana Text", null, "Miracle Katana");
+            fists = Settings.Add(Settings.h, "Cards", "fists", "Fists Text", null, "Fist");
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(LocalizationManager), "GetTranslation");
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(original, PreLocalize, Patching.PatchTarget.Prefix);
-            else
-                Patching.RemovePatch(original, PreLocalize);
-
+            Patching.TogglePatch(activate, typeof(LocalizationManager), "GetTranslation", PreLocalize, Patching.PatchTarget.Prefix);
             active = activate;
+        }
+
+        internal class AllAbilities : IModule
+        {
+            const bool priority = true;
+            internal static bool active = false;
+
+            internal static void Activate(bool activate)
+            {
+                Patching.TogglePatch(activate, typeof(UICard), "GetAbilityNameFormatted", GetAbilityName, Patching.PatchTarget.Postfix);
+                active = activate;
+            }
+
+            static void GetAbilityName(PlayerCardData data, ref string __result)
+            {
+                if (__result != "")
+                    return;
+                __result = data.cardName;
+            }
         }
 
         static bool PreLocalize(string Term, ref string __result)
@@ -63,8 +88,13 @@ namespace NeonLite.Modules.Misc
                 "Interface/DISCARD_BOOKOFLIFE" => boof.Value,
                 "Interface/DISCARD_HEALTH" => health.Value,
                 "Interface/DISCARD_AMMO" => ammo.Value,
+
+                "Interface/KATANA" => katana.Value,
+                "Interface/KATANA_MIRACLE" => katanaM.Value,
+                "Interface/FISTS" => fists.Value,
                 _ => null
             };
+            __result = __result?.Trim();
             return __result == null;
         }
 

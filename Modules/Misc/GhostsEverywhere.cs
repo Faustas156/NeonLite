@@ -22,36 +22,21 @@ namespace NeonLite.Modules.Misc
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo record = AccessTools.Method(typeof(GhostRecorder), "Start");
-        static readonly MethodInfo playback = AccessTools.Method(typeof(GhostPlayback), "Start");
-        static readonly MethodInfo oglvli = AccessTools.Method(typeof(LevelInfo), "SetLevel");
-        static readonly MethodInfo oginsl = AccessTools.Method(typeof(InsightInfo), "SetLevel");
-        static readonly MethodInfo oginsu = AccessTools.Method(typeof(InsightInfo), "Update");
-
-
         static void Activate(bool activate)
         {
-            active = activate;
+            Patching.TogglePatch(activate, typeof(GhostRecorder), "Start", PostStart, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(GhostPlayback), "Start", PreStart, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(LevelInfo), "SetLevel", PostSetLevel, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(InsightInfo), "SetLevel", PostSetLevelInsight, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(InsightInfo), "Update", MidUpdateInsight, Patching.PatchTarget.Transpiler);
 
-            if (activate)
-            {
-                Patching.AddPatch(record, PostStart, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(playback, PreStart, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(oglvli, PostSetLevel, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(oginsl, PostSetLevelInsight, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(oginsu, MidUpdateInsight, Patching.PatchTarget.Transpiler);
-            }
-            else
+            if (!activate)
             {
                 foreach (var li in UnityEngine.Object.FindObjectsOfType<LevelInfo>())
                     PostSetLevel(li, null);
-
-                Patching.RemovePatch(record, PostStart);
-                Patching.RemovePatch(playback, PreStart);
-                Patching.RemovePatch(oglvli, PostSetLevel);
-                Patching.RemovePatch(oginsl, PostSetLevelInsight);
-                Patching.RemovePatch(oginsu, MidUpdateInsight);
             }
+
+            active = activate;
         }
 
         static void PostStart(ref bool ___m_dontRecord) => ___m_dontRecord = false;

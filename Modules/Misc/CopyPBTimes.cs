@@ -21,13 +21,10 @@ namespace NeonLite.Modules.Misc
             titleButtonS = Settings.Add(Settings.h, "UI", "copyPBTitle", "Copy PB Times in Title", "Allows you to copy your PB times from the title screen.", true);
         }
 
-        static readonly MethodInfo oglvli = AccessTools.Method(typeof(MainMenu), "SetState");
-        static readonly MethodInfo ogtitle = AccessTools.Method(typeof(MenuScreenTitle), "OnSetVisible");
-
         static void Activate(bool activate)
         {
-            Patching.AddPatch(oglvli, PostSetState, Patching.PatchTarget.Postfix);
-            Patching.AddPatch(ogtitle, AddTitleButton, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(MainMenu), "SetState", PostSetState, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(MenuScreenTitle), "OnSetVisible", AddTitleButton, Patching.PatchTarget.Postfix);
         }
 
         static void AddTitleButton(MenuScreenTitle __instance)

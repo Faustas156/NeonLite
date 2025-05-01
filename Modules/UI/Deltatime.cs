@@ -26,19 +26,13 @@ namespace NeonLite.Modules.UI
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo ogwin = AccessTools.Method(typeof(Game), "OnLevelWin");
-        static readonly MethodInfo ogres = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible");
         static void Activate(bool activate)
         {
-            if (activate)
+            Patching.TogglePatch(activate, typeof(Game), "OnLevelWin", PreWin, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(MenuScreenResults), "OnSetVisible", PostSetVisible, Patching.PatchTarget.Postfix);
+
+            if (!activate)
             {
-                Patching.AddPatch(ogwin, PreWin, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogres, PostSetVisible, Patching.PatchTarget.Postfix);
-            }
-            else
-            {
-                Patching.RemovePatch(ogwin, PreWin);
-                Patching.RemovePatch(ogres, PostSetVisible);
                 if (dtLevel)
                     UnityEngine.Object.Destroy(dtLevel);
                 if (dtRush)
@@ -55,7 +49,7 @@ namespace NeonLite.Modules.UI
             LevelStats levelStats = GameDataManager.levelStats[NeonLite.Game.GetCurrentLevel().levelID];
             LevelRushData bestLevelRushData = LevelRush.GetLevelRushDataByType(LevelRush.GetCurrentLevelRushType());
             oldPB = LevelRush.IsLevelRush() ? (LevelRush.IsHellRush() ? bestLevelRushData.bestTime_HellMicroseconds : bestLevelRushData.bestTime_HeavenMicroseconds) : levelStats.GetTimeBestMicroseconds();
-            wasFinished = LevelRush.IsLevelRush() || levelStats.GetCompleted();
+            wasFinished = (LevelRush.IsLevelRush() ? oldPB != -1 : levelStats.GetCompleted());
         }
 
         static void PostSetVisible()
@@ -100,7 +94,7 @@ namespace NeonLite.Modules.UI
                 dtRush.name = "Delta Time Rush";
                 dtRush.transform.localPosition += new Vector3(0, -30, 0);
             }
-            dtRush.SetActive(true);
+            dtRush.SetActive(wasFinished);
             text = dtRush.GetComponent<TextMeshProUGUI>();
             text.SetText(deltaTimeString);
             text.color = newBest ? Color.red : Color.green;

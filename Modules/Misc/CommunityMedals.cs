@@ -83,6 +83,7 @@ namespace NeonLite.Modules
 
         public static MelonPreferences_Entry<bool> setting;
         internal static MelonPreferences_Entry<bool> oldStyle;
+        internal static MelonPreferences_Entry<bool> hideOld;
         public static MelonPreferences_Entry<float> hueShift;
         internal static MelonPreferences_Entry<string> overrideURL;
 
@@ -94,6 +95,7 @@ namespace NeonLite.Modules
             setting = Settings.Add(Settings.h, "Medals", "comMedals", "Community Medals", "Shows new community medals past the developer red times to aim for.", true);
             hueShift = Settings.Add(Settings.h, "Medals", "hueShift", "Hue Shift", "Changes the hue of *all* medals (and related) help aid colorblind users in telling them apart.", 0f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             oldStyle = Settings.Add(Settings.h, "Medals", "oldStyle", "Stamp Style", "Display the community medals in the level info as it was pre-3.0.0.", false);
+            hideOld = Settings.Add(Settings.h, "Medals", "hideOld", "Hide Times", "Hides the time under the stamp while using the Stamp Style.", false);
             overrideURL = Settings.Add(Settings.h, "Medals", "overrideURL", "Extension URL", "Specifies additional community medals JSON URL to apply on top of the existing community medals.", "");
 
             active = setting.SetupForModule(Activate, (_, after) => after);
@@ -177,13 +179,6 @@ namespace NeonLite.Modules
             return 0;
         }
 
-        static readonly MethodInfo ogslvl = AccessTools.Method(typeof(LevelInfo), "SetLevel");
-        static readonly MethodInfo ogmbls = AccessTools.Method(typeof(MenuButtonLevel), "SetLevelData");
-        static readonly MethodInfo ogset = AccessTools.Method(typeof(LeaderboardScore), "SetScore");
-        static readonly MethodInfo oggolw = AccessTools.Method(typeof(Game), "OnLevelWin");
-        static readonly MethodInfo ogmrsm = AccessTools.Method(typeof(MenuScreenResults), "SetMedal");
-        static readonly MethodInfo ogmosv = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible");
-
         public static void RefetchMedals()
         {
             fetched = false;
@@ -217,6 +212,9 @@ namespace NeonLite.Modules
                             NeonLite.Logger.Warning("Failed to load extended community medals.");
                     });
                 }
+
+                if (load)
+                    NeonLite.Logger.Msg("Fetched community medals!");
             });
         }
 
@@ -237,32 +235,22 @@ namespace NeonLite.Modules
         static void Activate(bool activate)
         {
             activated = true;
-            active = activate;
             OnLevelLoad(null);
 
-            if (activate)
-            {
-                var sl = Helpers.HM(PostSetLevel);
-                sl.priority = Priority.First;
-                Patching.AddPatch(ogslvl, sl, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogmbls, PostSetLevelData, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogset, PostSetScore, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(oggolw, PreOnWin, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogmrsm, PostSetMedal, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(ogmosv, PostSetVisible, Patching.PatchTarget.Postfix);
-            }
-            else
+            Patching.TogglePatch(activate, typeof(LevelInfo), "SetLevel", Helpers.HM(PostSetLevel).Set(priority: Priority.First), Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(MenuButtonLevel), "SetLevelData", PostSetLevelData, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(LeaderboardScore), "SetScore", PostSetScore, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(Game), "OnLevelWin", PreOnWin, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, typeof(MenuScreenResults), "SetMedal", PostSetMedal, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(MenuScreenResults), "OnSetVisible", PostSetVisible, Patching.PatchTarget.Postfix);
+
+            if (!activate)
             {
                 foreach (var li in UnityEngine.Object.FindObjectsOfType<LevelInfo>())
                     PostSetLevel(li, null); // for !active, revert stuff -- for active, setup some small stuff
-
-                Patching.RemovePatch(ogslvl, PostSetLevel);
-                Patching.RemovePatch(ogmbls, PostSetLevelData);
-                Patching.RemovePatch(ogset, PostSetScore);
-                Patching.RemovePatch(oggolw, PreOnWin);
-                Patching.RemovePatch(ogmrsm, PostSetMedal);
-                Patching.RemovePatch(ogmosv, PostSetVisible);
             }
+
+            active = activate;
         }
 
         public static Color AdjustedColor(Color color)
@@ -338,7 +326,7 @@ namespace NeonLite.Modules
             AssetsFinished?.Invoke();
         }
 
-        static readonly MethodInfo styleTime = AccessTools.Method(typeof(LevelInfo), "StyleMedalTime");
+        static readonly MethodInfo styleTime = Helpers.Method(typeof(LevelInfo), "StyleMedalTime");
 
         static void PostSetLevel(LevelInfo __instance, LevelData level)
         {
@@ -364,7 +352,7 @@ namespace NeonLite.Modules
                 stamps[1].sprite = Stamps[I(MedalEnum.Dev)];
                 stamps[2].sprite = Stamps[I(MedalEnum.Dev)];
 
-                __instance.devTime.color = Colors[I(MedalEnum.Dev)];    
+                __instance.devTime.color = Colors[I(MedalEnum.Dev)];
                 DestroyNextTime(__instance);
 
                 return;
@@ -419,10 +407,10 @@ namespace NeonLite.Modules
                 __instance.devTime.color = AdjustedColor(Colors[medalEarned]);
                 if (medalEarned < I(MedalEnum.Sapphire))
                 {
-                    TextMeshProUGUI nextTime;
-                    nextTime = FindOrCreateNextTime(__instance);
+                    TextMeshProUGUI nextTime = FindOrCreateNextTime(__instance);
                     nextTime.SetText(Helpers.FormatTime(communityTimes[medalEarned + 1] / 1000, true, '.', true));
                     nextTime.color = AdjustedColor(Colors[medalEarned + 1]);
+                    nextTime.enabled = !hideOld.Value;
                 }
                 else
                     DestroyNextTime(__instance);
@@ -481,28 +469,27 @@ namespace NeonLite.Modules
 
         static TextMeshProUGUI FindOrCreateNextTime(LevelInfo levelInfo)
         {
-            GameObject nextTimeGameObject = levelInfo.devTime.transform.parent.Find("NextTimeGoalText")?.gameObject;
-            if (nextTimeGameObject == null)
+            Transform nextTime = levelInfo.devTime.transform.parent.Find("NextTimeGoalText");
+            if (nextTime == null)
             {
-                nextTimeGameObject =
-                    UnityEngine.Object.Instantiate(levelInfo.devTime.gameObject, levelInfo.devTime.transform.parent);
-                nextTimeGameObject.name = "NextTimeGoalText";
-                nextTimeGameObject.transform.position += new Vector3(1.18f, -0.1f);
-                var rectTransform = nextTimeGameObject.GetComponent<RectTransform>();
+                nextTime =
+                    UnityEngine.Object.Instantiate(levelInfo.devTime.gameObject, levelInfo.devTime.transform.parent).transform;
+                nextTime.name = "NextTimeGoalText";
+                //nextTimeGameObject.transform.position += new Vector3(1.18f, -0.1f);
+                nextTime.localPosition += new Vector3(254.88f, -21.6f);
+                var rectTransform = nextTime as RectTransform;
                 rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, 45);
                 rectTransform.rotation = Quaternion.identity;
             }
 
-            return nextTimeGameObject.GetComponent<TextMeshProUGUI>();
+            return nextTime.GetComponent<TextMeshProUGUI>();
         }
 
         static void DestroyNextTime(LevelInfo levelInfo)
         {
-            GameObject nextTimeGameObject = levelInfo.devTime.transform.parent.Find("NextTimeGoalText")?.gameObject;
-            if (nextTimeGameObject != null)
-            {
-                UnityEngine.Object.Destroy(nextTimeGameObject);
-            }
+            Transform nextTime = levelInfo.devTime.transform.parent.Find("NextTimeGoalText");
+            if (nextTime)
+                UnityEngine.Object.Destroy(nextTime.gameObject);
         }
 
         static void PostSetLevelData(MenuButtonLevel __instance, LevelData ld)

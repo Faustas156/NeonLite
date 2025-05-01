@@ -34,14 +34,9 @@ namespace NeonLite.Modules.UI
             telefragOff = Settings.Add(Settings.h, "Crosshair", "teleOff", "Book of Life Inactive", null, Color.grey);
         }
 
-        static readonly MethodInfo ogload = AccessTools.Method(typeof(UIAbilityIndicator_Zipline), "Start");
-
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(ogload, SetIndicatorUI, Patching.PatchTarget.Postfix);
-            else
-                Patching.RemovePatch(ogload, SetIndicatorUI);
+            Patching.TogglePatch(activate, typeof(UIAbilityIndicator_Zipline), "Start", SetIndicatorUI, Patching.PatchTarget.Postfix);
 
             active = activate;
         }

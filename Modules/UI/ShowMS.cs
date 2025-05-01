@@ -24,30 +24,23 @@ namespace NeonLite.Modules.UI
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo ogtt = AccessTools.Method(typeof(PlayerUI), "UpdateTimerText");
-        static readonly MethodInfo ogrush = AccessTools.Method(typeof(MenuScreenLevelRushComplete), "OnSetVisible");
-        static readonly MethodInfo oglevel = AccessTools.Method(typeof(MenuScreenResults), "OnSetVisible");
-        static readonly MethodInfo oggtf = AccessTools.Method(typeof(Game), "GetTimerFormatted");
-        static readonly MethodInfo ogwin = AccessTools.Method(typeof(Game), "OnLevelWin");
-
-
         static void Activate(bool activate)
         {
             if (activate)
             {
-                Patching.AddPatch(ogtt, OnTimerUpdate, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogrush, OnRushFinish, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(oglevel, OnLevelFinish, Patching.PatchTarget.Postfix);
-                Patching.AddPatch(oggtf, GetTimerFormatted, Patching.PatchTarget.Prefix);
-                Patching.AddPatch(ogwin, OnWin, Patching.PatchTarget.Prefix);
+                Patching.TogglePatch(activate, typeof(PlayerUI), "UpdateTimerText", OnTimerUpdate, Patching.PatchTarget.Prefix);
+                Patching.TogglePatch(activate, typeof(MenuScreenLevelRushComplete), "OnSetVisible", OnRushFinish, Patching.PatchTarget.Postfix);
+                Patching.TogglePatch(activate, typeof(MenuScreenResults), "OnSetVisible", OnLevelFinish, Patching.PatchTarget.Postfix);
+                Patching.TogglePatch(activate, typeof(Game), "GetTimerFormatted", GetTimerFormatted, Patching.PatchTarget.Prefix);
+                Patching.TogglePatch(activate, typeof(Game), "OnLevelWin", OnWin, Patching.PatchTarget.Prefix);
             }
             else
             {
-                Patching.RemovePatch(ogtt, OnTimerUpdate);
-                Patching.RemovePatch(ogrush, OnRushFinish);
-                Patching.RemovePatch(oglevel, OnLevelFinish);
-                Patching.RemovePatch(oggtf, GetTimerFormatted);
-                Patching.RemovePatch(ogwin, OnWin);
+                Patching.RemovePatch(typeof(PlayerUI), "UpdateTimerText", OnTimerUpdate);
+                Patching.RemovePatch(typeof(MenuScreenLevelRushComplete), "OnSetVisible", OnRushFinish);
+                Patching.RemovePatch(typeof(MenuScreenResults), "OnSetVisible", OnLevelFinish);
+                Patching.RemovePatch(typeof(Game), "GetTimerFormatted", GetTimerFormatted);
+                Patching.RemovePatch(typeof(Game), "OnLevelWin", OnWin);
             }
 
             active = activate;

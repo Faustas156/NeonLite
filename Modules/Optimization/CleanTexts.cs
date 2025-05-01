@@ -8,13 +8,9 @@ namespace NeonLite.Modules.Optimization
     {
 #pragma warning disable CS0414
         const bool priority = true;
-        static bool active = true;
-
-        static void Setup() { }
+        const bool active = true;
 
         static readonly FieldInfo textList = AccessTools.Field(typeof(AxKLocalizedTextLord), "m_localizedTexts");
-
-        static void Activate(bool activate) { }
 
         static void OnLevelLoad(LevelData _)
         {

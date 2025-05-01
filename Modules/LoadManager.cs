@@ -8,8 +8,6 @@ using System.Reflection.Emit;
 
 namespace NeonLite.Modules
 {
-    // forced to use annotations, enumerator patching just isn't working for some reason
-    [HarmonyPatch(typeof(Game))]
     public class LoadManager : IModule
     {
 #pragma warning disable CS0414
@@ -18,10 +16,22 @@ namespace NeonLite.Modules
 
         public static LevelData currentLevel;
 
-        internal static List<Type> modules = [];
+        internal static Dictionary<Type, MethodInfo> modules = [];
 
-        static void Setup() { }
-        static void Activate(bool _) => modules.AddRange(NeonLite.modules.Where(t => AccessTools.Method(t, "OnLevelLoad") != null));
+        static void Activate(bool _)
+        {
+            AddModules(NeonLite.modules);
+
+            var method = Helpers.Method(typeof(Game), "LevelSetupRoutine");
+            Patching.AddPatch(method, Helpers.HM(SetCurrentLevel).Set(priority: Priority.First), Patching.PatchTarget.Prefix);
+            method = method.MoveNext();
+            Patching.AddPatch(method, Helpers.HM(AddLoadCall).Set(priority: Priority.First), Patching.PatchTarget.Transpiler);
+
+            Patching.AddPatch(typeof(Game), "QuitToTitle", PreTitle, Patching.PatchTarget.Prefix);
+            Patching.AddPatch(typeof(MenuScreenLoading), "LoadScene", Helpers.HM(PostMenuLoad).Set(priority: Priority.First), Patching.PatchTarget.Postfix);
+        }
+
+        public static void AddModules(IEnumerable<Type> modules) => modules.Where(t => Helpers.Method(t, "OnLevelLoad") != null).Do(x => LoadManager.modules.Add(x, Helpers.Method(x, "OnLevelLoad")));
 
         static float savedTimescale;
         static void DoTimescale()
@@ -41,14 +51,8 @@ namespace NeonLite.Modules
                 RM.time?.SetTargetTimescale(savedTimescale, true);
         }
 
-        [HarmonyPatch("LevelSetupRoutine")]
-        [HarmonyPrefix]
-        [HarmonyPriority(Priority.First)]
         static void SetCurrentLevel(LevelData newLevel) => currentLevel = newLevel; 
 
-        [HarmonyPatch("LevelSetupRoutine", MethodType.Enumerator)]
-        [HarmonyTranspiler]
-        [HarmonyPriority(Priority.First)]
         static IEnumerable<CodeInstruction> AddLoadCall(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             IEnumerable<CodeInstruction> Transpiler()
@@ -68,7 +72,7 @@ namespace NeonLite.Modules
                 FieldInfo state = null;
                 FieldInfo current = null;
 
-                var setState = AccessTools.Method(typeof(MainMenu), "SetState");
+                var setState = Helpers.Method(typeof(MainMenu), "SetState");
                 foreach (var code in inst)
                 {
                     if (code.Calls(setState))
@@ -80,7 +84,7 @@ namespace NeonLite.Modules
                     ++i;
                 }
 
-                var instance = AccessTools.Method(typeof(MainMenu), "Instance");
+                var instance = Helpers.Method(typeof(MainMenu), "Instance");
                 foreach (var idx in setStates)
                 {
                     var wholeCall = inst.Reverse()
@@ -176,14 +180,8 @@ namespace NeonLite.Modules
         }
 
         static bool quittingToTitle;
-
-        [HarmonyPatch("QuitToTitle")]
-        [HarmonyPrefix]
         static void PreTitle() => quittingToTitle = true;
 
-        [HarmonyPatch(typeof(MenuScreenLoading), "LoadScene")]
-        [HarmonyPostfix]
-        [HarmonyPriority(Priority.First)]
         static IEnumerator PostMenuLoad(IEnumerator __result)
         {
             while (__result.MoveNext())
@@ -200,21 +198,24 @@ namespace NeonLite.Modules
             NeonLite.Logger.DebugMsg("HandleLoads");
 
             Queue<MethodInfo> retries = [];
-            foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "active").GetValue(null)))
+            foreach (var kv in modules)
             {
+                var module = kv.Key;
+                if (!(bool)AccessTools.Field(module, "active").GetValue(null))
+                    continue;
+
                 NeonLite.Logger.DebugMsg($"{module} OnLevelLoad");
 
                 Helpers.StartProfiling($"{module} OLL");
 
                 try
                 {
-                    var method = AccessTools.Method(module, "OnLevelLoad");
-                    var ret = method.Invoke(null, [currentLevel]);
+                    var ret = kv.Value.Invoke(null, [currentLevel]);
                     if (ret != null && !(bool)ret)
                     {
                         NeonLite.Logger.DebugMsg($"{module} returned false, trying again later");
 
-                        retries.Enqueue(method);
+                        retries.Enqueue(kv.Value);
                     }
                 }
                 catch (Exception e)

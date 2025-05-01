@@ -13,21 +13,22 @@ namespace NeonLite.Modules
         const bool priority = true;
         const bool active = true;
 
+        static bool wasActivated = false;
+
         const string overrideSheet = "1hfiFL_7ainT1jP5s4At_fWSJOzNMHUJhAuoP23QsEUY";
         const string overrideSheetName = "I2Loc NW Mod Localization";
 
         internal static AxKLocalizedText_FontLib.FontSetPro fbs;
         internal static int fbi = -1;
 
-        static void Setup() { }
-
-        static readonly MethodInfo ogadd = AccessTools.Method(typeof(LocalizationManager), "AddSource");
-        static readonly MethodInfo ogall = AccessTools.Method(typeof(LocalizationManager), "DoLocalizeAll");
-
-        static void Activate(bool _)
+        internal static void Activate(bool _)
         {
-            Patching.AddPatch(ogadd, ChangeSource, Patching.PatchTarget.Prefix, true);
-            Patching.AddPatch(ogall, LocalizeAll, Patching.PatchTarget.Prefix, true);
+            if (wasActivated)
+                return;
+            wasActivated = true;
+
+            Patching.AddPatch(typeof(LocalizationManager), "AddSource", ChangeSource, Patching.PatchTarget.Prefix, true);
+            Patching.AddPatch(typeof(LocalizationManager), "DoLocalizeAll", LocalizeAll, Patching.PatchTarget.Prefix, true);
             NeonLite.OnBundleLoad += SetupFontSet;
         }
 
@@ -59,7 +60,7 @@ namespace NeonLite.Modules
             Source.Google_SpreadsheetKey = overrideSheet;
             Source.Google_SpreadsheetName = overrideSheetName;
             Source.GoogleUpdateFrequency = LanguageSourceData.eGoogleUpdateFrequency.Always;
-            Source.GoogleUpdateSynchronization = LanguageSourceData.eGoogleUpdateSynchronization.OnSceneLoaded;
+            Source.GoogleUpdateSynchronization = LanguageSourceData.eGoogleUpdateSynchronization.AsSoonAsDownloaded;
         }
 
         static void LocalizeAll() => AxKLocalizedTextLord.GetInstance().OnLanguageSet();

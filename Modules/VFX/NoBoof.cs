@@ -17,13 +17,9 @@ namespace NeonLite.Modules.Misc.VFX
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(PlayerUI), "SetTelefragOverlay");
         static void Activate(bool activate)
         {
-            if (activate)
-                Patching.AddPatch(original, StopTelefrag, Patching.PatchTarget.Prefix);
-            else
-                Patching.RemovePatch(original, StopTelefrag);
+            Patching.TogglePatch(activate, typeof(PlayerUI), "SetTelefragOverlay", StopTelefrag, Patching.PatchTarget.Prefix);
 
             active = activate;
         }

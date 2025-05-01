@@ -21,23 +21,18 @@ namespace NeonLite.Modules.Misc
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo oglvli = AccessTools.Method(typeof(LevelInfo), "SetLevel");
-
-
         static void Activate(bool activate)
         {
-            active = activate;
+            Patching.TogglePatch(activate, typeof(LevelInfo), "SetLevel", PostSetLevel, Patching.PatchTarget.Postfix);
 
-            if (activate)
-                Patching.AddPatch(oglvli, PostSetLevel, Patching.PatchTarget.Postfix);
-            else
+            if (!activate)
             {
                 foreach (var kv in buttons)
                     UnityEngine.Object.Destroy(kv.Value);
                 buttons.Clear();
-
-                Patching.RemovePatch(oglvli, PostSetLevel);
             }
+
+            active = activate;
         }
 
         static void PostSetLevel(LevelInfo __instance, LevelData level)

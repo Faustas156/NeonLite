@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +37,23 @@ namespace NeonLite
 
         static readonly Dictionary<MethodInfo, List<PatchInfo>> patches = [];
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TogglePatch(bool active, Type type, string name, Delegate patch, PatchTarget target, bool instant = false) => active ? AddPatch(Helpers.Method(type, name), Helpers.HM(patch), target, instant) : RemovePatch(Helpers.Method(type, name), patch.Method);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TogglePatch(bool active, Type type, string name, HarmonyMethod patch, PatchTarget target, bool instant = false) => active ? AddPatch(Helpers.Method(type, name), patch, target, instant) : RemovePatch(Helpers.Method(type, name), patch.method);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TogglePatch(bool active, MethodInfo method, Delegate patch, PatchTarget target, bool instant = false) => active ? AddPatch(method, Helpers.HM(patch), target, instant) : RemovePatch(method, patch.Method);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TogglePatch(bool active, MethodInfo method, HarmonyMethod patch, PatchTarget target, bool instant = false) => active ? AddPatch(method, patch, target, instant) : RemovePatch(method, patch.method);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AddPatch(Type type, string name, Delegate patch, PatchTarget target, bool instant = false) => AddPatch(Helpers.Method(type, name), Helpers.HM(patch), target, instant);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AddPatch(Type type, string name, HarmonyMethod patch, PatchTarget target, bool instant = false) => AddPatch(Helpers.Method(type, name), patch, target, instant);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AddPatch(MethodInfo method, Delegate patch, PatchTarget target, bool instant = false) => AddPatch(method, Helpers.HM(patch), target, instant);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AddPatch(MethodInfo method, HarmonyMethod patch, PatchTarget target, bool instant = false)
         {
             if (!patches.ContainsKey(method))
@@ -82,7 +99,11 @@ namespace NeonLite
             return true;
         }
 
-        public static bool RemovePatch(MethodInfo method, Delegate patch) => RemovePatch(method, Helpers.MI(patch));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool RemovePatch(Type type, string name, Delegate patch) => RemovePatch(Helpers.Method(type, name), patch.Method);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool RemovePatch(MethodInfo method, Delegate patch) => RemovePatch(method, patch.Method);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool RemovePatch(MethodInfo method, MethodInfo patch)
         {
             if (!patches.ContainsKey(method))

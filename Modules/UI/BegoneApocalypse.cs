@@ -16,13 +16,12 @@ namespace NeonLite.Modules.UI
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(MenuScreenMapAesthetics), "Start");
         static void Activate(bool activate)
         {
             if (activate)
-                Patching.AddPatch(original, RemoveApocalypse, Patching.PatchTarget.Postfix);
+                Patching.TogglePatch(activate, typeof(MenuScreenMapAesthetics), "Start", RemoveApocalypse, Patching.PatchTarget.Postfix);
             else
-                Patching.RemovePatch(original, RemoveApocalypse);
+                Patching.RemovePatch(typeof(MenuScreenMapAesthetics), "Start", RemoveApocalypse);
 
             active = activate;
         }

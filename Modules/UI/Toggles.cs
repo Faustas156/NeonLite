@@ -95,13 +95,12 @@ namespace NeonLite.Modules.UI.Toggles
             active = setting.SetupForModule(Activate, (_, after) => after);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(CRTRendererFeature.CRTEffectPass), "Execute");
         static void Activate(bool activate)
         {
             if (activate)
-                Patching.AddPatch(original, StopCRT, Patching.PatchTarget.Prefix);
+                Patching.TogglePatch(activate, typeof(CRTRendererFeature.CRTEffectPass), "Execute", StopCRT, Patching.PatchTarget.Prefix);
             else
-                Patching.RemovePatch(original, StopCRT);
+                Patching.RemovePatch(typeof(CRTRendererFeature.CRTEffectPass), "Execute", StopCRT);
 
             active = activate;
         }

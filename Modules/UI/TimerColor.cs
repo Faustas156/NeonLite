@@ -21,13 +21,12 @@ namespace NeonLite.Modules.UI
             active = setting.SetupForModule(Activate, (_, after) => after.a != 0);
         }
 
-        static readonly MethodInfo original = AccessTools.Method(typeof(PlayerUI), "UpdateTimerText");
         static void Activate(bool activate)
         {
             if (activate)
-                Patching.AddPatch(original, OnTimerUpdate, Patching.PatchTarget.Postfix);
+                Patching.TogglePatch(activate, typeof(PlayerUI), "UpdateTimerText", OnTimerUpdate, Patching.PatchTarget.Postfix);
             else
-                Patching.RemovePatch(original, OnTimerUpdate);
+                Patching.RemovePatch(typeof(PlayerUI), "UpdateTimerText", OnTimerUpdate);
 
             active = activate;
         }
