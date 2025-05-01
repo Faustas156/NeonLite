@@ -118,19 +118,13 @@ namespace NeonLite.Modules
         public static void Register(MelonAssembly assembly)
         {
             assemblies.Add(assembly);
-            if (hasSetup)
-                Activate(assemblies.Count > 0);
-            else
-                active = assemblies.Count > 0;
+            Activate(assemblies.Count > 0);
         }
 
         public static void Unregister(MelonAssembly assembly)
         {
             assemblies.Remove(assembly);
-            if (hasSetup)
-                Activate(assemblies.Count > 0);
-            else
-                active = assemblies.Count > 0;
+            Activate(assemblies.Count > 0);
         }
 
         TextMeshProUGUI text;
