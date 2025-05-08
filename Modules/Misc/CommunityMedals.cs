@@ -84,6 +84,7 @@ namespace NeonLite.Modules
         public static MelonPreferences_Entry<bool> setting;
         internal static MelonPreferences_Entry<bool> oldStyle;
         internal static MelonPreferences_Entry<bool> hideOld;
+        internal static MelonPreferences_Entry<bool> hideLeaderboard;
         public static MelonPreferences_Entry<float> hueShift;
         internal static MelonPreferences_Entry<string> overrideURL;
 
@@ -95,7 +96,8 @@ namespace NeonLite.Modules
             setting = Settings.Add(Settings.h, "Medals", "comMedals", "Community Medals", "Shows new community medals past the developer red times to aim for.", true);
             hueShift = Settings.Add(Settings.h, "Medals", "hueShift", "Hue Shift", "Changes the hue of *all* medals (and related) help aid colorblind users in telling them apart.", 0f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             oldStyle = Settings.Add(Settings.h, "Medals", "oldStyle", "Stamp Style", "Display the community medals in the level info as it was pre-3.0.0.", false);
-            hideOld = Settings.Add(Settings.h, "Medals", "hideOld", "Hide Times", "Hides the time under the stamp while using the Stamp Style.", false);
+            hideOld = Settings.Add(Settings.h, "Medals", "hideOld", "Hide Times", "Hides unachieved medal times.", false);
+            hideLeaderboard = Settings.Add(Settings.h, "Medals", "hideLeaderboard", "Hide Leaderboard Medals", "Unachieved medals will appear the same as your own on the leaderboards.", false);
             overrideURL = Settings.Add(Settings.h, "Medals", "overrideURL", "Extension URL", "Specifies additional community medals JSON URL to apply on top of the existing community medals.", "");
 
             active = setting.SetupForModule(Activate, (_, after) => after);
@@ -464,6 +466,17 @@ namespace NeonLite.Modules
                 }
                 else
                     __instance.devStamp.SetActive(false);
+
+                if (hideOld.Value)
+                {
+                    String hiddenTime = "?:??.???";
+                    if (medalEarned < I(MedalEnum.Sapphire))
+                        __instance._aceMedalTime.text = hiddenTime;
+                    if (medalEarned < I(MedalEnum.Amethyst))
+                        __instance._goldMedalTime.text = hiddenTime;
+                    if (medalEarned < I(MedalEnum.Emerald))
+                        __instance._silverMedalTime.text = hiddenTime;
+                }
             }
         }
 
@@ -525,6 +538,13 @@ namespace NeonLite.Modules
 
             int medalEarned = GetMedalIndex(levelData.levelID, newData._scoreValueMilliseconds * 1000);
             AdjustMaterial(__instance._medal);
+
+            if (hideLeaderboard.Value && medalEarned >= I(MedalEnum.Dev))
+            {
+                int userMedal = GetMedalIndex(levelData.levelID); // medal the user has on this level
+                if (medalEarned > userMedal)
+                    medalEarned = Math.Max(userMedal, I(MedalEnum.Ace)); // ensure the medal to be displayed is only as high as the user's, but only as low as ace
+            }
 
             if (!levelData.isSidequest)
             {
