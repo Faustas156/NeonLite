@@ -467,21 +467,15 @@ namespace NeonLite.Modules
                 else
                     __instance.devStamp.SetActive(false);
 
-                if(hideOld.Value)
+                if (hideOld.Value)
                 {
                     String hiddenTime = "?:??.???";
-                    if(medalEarned < I(MedalEnum.Sapphire))
-                        __instance._aceMedalTime.text = (string)styleTime.Invoke(__instance, [
-                            hiddenTime,
-                            false]);
+                    if (medalEarned < I(MedalEnum.Sapphire))
+                        __instance._aceMedalTime.text = hiddenTime;
                     if (medalEarned < I(MedalEnum.Amethyst))
-                        __instance._goldMedalTime.text = (string)styleTime.Invoke(__instance, [
-                            hiddenTime,
-                            false]);
+                        __instance._goldMedalTime.text = hiddenTime;
                     if (medalEarned < I(MedalEnum.Emerald))
-                        __instance._silverMedalTime.text = (string)styleTime.Invoke(__instance, [
-                            hiddenTime,
-                            false]);
+                        __instance._silverMedalTime.text = hiddenTime;
                 }
             }
         }
@@ -545,11 +539,11 @@ namespace NeonLite.Modules
             int medalEarned = GetMedalIndex(levelData.levelID, newData._scoreValueMilliseconds * 1000);
             AdjustMaterial(__instance._medal);
 
-            if(hideLeaderboard.Value && medalEarned >= (int)MedalEnum.Dev)
+            if (hideLeaderboard.Value && medalEarned >= I(MedalEnum.Dev))
             {
                 int userMedal = GetMedalIndex(levelData.levelID); // medal the user has on this level
                 if (medalEarned > userMedal)
-                    medalEarned = Math.Max(userMedal, (int)MedalEnum.Ace); // ensure the medal to be displayed is only as high as the user's, but only as low as ace
+                    medalEarned = Math.Max(userMedal, I(MedalEnum.Ace)); // ensure the medal to be displayed is only as high as the user's, but only as low as ace
             }
 
             if (!levelData.isSidequest)
