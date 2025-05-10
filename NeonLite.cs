@@ -24,6 +24,8 @@ namespace NeonLite
         internal const bool DEBUG = false;
 #endif
 
+        internal static NeonLite i;
+
         // The generic holder for everything that doesn't have to be in the main menu. **Initializes in time for low priority.**
         internal static GameObject holder;
         // The holder for everything that does have to be in the main menu. **Initializes in time for low priority.**
@@ -42,6 +44,7 @@ namespace NeonLite
 
         public override void OnEarlyInitializeMelon()
         {
+            i = this;
             Logger = LoggerInstance;
             Settings.Setup();
             FastStart.Setup();

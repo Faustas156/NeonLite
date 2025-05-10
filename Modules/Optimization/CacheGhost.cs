@@ -41,9 +41,12 @@ namespace NeonLite.Modules.Optimization
         static bool LoadDataRewrite(ref GhostSave ghostSave, GhostUtils.GhostType ghostType, ulong saveId, Action callback)
         {
             string path = "";
+            if (Anticheat.Active)
+                Anticheat.fetchingGhost = true;
             if (!GhostUtils.GetPath(ghostType, ref path))
                 return false;
-            path += Path.DirectorySeparatorChar.ToString() + saveId.ToString() + ".phant";
+            if (!path.EndsWith(".phant"))
+                path += Path.DirectorySeparatorChar.ToString() + saveId.ToString() + ".phant";
 
             if (ghosts.ContainsKey(path))
             {

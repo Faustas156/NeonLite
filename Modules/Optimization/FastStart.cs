@@ -1,17 +1,13 @@
 ﻿using ClockStone;
 using HarmonyLib;
 using MelonLoader;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.SceneManagement;
-using static MelonLoader.MelonLogger;
 
 namespace NeonLite.Modules.Optimization
 {
@@ -90,13 +86,13 @@ namespace NeonLite.Modules.Optimization
 
         static IEnumerator LoadScenes()
         {
-            menuPreload = SceneManager.LoadSceneAsync("MenuHolder", LoadSceneMode.Additive);
+            //menuPreload = SceneManager.LoadSceneAsync("MenuHolder", LoadSceneMode.Additive);
             enemyPreload = SceneManager.LoadSceneAsync("Enemies", LoadSceneMode.Additive);
             audioPreload = SceneManager.LoadSceneAsync("Audio", LoadSceneMode.Additive);
             do
             {
                 //NeonLite.Logger.Warning($"{menuActivate} {audioActivate}");
-                menuPreload.allowSceneActivation = menuActivate;
+                //menuPreload.allowSceneActivation = menuActivate;
                 audioPreload.allowSceneActivation = audioActivate;
                 yield return null;
             }
@@ -130,6 +126,7 @@ namespace NeonLite.Modules.Optimization
             {
                 Singleton<GameInput>.Instance.Initialize();
                 ____initializationState = GameInit.MenuHolderLoading;
+                menuPreload = SceneManager.LoadSceneAsync("MenuHolder", LoadSceneMode.Additive);
                 menuPreload.completed += _ => Helpers.Method(typeof(Game), "SetInitializationState").Invoke(__instance, [(int)GameInit.MenuHolderLoaded]);
                 menuActivate = true;
                 return false;
@@ -166,7 +163,7 @@ namespace NeonLite.Modules.Optimization
         {
             stopwatch.Stop();
             NeonLite.Logger.Msg($"Preload done in {stopwatch.ElapsedMilliseconds}ms.");
-            SceneManager.UnloadSceneAsync("Audio");
+            //SceneManager.UnloadSceneAsync("Audio");
         }
 
         // AUDIO OPTIMIZATIONS
@@ -219,6 +216,18 @@ namespace NeonLite.Modules.Optimization
                 
             return false;
         }
+
+#if !XBOX
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GameDataManager), "OnReadPowerPrefsComplete")]
+        static void CheckOldAnticheat(PowerUserPrefs data)
+        {
+            // due to faststart now starting faster since 3.0.10, some anticheats activate too fast and get overwritten
+            // all this does is check the current and set it back if needed
+            if (GameDataManager.powerPrefs.dontUploadToLeaderboard)
+                data.dontUploadToLeaderboard = true;
+        }
+#endif
     }
 }
 

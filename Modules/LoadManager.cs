@@ -23,12 +23,12 @@ namespace NeonLite.Modules
             AddModules(NeonLite.modules);
 
             var method = Helpers.Method(typeof(Game), "LevelSetupRoutine");
-            Patching.AddPatch(method, Helpers.HM(SetCurrentLevel).Set(priority: Priority.First), Patching.PatchTarget.Prefix);
+            Patching.AddPatch(method, Helpers.HM(SetCurrentLevel).SetPriority(Priority.First), Patching.PatchTarget.Prefix);
             method = method.MoveNext();
-            Patching.AddPatch(method, Helpers.HM(AddLoadCall).Set(priority: Priority.First), Patching.PatchTarget.Transpiler);
+            Patching.AddPatch(method, Helpers.HM(AddLoadCall).SetPriority(Priority.First), Patching.PatchTarget.Transpiler);
 
             Patching.AddPatch(typeof(Game), "QuitToTitle", PreTitle, Patching.PatchTarget.Prefix);
-            Patching.AddPatch(typeof(MenuScreenLoading), "LoadScene", Helpers.HM(PostMenuLoad).Set(priority: Priority.First), Patching.PatchTarget.Postfix);
+            Patching.AddPatch(typeof(MenuScreenLoading), "LoadScene", Helpers.HM(PostMenuLoad).SetPriority(Priority.First), Patching.PatchTarget.Postfix);
         }
 
         public static void AddModules(IEnumerable<Type> modules) => modules.Where(t => Helpers.Method(t, "OnLevelLoad") != null).Do(x => LoadManager.modules.Add(x, Helpers.Method(x, "OnLevelLoad")));

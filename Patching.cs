@@ -53,7 +53,6 @@ namespace NeonLite
         public static bool AddPatch(Type type, string name, HarmonyMethod patch, PatchTarget target, bool instant = false) => AddPatch(Helpers.Method(type, name), patch, target, instant);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AddPatch(MethodInfo method, Delegate patch, PatchTarget target, bool instant = false) => AddPatch(method, Helpers.HM(patch), target, instant);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AddPatch(MethodInfo method, HarmonyMethod patch, PatchTarget target, bool instant = false)
         {
             if (!patches.ContainsKey(method))
@@ -65,7 +64,7 @@ namespace NeonLite
                 target = target,
                 registered = instant
             };
-            if (patchlist.FirstOrDefault(x => x == info) != default)
+            if (patchlist.Any(x => x == info))
                 return false;
             patchlist.Add(info);
 
@@ -103,7 +102,6 @@ namespace NeonLite
         public static bool RemovePatch(Type type, string name, Delegate patch) => RemovePatch(Helpers.Method(type, name), patch.Method);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool RemovePatch(MethodInfo method, Delegate patch) => RemovePatch(method, patch.Method);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool RemovePatch(MethodInfo method, MethodInfo patch)
         {
             if (!patches.ContainsKey(method))
@@ -122,6 +120,7 @@ namespace NeonLite
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RunPatches() => RunPatches(false);
 
         internal static Thread patchRunner;
@@ -236,6 +235,18 @@ namespace NeonLite
                 if (current.Any(kv => kv.Value))
                     processor.Patch();
             }
+        }
+
+        public static CodeMatcher CloneInPlace(this CodeMatcher matcher, out CodeMatcher clone)
+        {
+            clone = matcher.Clone();
+            return matcher;
+        }
+
+        public static CodeMatcher Do(this CodeMatcher matcher, Action f)
+        {
+            f();
+            return matcher;
         }
     }
 }

@@ -26,17 +26,24 @@ namespace NeonLite
         static public MethodInfo MI(Delegate func) => func.Method;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public HarmonyMethod HM(Delegate func) => new(func.Method);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("Use SetPriority instead.")]
         static public HarmonyMethod Set(this HarmonyMethod hm, int? priority = null)
         {
             if (priority.HasValue)
                 hm.priority = priority.Value;
             return hm;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public HarmonyMethod SetPriority(this HarmonyMethod hm, int priority)
+        {
+            hm.priority = priority;
+            return hm;
+        }
 
         static readonly Dictionary<Type, Dictionary<string, MethodInfo>> cachedMethods = new(200);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static public MethodInfo Method(Type type, string name, Type[] param = null, Type[] generics = null)
         {
             var key = $"{name}|{param?.Join()}|{generics?.Join()}";

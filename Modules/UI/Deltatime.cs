@@ -20,6 +20,8 @@ namespace NeonLite.Modules.UI
         static long oldPB = -1;
         static bool wasFinished;
 
+        static bool preModified;
+
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "deltatime", "Deltatime", "Displays a time comparing to your last personal best.", true);
@@ -50,6 +52,7 @@ namespace NeonLite.Modules.UI
             LevelRushData bestLevelRushData = LevelRush.GetLevelRushDataByType(LevelRush.GetCurrentLevelRushType());
             oldPB = LevelRush.IsLevelRush() ? (LevelRush.IsHellRush() ? bestLevelRushData.bestTime_HellMicroseconds : bestLevelRushData.bestTime_HeavenMicroseconds) : levelStats.GetTimeBestMicroseconds();
             wasFinished = (LevelRush.IsLevelRush() ? oldPB != -1 : levelStats.GetCompleted());
+            preModified = Anticheat.modified.Contains(levelStats);
         }
 
         static void PostSetVisible()
@@ -79,6 +82,13 @@ namespace NeonLite.Modules.UI
                     dtLevel.transform.localPosition += new Vector3(-5, -30, 0);
                 }
                 dtLevel.SetActive(wasFinished);
+
+                if (Anticheat.Active && wasFinished)
+                {
+                    LevelStats levelStats = GameDataManager.levelStats[NeonLite.Game.GetCurrentLevel().levelID];
+                    if (!preModified && Anticheat.modified.Contains(levelStats)) // if wasn't modified and now was
+                        dtLevel.SetActive(false);
+                }
 
                 text = dtLevel.GetComponent<TextMeshProUGUI>();
                 text.SetText(deltaTimeString);
