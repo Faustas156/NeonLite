@@ -63,119 +63,124 @@ namespace NeonLite.Modules.Replays
             timescale.Value = 1;
         }
 
-        static readonly MethodInfo ogupvel = AccessTools.Method(typeof(FirstPersonDrifter), "UpdateVelocity");
-        static readonly MethodInfo ogpjsp = AccessTools.Method(typeof(ProjectileBase), "CreateProjectile", [typeof(string), typeof(Vector3), typeof(Vector3), typeof(ProjectileWeapon)]);
-        static readonly MethodInfo ogpjbset = AccessTools.Method(typeof(ProjectileBase), "Setup");
-        static readonly MethodInfo ogencset = AccessTools.Method(typeof(EnemyEncounter), "Setup");
+        static readonly MethodInfo ogupvel = Helpers.Method(typeof(FirstPersonDrifter), "UpdateVelocity");
+        static readonly MethodInfo ogpjsp = Helpers.Method(typeof(ProjectileBase), "CreateProjectile", [typeof(string), typeof(Vector3), typeof(Vector3), typeof(ProjectileWeapon)]);
+        static readonly MethodInfo ogpjbset = Helpers.Method(typeof(ProjectileBase), "Setup");
+        static readonly MethodInfo ogencset = Helpers.Method(typeof(EnemyEncounter), "Setup");
 
-        static readonly MethodInfo ogupdcard = AccessTools.Method(typeof(MechController), "UpdateCards");
-        static readonly MethodInfo ogonpick = AccessTools.Method(typeof(MechController), "OnPickupCard");
-        static readonly MethodInfo ogpikcard = AccessTools.Method(typeof(MechController), "DoCardPickup");
-        static readonly MethodInfo ogconsume = AccessTools.Method(typeof(MechController), "DoConsumable");
-        static readonly MethodInfo ogfcardi = AccessTools.Method(typeof(MechController), "FireCard", [typeof(int)]);
-        static readonly MethodInfo ogfcardp = AccessTools.Method(typeof(MechController), "FireCard", [typeof(PlayerCard)]);
-        static readonly MethodInfo ogdcardi = AccessTools.Method(typeof(MechController), "UseDiscardAbility", [typeof(int)]);
-        static readonly MethodInfo ogcycleh = AccessTools.Method(typeof(PlayerCardDeck), "CycleHand");
+        static readonly MethodInfo ogupdcard = Helpers.Method(typeof(MechController), "UpdateCards");
+        static readonly MethodInfo ogonpick = Helpers.Method(typeof(MechController), "OnPickupCard");
+        static readonly MethodInfo ogpikcard = Helpers.Method(typeof(MechController), "DoCardPickup");
+        static readonly MethodInfo ogconsume = Helpers.Method(typeof(MechController), "DoConsumable");
+        static readonly MethodInfo ogfcardi = Helpers.Method(typeof(MechController), "FireCard", [typeof(int)]);
+        static readonly MethodInfo ogfcardp = Helpers.Method(typeof(MechController), "FireCard", [typeof(PlayerCard)]);
+        static readonly MethodInfo ogdcardi = Helpers.Method(typeof(MechController), "UseDiscardAbility", [typeof(int)]);
+        static readonly MethodInfo ogcycleh = Helpers.Method(typeof(PlayerCardDeck), "CycleHand");
 
-        static readonly MethodInfo ogabjmp = AccessTools.Method(typeof(FirstPersonDrifter), "ForceJump");
-        static readonly MethodInfo ogabflp = AccessTools.Method(typeof(FirstPersonDrifter), "ForceFlap");
-        static readonly MethodInfo ogabdsh = AccessTools.Method(typeof(FirstPersonDrifter), "ForceDash");
-        static readonly MethodInfo ogabstm = AccessTools.Method(typeof(FirstPersonDrifter), "ForceStomp");
-        static readonly MethodInfo ogabzip = AccessTools.Method(typeof(FirstPersonDrifter), "DoZipline");
-        static readonly MethodInfo ogabtlf = AccessTools.Method(typeof(FirstPersonDrifter), "Telefrag");
-        static readonly MethodInfo ogkikbak = AccessTools.Method(typeof(MechController), "DoKickbackAbility");
-        static readonly MethodInfo ogbakfir = AccessTools.Method(typeof(MechController), "DoBackfireAbility");
-        static readonly MethodInfo ogfirbal = AccessTools.Method(typeof(MechController), "DoFireballAbility");
-        static readonly MethodInfo ogonhit = AccessTools.Method(typeof(MechController), "OnHit");
+        static readonly MethodInfo ogabjmp = Helpers.Method(typeof(FirstPersonDrifter), "ForceJump");
+        static readonly MethodInfo ogabflp = Helpers.Method(typeof(FirstPersonDrifter), "ForceFlap");
+        static readonly MethodInfo ogabdsh = Helpers.Method(typeof(FirstPersonDrifter), "ForceDash");
+        static readonly MethodInfo ogabstm = Helpers.Method(typeof(FirstPersonDrifter), "ForceStomp");
+        static readonly MethodInfo ogabzip = Helpers.Method(typeof(FirstPersonDrifter), "DoZipline");
+        static readonly MethodInfo ogabtlf = Helpers.Method(typeof(FirstPersonDrifter), "Telefrag");
+        static readonly MethodInfo ogkikbak = Helpers.Method(typeof(MechController), "DoKickbackAbility");
+        static readonly MethodInfo ogbakfir = Helpers.Method(typeof(MechController), "DoBackfireAbility");
+        static readonly MethodInfo ogfirbal = Helpers.Method(typeof(MechController), "DoFireballAbility");
+        static readonly MethodInfo ogonhit = Helpers.Method(typeof(MechController), "OnHit");
 
-        static readonly MethodInfo ogenmdie = AccessTools.Method(typeof(Enemy), "Die");
-        static readonly MethodInfo ogtrpdie = AccessTools.Method(typeof(EnemyTripwire), "Die");
-        static readonly MethodInfo ogdmbdie = AccessTools.Method(typeof(EnemyDemonBall), "Die");
-        static readonly MethodInfo ogfofdie = AccessTools.Method(typeof(EnemyForcefield), "Die");
-        static readonly MethodInfo ogmmcdie = AccessTools.Method(typeof(EnemyMimic), "Die");
-        static readonly MethodInfo ogufodie = AccessTools.Method(typeof(EnemyUFO), "Die");
+        static readonly MethodInfo ogenmdie = Helpers.Method(typeof(Enemy), "Die");
+        static readonly MethodInfo ogtrpdie = Helpers.Method(typeof(EnemyTripwire), "Die");
+        static readonly MethodInfo ogdmbdie = Helpers.Method(typeof(EnemyDemonBall), "Die");
+        static readonly MethodInfo ogfofdie = Helpers.Method(typeof(EnemyForcefield), "Die");
+        static readonly MethodInfo ogmmcdie = Helpers.Method(typeof(EnemyMimic), "Die");
+        static readonly MethodInfo ogufodie = Helpers.Method(typeof(EnemyUFO), "Die");
         static readonly System.Type[] inherits = [typeof(EnemyTripwire), typeof(EnemyDemonBall), typeof(EnemyForcefield), typeof(EnemyMimic), typeof(EnemyUFO)];
 
-        static readonly MethodInfo oguikill = AccessTools.Method(typeof(PlayerUI), "OnGotKill");
-        static readonly MethodInfo oggmkill = AccessTools.Method(typeof(Game), "OnEnemyKill");
-        static readonly MethodInfo ogwvkill = AccessTools.Method(typeof(EnemyWave), "OnEnemyDead");
+        static readonly MethodInfo oguikill = Helpers.Method(typeof(PlayerUI), "OnGotKill");
+        static readonly MethodInfo oggmkill = Helpers.Method(typeof(Game), "OnEnemyKill");
+        static readonly MethodInfo ogwvkill = Helpers.Method(typeof(EnemyWave), "OnEnemyDead");
 
-        static readonly MethodInfo ogmlrot = AccessTools.Method(typeof(MouseLook), "UpdateRotation");
+        static readonly MethodInfo ogmlrot = Helpers.Method(typeof(MouseLook), "UpdateRotation");
 
-        static readonly MethodInfo ogpjwup = AccessTools.Method(typeof(ProjectileWeapon), "WeaponUpdate");
-        static readonly MethodInfo ogpjwfp = AccessTools.Method(typeof(ProjectileWeapon), "FireProjectile");
+        static readonly MethodInfo ogpjwup = Helpers.Method(typeof(ProjectileWeapon), "WeaponUpdate");
+        static readonly MethodInfo ogpjwfp = Helpers.Method(typeof(ProjectileWeapon), "FireProjectile");
 
-        static readonly MethodInfo ogsettime = AccessTools.Method(typeof(TimeManager), "SetTargetTimescale");
+        static readonly MethodInfo ogsettime = Helpers.Method(typeof(TimeManager), "SetTargetTimescale");
 
-        static readonly MethodInfo ogvelfxu = AccessTools.Method(typeof(VelocityFX), "Update");
-        static readonly MethodInfo ogvelfxf = AccessTools.Method(typeof(VelocityFX), "FixedUpdate");
-        static readonly MethodInfo ogsprv3u = AccessTools.Method(typeof(SpringVector3), "Update");
+        static readonly MethodInfo ogvelfxu = Helpers.Method(typeof(VelocityFX), "Update");
+        static readonly MethodInfo ogvelfxf = Helpers.Method(typeof(VelocityFX), "FixedUpdate");
+        static readonly MethodInfo ogsprv3u = Helpers.Method(typeof(SpringVector3), "Update");
+
+        static void TogglePatchPrePost(bool activate, MethodInfo method, Delegate pre, Delegate post)
+        {
+            Patching.TogglePatch(active, method, pre, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(active, method, post, Patching.PatchTarget.Postfix);
+        }
 
         static void Activate(bool activate)
         {
+            Patching.TogglePatch(activate, ogupvel, LateUpdateHook, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, ogupvel, LateUpdateAfter, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, ogpjsp, OnProjectileFire, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, ogpjbset, OnProjectileSetup, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, ogencset, GetSetSeed, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, ogsettime, SetTimescale, Patching.PatchTarget.Prefix);
+
+            TogglePatchPrePost(activate, ogupdcard, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogupvel, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogonpick, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogpjwup, EnableRestrict, DisableRestrict);
+
+            TogglePatchPrePost(activate, ogenmdie, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogenmdie, RecordEnemyKill, RecordFunctionalEnd); // records *and* restricts itself
+            TogglePatchPrePost(activate, ogtrpdie, EnableRestrict, DisableRestrict); //have to do the same for everything it overrides
+            TogglePatchPrePost(activate, ogtrpdie, RecordEnemyKill, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogdmbdie, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogdmbdie, RecordEnemyKill, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogfofdie, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogfofdie, RecordEnemyKill, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogmmcdie, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogmmcdie, RecordEnemyKill, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogufodie, EnableRestrict, DisableRestrict);
+            TogglePatchPrePost(activate, ogufodie, RecordEnemyKill, RecordFunctionalEnd);
+
+            TogglePatchPrePost(activate, ogabjmp, RecordFunctional, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogabflp, RecordFunctional, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogabdsh, RecordFunctional, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogabstm, RecordFunctional, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogabzip, RecordFunctional, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogabtlf, RecordFunctional, RecordFunctionalEnd);
+            //NeonLite.Harmony.Patch(oguikill, prefix: Helpers.HM(RunIfUnrestrict));
+            //NeonLite.Harmony.Patch(ogwvkill, prefix: Helpers.HM(RecordEnemyKill));
+            TogglePatchPrePost(activate, ogfcardi, RecordFunctionalTimer, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogfcardp, RecordFunctionalTimer, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogdcardi, RecordFunctionalTimer, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogcycleh, RunIfUnrestrict, RecordSwap);
+            TogglePatchPrePost(activate, ogpikcard, RecordFunctionalTimer, RecordFunctionalEnd);
+
+            TogglePatchPrePost(activate, ogkikbak, RecordFunctional, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogbakfir, RecordFunctional, RecordFunctionalEnd);
+            TogglePatchPrePost(activate, ogfirbal, RecordFunctional, RecordFunctionalEnd);
+
+            TogglePatchPrePost(activate, ogonhit, RecordFunctional, RecordFunctionalEnd);
+
+            Patching.TogglePatch(activate, ogpjwup, GetProjectileIndex, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, ogpjwfp, RecordEnemyProjectile, Patching.PatchTarget.Prefix);
+
+            Patching.TogglePatch(activate, ogmlrot, PreMouseRot, Patching.PatchTarget.Prefix);
+
+            Patching.TogglePatch(activate, ogvelfxu, UpdateVelocityFX, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, ogvelfxf, FixedUpdateVelFX, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, ogsprv3u, SpringUpdate, Patching.PatchTarget.Prefix);
+
+            Patching.TogglePatch(activate, oggmkill, RunIfUnrestrict, Patching.PatchTarget.Prefix);
+
             if (activate)
             {
-                NeonLite.Harmony.Patch(ogupvel, prefix: Helpers.HM(LateUpdateHook));
-                NeonLite.Harmony.Patch(ogupvel, postfix: Helpers.HM(LateUpdateAfter));
-                NeonLite.Harmony.Patch(ogpjsp, prefix: Helpers.HM(OnProjectileFire));
-                NeonLite.Harmony.Patch(ogpjbset, postfix: Helpers.HM(OnProjectileSetup));
-                NeonLite.Harmony.Patch(ogencset, prefix: Helpers.HM(GetSetSeed));
-                NeonLite.Harmony.Patch(ogsettime, prefix: Helpers.HM(SetTimescale));
-
-                NeonLite.Harmony.Patch(ogupdcard, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogupvel, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogonpick, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogpjwup, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-
-                NeonLite.Harmony.Patch(ogenmdie, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogenmdie, prefix: Helpers.HM(RecordEnemyKill), postfix: Helpers.HM(RecordFunctionalEnd)); // records *and* restricts itself
-                NeonLite.Harmony.Patch(ogtrpdie, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict)); //have to do the same for everything it overrides
-                NeonLite.Harmony.Patch(ogtrpdie, prefix: Helpers.HM(RecordEnemyKill), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogdmbdie, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogdmbdie, prefix: Helpers.HM(RecordEnemyKill), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogfofdie, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogfofdie, prefix: Helpers.HM(RecordEnemyKill), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogmmcdie, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogmmcdie, prefix: Helpers.HM(RecordEnemyKill), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogufodie, prefix: Helpers.HM(EnableRestrict), postfix: Helpers.HM(DisableRestrict));
-                NeonLite.Harmony.Patch(ogufodie, prefix: Helpers.HM(RecordEnemyKill), postfix: Helpers.HM(RecordFunctionalEnd));
-
-                NeonLite.Harmony.Patch(ogabjmp, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogabflp, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogabdsh, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogabstm, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogabzip, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogabtlf, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                //NeonLite.Harmony.Patch(oguikill, prefix: Helpers.HM(RunIfUnrestrict));
-                NeonLite.Harmony.Patch(oggmkill, prefix: Helpers.HM(RunIfUnrestrict));
-                //NeonLite.Harmony.Patch(ogwvkill, prefix: Helpers.HM(RecordEnemyKill));
-                NeonLite.Harmony.Patch(ogfcardi, prefix: Helpers.HM(RecordFunctionalTimer), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogfcardp, prefix: Helpers.HM(RecordFunctionalTimer), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogdcardi, prefix: Helpers.HM(RecordFunctionalTimer), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogcycleh, prefix: Helpers.HM(RunIfUnrestrict), postfix: Helpers.HM(RecordSwap));
-                NeonLite.Harmony.Patch(ogpikcard, prefix: Helpers.HM(RecordFunctionalTimer), postfix: Helpers.HM(RecordFunctionalEnd));
-
-                NeonLite.Harmony.Patch(ogkikbak, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogbakfir, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-                NeonLite.Harmony.Patch(ogfirbal, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-
-                NeonLite.Harmony.Patch(ogonhit, prefix: Helpers.HM(RecordFunctional), postfix: Helpers.HM(RecordFunctionalEnd));
-
-                NeonLite.Harmony.Patch(ogpjwup, prefix: Helpers.HM(GetProjectileIndex));
-                NeonLite.Harmony.Patch(ogpjwfp, prefix: Helpers.HM(RecordEnemyProjectile));
-
-                NeonLite.Harmony.Patch(ogmlrot, prefix: Helpers.HM(PreMouseRot));
-
-                NeonLite.Harmony.Patch(ogvelfxu, prefix: Helpers.HM(UpdateVelocityFX));
-                NeonLite.Harmony.Patch(ogvelfxf, prefix: Helpers.HM(FixedUpdateVelFX));
-                NeonLite.Harmony.Patch(ogsprv3u, prefix: Helpers.HM(SpringUpdate));
-
                 // ***THIS IS PROBABLY A REALLY FUCKING BAD FIX***
                 // ***IF THIS GETS FIXED IN MELONLOADER, REMOVE THIS!!!!!!!!!!!***
                 var type = AccessTools.TypeByName("MelonLoader.Core");
-                NeonLite.Logger.Msg(type);
                 var coreinstance = (HarmonyLib.Harmony)AccessTools.Field(type, "HarmonyInstance").GetValue(null);
-                NeonLite.Logger.Msg(coreinstance);
                 coreinstance.Unpatch(AccessTools.Method("HarmonyLib.PatchFunctions:ReversePatch"), HarmonyPatchType.Prefix);
 
                 var hm = Helpers.HM(PerformHitscan);
@@ -184,17 +189,11 @@ namespace NeonLite.Modules.Replays
                 revpatcher.Patch();
 
                 type = AccessTools.TypeByName("MelonLoader.Fixes.InstancePatchFix");
-                var refix = AccessTools.Method(type, "PatchMethod");
+                var refix = Helpers.Method(type, "PatchMethod");
                 coreinstance.Patch(AccessTools.Method("HarmonyLib.PatchFunctions:ReversePatch"), prefix: refix.ToNewHarmonyMethod());
+            }
 
-                NeonLite.Harmony.Patch(ogfcardp, transpiler: Helpers.HM(FireCardHijack));
-            }
-            else
-            {
-                NeonLite.Harmony.Unpatch(ogupvel, Helpers.MI(LateUpdateHook));
-                NeonLite.Harmony.Unpatch(ogpjsp, Helpers.MI(OnProjectileFire));
-                NeonLite.Harmony.Unpatch(ogencset, Helpers.MI(GetSetSeed));
-            }
+            Patching.TogglePatch(activate, ogfcardp, FireCardHijack, Patching.PatchTarget.Transpiler);
 
             active = activate;
         }
@@ -358,7 +357,7 @@ namespace NeonLite.Modules.Replays
             setAfter = false;
         }
 
-        static readonly MethodInfo reloadwp = AccessTools.Method(typeof(MechController), "ReloadWeapon");
+        static readonly MethodInfo reloadwp = Helpers.Method(typeof(MechController), "ReloadWeapon");
 
         void Update()
         {
@@ -444,7 +443,7 @@ namespace NeonLite.Modules.Replays
 
                 IEnumerable<CodeInstruction> InnerTranspiler(IEnumerable<CodeInstruction> instructions)
                 {
-                    NeonLite.Logger.Msg("-------------------------------------------INNER-------------------------------------------");
+                    NeonLite.Logger.DebugMsg("-------------------------------------------INNER-------------------------------------------");
 
                     int hit = 0;
                     Label? label = null;
@@ -536,11 +535,11 @@ namespace NeonLite.Modules.Replays
                             skip = false;//*/
                         }
                     }
-                    NeonLite.Logger.Msg($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {wasRay} {wasNum4} {flag3} {flag4} {flag5}");
+                    NeonLite.Logger.DebugMsg($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {wasRay} {wasNum4} {flag3} {flag4} {flag5}");
                 }
 
                 var instlist = InnerTranspiler(instructions).ToList();
-                NeonLite.Logger.Msg("-------------------------------------------OUTER-------------------------------------------");
+                NeonLite.Logger.DebugMsg("-------------------------------------------OUTER-------------------------------------------");
                 yield return new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(ReplayData), "num4"));
                 yield return new CodeInstruction(OpCodes.Stloc_S, wasNum4);
                 yield return new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(ReplayData), "ray"));
@@ -550,13 +549,13 @@ namespace NeonLite.Modules.Replays
                 yield return new CodeInstruction(OpCodes.Stloc_S, flag3);
                 yield return new CodeInstruction(OpCodes.Ldarg_1);
                 yield return new CodeInstruction(OpCodes.Ldloc_S, wasRay);
-                yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ReplayData), "OnHitscanFire"));
+                yield return new CodeInstruction(OpCodes.Call, Helpers.Method(typeof(ReplayData), "OnHitscanFire"));
                 yield return new CodeInstruction(OpCodes.Brfalse, abortCode);
 
 
                 foreach (var code in instlist.Take(instlist.Count - 1))
                 {
-                    NeonLite.Logger.Msg(code);
+                    NeonLite.Logger.DebugMsg(code);
                     yield return code;
                 }
                 NeonLite.Logger.Msg(new CodeInstruction(OpCodes.Ldloc_S, flag3).WithLabels(abortCode));
@@ -597,9 +596,9 @@ namespace NeonLite.Modules.Replays
                 if (!skip)
                 {
                     NeonLite.Logger.Msg(code);
-                    if (code.Calls(AccessTools.Method(typeof(Camera), "ViewportPointToRay", [typeof(Vector3)])) && wasRay == null)
+                    if (code.Calls(Helpers.Method(typeof(Camera), "ViewportPointToRay", [typeof(Vector3)])) && wasRay == null)
                         local = 0;
-                    else if (code.Calls(AccessTools.Method(typeof(Debug), "DrawRay", [typeof(Vector3), typeof(Vector3), typeof(Color), typeof(float)])) && wasNum4 == null)
+                    else if (code.Calls(Helpers.Method(typeof(Debug), "DrawRay", [typeof(Vector3), typeof(Vector3), typeof(Color), typeof(float)])) && wasNum4 == null)
                         local = 1;
                     if (code.opcode == OpCodes.Stloc_S || code.opcode == OpCodes.Ldloc_S)
                     {
@@ -629,12 +628,12 @@ namespace NeonLite.Modules.Replays
                         yield return new(OpCodes.Stsfld, AccessTools.Field(typeof(ReplayData), "num4"));
                         yield return new(OpCodes.Ldarg_0);
                         yield return new(OpCodes.Ldarg_1);
-                        yield return new(OpCodes.Call, AccessTools.Method(typeof(ReplayData), "PerformHitscan"));
+                        yield return new(OpCodes.Call, Helpers.Method(typeof(ReplayData), "PerformHitscan"));
                         yield return new(OpCodes.Stloc_S, flag3);
                     }
                 }
             }
-            NeonLite.Logger.Msg($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {wasRay} {wasNum4} {flag3}");
+            NeonLite.Logger.DebugMsg($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {wasRay} {wasNum4} {flag3}");
         }
 
         static bool OnHitscanFire(PlayerCard card, Ray ray)
@@ -642,7 +641,7 @@ namespace NeonLite.Modules.Replays
             if (!recording.Value)
                 return RunIfUnrestrict();
 
-            NeonLite.Logger.Msg($"{ray.origin} {ray.direction}");
+            NeonLite.Logger.DebugMsg($"{ray.origin} {ray.direction}");
 
             var frame = new HitscanFrame()
             {
@@ -749,7 +748,7 @@ namespace NeonLite.Modules.Replays
             bool skip = true;
             var levelSetup = AccessTools.Field(typeof(Game), "_levelSetup");
             var objmanInst = AccessTools.PropertyGetter(typeof(ObjectManager), "Instance");
-            var objmanReset = AccessTools.Method(typeof(ObjectManager), "Reset");
+            var objmanReset = Helpers.Method(typeof(ObjectManager), "Reset");
             foreach (var code in instructions)
             {
                 if (skip && code.Calls(objmanReset))
@@ -772,7 +771,7 @@ namespace NeonLite.Modules.Replays
                 {
                     check = false;
                     if (code.StoresField(levelSetup))
-                        yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ReplayData), "SetupDamageables"));
+                        yield return new CodeInstruction(OpCodes.Call, Helpers.Method(typeof(ReplayData), "SetupDamageables"));
                 }
             }
         }
