@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using MelonLoader;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +9,12 @@ using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
 using static GhostUtils;
+
+#if XBOX
+using System.Threading.Tasks;
+#else
+using Steamworks;
+#endif
 
 namespace NeonLite.Modules
 {
