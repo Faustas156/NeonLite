@@ -201,7 +201,7 @@ namespace NeonLite.Modules
             foreach (var kv in modules)
             {
                 var module = kv.Key;
-                if (!(bool)AccessTools.Field(module, "active").GetValue(null))
+                if (!(bool)Helpers.Field(module, "active").GetValue(null))
                     continue;
 
                 NeonLite.Logger.DebugMsg($"{module} OnLevelLoad");

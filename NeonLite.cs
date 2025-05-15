@@ -99,7 +99,7 @@ namespace NeonLite
 
             Helpers.StartProfiling("NeonLite Activate-priority Pass");
 
-            foreach (var module in modules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+            foreach (var module in modules.Where(t => (bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
             {
                 Logger.DebugMsg($"{module} Activate");
 
@@ -164,7 +164,7 @@ namespace NeonLite
 
             // perform the later inits
             Helpers.StartProfiling("NeonLite Activate-nonpriority Pass");
-            foreach (var module in modules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+            foreach (var module in modules.Where(t => !(bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
             {
                 Logger.DebugMsg($"{module} Activate");
                 Helpers.StartProfiling($"{module}");
@@ -234,7 +234,7 @@ namespace NeonLite
             {
                 Helpers.StartProfiling($"NeonLite Activate-priority Pass - {assembly.Assembly.GetName().Name}");
 
-                foreach (var module in addedModules.Where(t => (bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+                foreach (var module in addedModules.Where(t => (bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
                 {
                     Logger.DebugMsg($"{module} Activate");
                     Helpers.StartProfiling($"{module}");
@@ -261,7 +261,7 @@ namespace NeonLite
             {
                 Helpers.StartProfiling($"NeonLite Activate-nonpriority Pass - {assembly.Assembly.GetName().Name}");
 
-                foreach (var module in addedModules.Where(t => !(bool)AccessTools.Field(t, "priority").GetValue(null) && (bool)AccessTools.Field(t, "active").GetValue(null)))
+                foreach (var module in addedModules.Where(t => !(bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
                 {
                     Logger.DebugMsg($"{module} Activate");
                     Helpers.StartProfiling($"{module}");

@@ -363,7 +363,7 @@ namespace NeonLite.Modules.UI
             TextMeshProUGUI text;
             string localizeCache;
             readonly StringBuilder sb = new();
-            static readonly FieldInfo stField = AccessTools.Field(typeof(MechController), "weaponReloadTimer");
+            static readonly FieldInfo stField = Helpers.Field(typeof(MechController), "weaponReloadTimer");
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
             {
@@ -396,7 +396,7 @@ namespace NeonLite.Modules.UI
             TextMeshProUGUI text;
             string localizeCache;
             readonly StringBuilder sb = new();
-            static readonly FieldInfo cyField = AccessTools.Field(typeof(FirstPersonDrifter), "jumpForgivenessTimer");
+            static readonly FieldInfo cyField = Helpers.Field(typeof(FirstPersonDrifter), "jumpForgivenessTimer");
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
             {

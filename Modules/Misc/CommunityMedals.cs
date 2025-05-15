@@ -526,7 +526,7 @@ namespace NeonLite.Modules
                 __instance._imageLoreFilled.sprite = Crystals[medalEarned];
         }
 
-        static readonly FieldInfo currentLevelData = AccessTools.Field(typeof(Leaderboards), "currentLevelData");
+        static readonly FieldInfo currentLevelData = Helpers.Field(typeof(Leaderboards), "currentLevelData");
         static void PostSetScore(ref LeaderboardScore __instance, ref ScoreData newData, ref bool globalNeonRankings)
         {
             if (!Ready || globalNeonRankings) return;

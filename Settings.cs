@@ -12,8 +12,8 @@ namespace NeonLite
 {
     public static class Settings
     {
-        public static readonly int VERSION = 309;
-        public static MelonPreferences_Category mainCategory;
+        internal static readonly int VERSION = 3001003; // 1223344
+        internal static MelonPreferences_Category mainCategory;
 
         static readonly Dictionary<MelonPreferences_Entry, (string, string)> entryLoc = [];
         static readonly Dictionary<MelonPreferences_Category, string> catLoc = [];
@@ -323,6 +323,10 @@ namespace NeonLite
                         Find<bool>(h, "Optimization", "updateGlobalP").Value = Find<bool>(h, "Misc", "updateGlobalP", true).Value;
                         Find<string>(h, "UI", "endingImage").Value = Find<string>(h, "UI/In-game", "ending", true).Value;
                         readVersion = 309;
+                        break;
+                    case 309:
+                        Find<bool>(h, "VFX", "noStompSplash").Value = Find<bool>(h, "VFX", "noStomp").Value;
+                        readVersion = 3001003;
                         break;
                 }
 

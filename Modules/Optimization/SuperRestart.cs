@@ -250,7 +250,7 @@ namespace NeonLite.Modules.Optimization
             if (__instance.transform.parent == null)
                 destroy.Add(__instance.gameObject);
         }
-        static readonly FieldInfo tempObjs = AccessTools.Field(typeof(UltimateTextDamageManager), "m_tempObjects");
+        static readonly FieldInfo tempObjs = Helpers.Field(typeof(UltimateTextDamageManager), "m_tempObjects");
         static void MarkForDestroyDamageText(UltimateTextDamageManager __instance)
         {
             var objs = tempObjs.GetValue<List<GameObject>>(__instance);
@@ -409,32 +409,32 @@ namespace NeonLite.Modules.Optimization
         }
 
 
-        static readonly FieldInfo waitForStaging = AccessTools.Field(typeof(Game), "_waitForStaging");
-        static readonly FieldInfo currentPlaythrough = AccessTools.Field(typeof(Game), "_currentPlaythrough");
-        static readonly FieldInfo onlvlload = AccessTools.Field(typeof(Game), "OnLevelLoadComplete");
+        static readonly FieldInfo waitForStaging = Helpers.Field(typeof(Game), "_waitForStaging");
+        static readonly FieldInfo currentPlaythrough = Helpers.Field(typeof(Game), "_currentPlaythrough");
+        static readonly FieldInfo onlvlload = Helpers.Field(typeof(Game), "OnLevelLoadComplete");
 
-        static readonly FieldInfo enemycount = AccessTools.Field(typeof(EnemyWave), "enemiesRemaining");
-        static readonly FieldInfo enemydict = AccessTools.Field(typeof(EnemyWave), "enemyDict");
-        static readonly FieldInfo spawnerList = AccessTools.Field(typeof(EnemyWave), "_enemySpawner");
+        static readonly FieldInfo enemycount = Helpers.Field(typeof(EnemyWave), "enemiesRemaining");
+        static readonly FieldInfo enemydict = Helpers.Field(typeof(EnemyWave), "enemyDict");
+        static readonly FieldInfo spawnerList = Helpers.Field(typeof(EnemyWave), "_enemySpawner");
 
-        static readonly FieldInfo ghostTriggers = AccessTools.Field(typeof(GhostPlayback), "m_ghostTriggers");
-        static readonly FieldInfo hintActive = AccessTools.Field(typeof(GhostHintOriginVFX), "_activated");
+        static readonly FieldInfo ghostTriggers = Helpers.Field(typeof(GhostPlayback), "m_ghostTriggers");
+        static readonly FieldInfo hintActive = Helpers.Field(typeof(GhostHintOriginVFX), "_activated");
         static readonly MethodInfo hintSetActive = Helpers.Method(typeof(GhostHintOriginVFX), "SetActivated");
 
-        static readonly FieldInfo bossTimers = AccessTools.Field(typeof(BossEncounter), "_stateTimers");
-        static readonly FieldInfo bossState = AccessTools.Field(typeof(BossEncounter), "_currentState");
-        static readonly FieldInfo bossPlaying = AccessTools.Field(typeof(BossEncounter), "_isPlaying");
+        static readonly FieldInfo bossTimers = Helpers.Field(typeof(BossEncounter), "_stateTimers");
+        static readonly FieldInfo bossState = Helpers.Field(typeof(BossEncounter), "_currentState");
+        static readonly FieldInfo bossPlaying = Helpers.Field(typeof(BossEncounter), "_isPlaying");
         static readonly MethodInfo bossTransition = Helpers.Method(typeof(BossEncounter), "Transition");
-        static readonly FieldInfo bossIntroFX = AccessTools.Field(typeof(BossEncounter), "_playedIntroTeleportFX");
+        static readonly FieldInfo bossIntroFX = Helpers.Field(typeof(BossEncounter), "_playedIntroTeleportFX");
 
-        static readonly FieldInfo bossCList = AccessTools.Field(typeof(BossEncounter), "_crystals");
-        //static readonly FieldInfo bossCState = AccessTools.Field(typeof(BossEncounter), "_currentState");
-        //static readonly FieldInfo bossCPlaying = AccessTools.Field(typeof(BossEncounter), "_isPlaying");
-        //static readonly FieldInfo bossCTimers = AccessTools.Field(typeof(BossEncounter), "_stateTimers");
-        //static readonly FieldInfo bossCState = AccessTools.Field(typeof(BossEncounter), "_currentState");
-        //static readonly FieldInfo bossCPlaying = AccessTools.Field(typeof(BossEncounter), "_isPlaying");
+        static readonly FieldInfo bossCList = Helpers.Field(typeof(BossEncounter), "_crystals");
+        //static readonly FieldInfo bossCState = Helpers.Field(typeof(BossEncounter), "_currentState");
+        //static readonly FieldInfo bossCPlaying = Helpers.Field(typeof(BossEncounter), "_isPlaying");
+        //static readonly FieldInfo bossCTimers = Helpers.Field(typeof(BossEncounter), "_stateTimers");
+        //static readonly FieldInfo bossCState = Helpers.Field(typeof(BossEncounter), "_currentState");
+        //static readonly FieldInfo bossCPlaying = Helpers.Field(typeof(BossEncounter), "_isPlaying");
 
-        static readonly FieldInfo ltrigTriggered = AccessTools.Field(typeof(LevelTrigger), "_triggered");
+        static readonly FieldInfo ltrigTriggered = Helpers.Field(typeof(LevelTrigger), "_triggered");
 
         static IEnumerator QuickLevelSetup(Game game, LevelData level, bool staging = true)
         {
@@ -720,11 +720,11 @@ namespace NeonLite.Modules.Optimization
             RM.drifter.OnPlayerDie();
         }
 
-        static readonly FieldInfo flattenLoop = AccessTools.Field(typeof(DFlattener), "m_loop");
+        static readonly FieldInfo flattenLoop = Helpers.Field(typeof(DFlattener), "m_loop");
 
-        static readonly FieldInfo moveScaledT = AccessTools.Field(typeof(MoveTransform), "m_t");
-        static readonly FieldInfo moveTime = AccessTools.Field(typeof(MoveTransform), "m_timer");
-        static readonly FieldInfo moveLoop = AccessTools.Field(typeof(MoveTransform), "m_loop");
+        static readonly FieldInfo moveScaledT = Helpers.Field(typeof(MoveTransform), "m_t");
+        static readonly FieldInfo moveTime = Helpers.Field(typeof(MoveTransform), "m_timer");
+        static readonly FieldInfo moveLoop = Helpers.Field(typeof(MoveTransform), "m_loop");
 
         static void HandleSpecialComponent(MonoBehaviour comp)
         {

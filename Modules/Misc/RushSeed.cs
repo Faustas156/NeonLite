@@ -33,7 +33,6 @@ namespace NeonLite.Modules.Misc
         static void Activate(bool activate)
         {
             Patching.TogglePatch(activate, typeof(LevelRushStats), "RandomizeIndex", PutInSeed, Patching.PatchTarget.Transpiler);
-
             active = activate;
         }
 

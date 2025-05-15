@@ -18,7 +18,6 @@ namespace NeonLite.Modules.VFX
         static void Activate(bool activate)
         {
             Patching.TogglePatch(activate, typeof(EnvironmentFX), "StartEventSchedule", StopFX, Patching.PatchTarget.Prefix);
-
             active = activate;
         }
 

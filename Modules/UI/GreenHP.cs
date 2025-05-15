@@ -33,7 +33,7 @@ namespace NeonLite.Modules.UI
             bossHealth.transform.localPosition += new Vector3(3, 0, 0);
             bossHealth.SetActive(true);
 
-            hp.green = (Enemy)AccessTools.Field(typeof(BossUI), "_currentBossEnemy").GetValue(RM.ui.bossUI);
+            hp.green = (Enemy)Helpers.Field(typeof(BossUI), "_currentBossEnemy").GetValue(RM.ui.bossUI);
         }
 
         void Awake() => text = GetComponent<TextMeshPro>();

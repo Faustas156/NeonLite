@@ -31,8 +31,8 @@ namespace NeonLite.Modules.Misc.VFX
         {
             OpCode stopUntil = OpCodes.Nop;
             CodeInstruction storage = null;
-            var exploder = AccessTools.Field(typeof(RM), "exploder");
-            var ui = AccessTools.Field(typeof(RM), "ui");
+            var exploder = Helpers.Field(typeof(RM), "exploder");
+            var ui = Helpers.Field(typeof(RM), "ui");
 
             foreach (var code in instructions)
             {

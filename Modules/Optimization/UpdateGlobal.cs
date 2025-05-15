@@ -84,7 +84,7 @@ namespace NeonLite.Modules.Optimization
                 else
                     NeonLite.Logger.Warning("Failed to update global.");
 
-                AccessTools.Field(typeof(LeaderboardIntegrationSteam), "previousUserRanking").SetValue(null, ___previousUserRanking);
+                Helpers.Field(typeof(LeaderboardIntegrationSteam), "previousUserRanking").SetValue(null, ___previousUserRanking);
                 LeaderboardIntegrationSteam.SetupLeaderboardForLevel(newData, newRef, newCallback);
             });
             return false;

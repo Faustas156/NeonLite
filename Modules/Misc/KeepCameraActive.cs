@@ -21,7 +21,7 @@ namespace NeonLite.Modules.Misc
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             int skip = 0;
-            var crtCamera = AccessTools.Field(typeof(MainMenu), "CRTCamera");
+            var crtCamera = Helpers.Field(typeof(MainMenu), "CRTCamera");
 
             foreach (var code in instructions)
             {

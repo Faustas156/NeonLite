@@ -10,7 +10,7 @@ namespace NeonLite.Modules.Optimization
         const bool priority = true;
         const bool active = true;
 
-        static readonly FieldInfo textList = AccessTools.Field(typeof(AxKLocalizedTextLord), "m_localizedTexts");
+        static readonly FieldInfo textList = Helpers.Field(typeof(AxKLocalizedTextLord), "m_localizedTexts");
 
         static void OnLevelLoad(LevelData _)
         {

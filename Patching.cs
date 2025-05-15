@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -246,6 +246,22 @@ namespace NeonLite
         public static CodeMatcher Do(this CodeMatcher matcher, Action f)
         {
             f();
+            return matcher;
+        }
+
+        public static CodeMatcher Do(this CodeMatcher matcher, Action<CodeMatcher> f)
+        {
+            f(matcher);
+            return matcher;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static CodeMatcher Print(this CodeMatcher matcher, string prefix = "")
+        {
+#if DEBUG
+            foreach (var c in matcher.Instructions())
+                NeonLite.Logger.DebugMsg($"{prefix}{c}");
+#endif
             return matcher;
         }
     }

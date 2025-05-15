@@ -16,7 +16,7 @@ namespace NeonLite.Modules.Optimization
             Helpers.Method(typeof(UpdateManager), "UnsubscribeFromFixedUpdate"),
         ];
 
-        static readonly FieldInfo appIsQuitting = AccessTools.Field(typeof(Singleton<UpdateManager>), "applicationIsQuitting");
+        static readonly FieldInfo appIsQuitting = Helpers.Field(typeof(Singleton<UpdateManager>), "applicationIsQuitting");
 
         static void Activate(bool _)
         {

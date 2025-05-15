@@ -20,7 +20,6 @@ namespace NeonLite.Modules.Misc.VFX
         static void Activate(bool activate)
         {
             Patching.TogglePatch(activate, typeof(PlayerUI), "SetTelefragOverlay", StopTelefrag, Patching.PatchTarget.Prefix);
-
             active = activate;
         }
 

@@ -71,7 +71,7 @@ namespace NeonLite
                 {
                     if (generics != null)
                         method = method.MakeGenericMethod(generics);
-                    else if (cachedMethods.ContainsKey(type))
+                    if (cachedMethods.ContainsKey(type))
                         cachedMethods[type][key] = method;
                     else
                         cachedMethods[type] = new(1)
@@ -84,6 +84,29 @@ namespace NeonLite
             }
             return method;
         }
+        static readonly Dictionary<Type, Dictionary<string, FieldInfo>> cachedFields = new(200);
+        static public FieldInfo Field(Type type, string name)
+        {
+            if (!cachedFields.TryGetValue(type, out var names) || !names.TryGetValue(name, out var field))
+            {
+                field = type.GetField(name, AccessTools.allDeclared) ?? type.GetField(name, AccessTools.all);
+
+                if (field != null)
+                {
+                    if (cachedFields.ContainsKey(type))
+                        cachedFields[type][name] = field;
+                    else
+                        cachedFields[type] = new(1)
+                        {
+                            [name] = field
+                        };
+                }
+                else
+                    NeonLite.Logger.DebugMsg($"Failed to find field {type} {name}!!!!");
+            }
+            return field;
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodInfo MoveNext(this MethodInfo method) => AccessTools.EnumeratorMoveNext(method);
@@ -127,6 +150,7 @@ namespace NeonLite
             return timerBuilder.ToString();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ScreenToCanvasPosition(this Canvas canvas, Vector3 screenPosition)
         {
             var viewportPosition = new Vector3(screenPosition.x / Screen.width,
@@ -134,6 +158,8 @@ namespace NeonLite
                                                0);
             return canvas.ViewportToCanvasPosition(viewportPosition);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ViewportToCanvasPosition(this Canvas canvas, Vector3 viewportPosition)
         {
             var centerBasedViewPortPosition = viewportPosition - new Vector3(0.5f, 0.5f, 0);

@@ -65,7 +65,7 @@ namespace NeonLite.Modules
 
         static void LocalizeAll() => AxKLocalizedTextLord.GetInstance().OnLanguageSet();
 
-        static readonly FieldInfo fontIndex = AccessTools.Field(typeof(AxKLocalizedText), "m_fontIndex");
+        static readonly FieldInfo fontIndex = Helpers.Field(typeof(AxKLocalizedText), "m_fontIndex");
 
         public static AxKLocalizedText SetupUI(Component obj, int fontBase = -1)
         {
