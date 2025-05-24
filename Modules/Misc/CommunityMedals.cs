@@ -210,7 +210,7 @@ namespace NeonLite.Modules
                     {
                         void FetchNext(string next)
                         {
-                            var split = next.Split(['\n'], 1);
+                            var split = next.Split(['\n'], 2);
                             var url = split[0].Trim();
 
                             Helpers.DownloadURL(url, request =>
@@ -225,6 +225,7 @@ namespace NeonLite.Modules
                                     FetchNext(split[1]);
                             });
                         }
+                        FetchNext(overrideURL.Value);
                     }
                     else
                         NeonLite.Logger.Msg("Fetched community medals!");
