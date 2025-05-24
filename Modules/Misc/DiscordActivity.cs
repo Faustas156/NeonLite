@@ -89,7 +89,7 @@ namespace NeonLite.Modules.Misc
             startup = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
 
             var setting = Settings.Add(Settings.h, "Discord", "enabled", "Discord Rich Presence", "Enables the use of Discord Rich Presence.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
 
             menuTitle = Settings.Add(Settings.h, "Discord", "menuTitle", "Headline in menu", null, "In menu");
             menuDesc = Settings.Add(Settings.h, "Discord", "menuDesc", "Description in menu", null, "Sleeping");
@@ -127,7 +127,7 @@ namespace NeonLite.Modules.Misc
             {
                 NeonLite.Game.winAction -= LevelWin;
                 Destroy(instance);
-                DiscordInstance.GetActivityManager().ClearActivity(_ => { });
+                DiscordInstance.GetActivityManager().ClearActivity(static _ => { });
                 DiscordInstance.Dispose();
             }
 
@@ -268,7 +268,7 @@ namespace NeonLite.Modules.Misc
             NeonLite.Logger.DebugMsg(activity.Assets.LargeImage);
 
 
-            DiscordInstance.GetActivityManager().UpdateActivity(activity, result =>
+            DiscordInstance.GetActivityManager().UpdateActivity(activity, static result =>
             {
                 if (result != Result.Ok)
                     NeonLite.Logger.Error($"Discord UpdateActivity returned {result}");

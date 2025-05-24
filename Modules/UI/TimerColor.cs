@@ -18,7 +18,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             setting = Settings.Add(Settings.h, "UI/In-game", "timerColor", "In-game Timer Color", "Set alpha to 0 to disable.", Color.white);
-            active = setting.SetupForModule(Activate, (_, after) => after.a != 0);
+            active = setting.SetupForModule(Activate, static (_, after) => after.a != 0);
         }
 
         static void Activate(bool activate)

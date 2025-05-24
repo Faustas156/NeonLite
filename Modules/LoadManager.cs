@@ -16,7 +16,7 @@ namespace NeonLite.Modules
 
         public static LevelData currentLevel;
 
-        internal static Dictionary<Type, MethodInfo> modules = [];
+        internal static Dictionary<Type, (MethodInfo, FieldInfo)> modules = [];
 
         static void Activate(bool _)
         {
@@ -31,7 +31,13 @@ namespace NeonLite.Modules
             Patching.AddPatch(typeof(MenuScreenLoading), "LoadScene", Helpers.HM(PostMenuLoad).SetPriority(Priority.First), Patching.PatchTarget.Postfix);
         }
 
-        public static void AddModules(IEnumerable<Type> modules) => modules.Where(t => Helpers.Method(t, "OnLevelLoad") != null).Do(x => LoadManager.modules.Add(x, Helpers.Method(x, "OnLevelLoad")));
+        public static void AddModules(IEnumerable<Type> modules)
+        {
+            modules.Where(static t => Helpers.Method(t, "OnLevelLoad") != null).Do(static x =>
+            {
+                LoadManager.modules.Add(x, (Helpers.Method(x, "OnLevelLoad"), Helpers.Field(x, "active")));
+            });
+        }
 
         static float savedTimescale;
         static void DoTimescale()
@@ -51,7 +57,7 @@ namespace NeonLite.Modules
                 RM.time?.SetTargetTimescale(savedTimescale, true);
         }
 
-        static void SetCurrentLevel(LevelData newLevel) => currentLevel = newLevel; 
+        static void SetCurrentLevel(LevelData newLevel) => currentLevel = newLevel;
 
         static IEnumerable<CodeInstruction> AddLoadCall(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
@@ -127,9 +133,9 @@ namespace NeonLite.Modules
                     if (state == null && code.opcode == OpCodes.Ldfld)
                     {
                         state = (FieldInfo)code.operand;
-                        var prop = AccessTools.FirstProperty(state.DeclaringType, _ => true);
+                        var prop = AccessTools.FirstProperty(state.DeclaringType, static _ => true);
                         var getter = prop.GetGetMethod(true);
-                        current = (FieldInfo)PatchProcessor.ReadMethodBody(getter).First(kv => kv.Value != null).Value;
+                        current = (FieldInfo)PatchProcessor.ReadMethodBody(getter).First(static kv => kv.Value != null).Value;
                     }
 
                     if (code.opcode == OpCodes.Switch && stateToSetStart == 0)
@@ -201,7 +207,7 @@ namespace NeonLite.Modules
             foreach (var kv in modules)
             {
                 var module = kv.Key;
-                if (!(bool)Helpers.Field(module, "active").GetValue(null))
+                if (!(bool)kv.Value.Item2.GetValue(null))
                     continue;
 
                 NeonLite.Logger.DebugMsg($"{module} OnLevelLoad");
@@ -210,17 +216,17 @@ namespace NeonLite.Modules
 
                 try
                 {
-                    var ret = kv.Value.Invoke(null, [currentLevel]);
+                    var ret = kv.Value.Item1.Invoke(null, [currentLevel]);
                     if (ret != null && !(bool)ret)
                     {
                         NeonLite.Logger.DebugMsg($"{module} returned false, trying again later");
 
-                        retries.Enqueue(kv.Value);
+                        retries.Enqueue(kv.Value.Item1);
                     }
                 }
                 catch (Exception e)
                 {
-                    NeonLite.Logger.Error($"error in {module} OnLevelLoad:");
+                    NeonLite.Logger.Warning($"Error in {module} OnLevelLoad:");
                     NeonLite.Logger.Error(e);
                 }
 
@@ -252,7 +258,7 @@ namespace NeonLite.Modules
                     }
                     catch (Exception e)
                     {
-                        NeonLite.Logger.Error($"error in {method.DeclaringType} OnLevelLoad:");
+                        NeonLite.Logger.Warning($"Error in {method.DeclaringType} OnLevelLoad:");
                         NeonLite.Logger.Error(e);
                     }
 

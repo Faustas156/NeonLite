@@ -17,7 +17,7 @@ namespace NeonLite.Modules.Misc.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noShocker", "Disable shocker overlay", "Disable the white flash from shockers, including the explosion.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate)

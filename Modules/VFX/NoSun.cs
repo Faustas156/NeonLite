@@ -14,7 +14,7 @@ namespace NeonLite.Modules.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noSun", "Disable sun", "Disable the bright sun that appears in most levels.\n(Requires restart to re-enable.)", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;

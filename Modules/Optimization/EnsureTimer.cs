@@ -6,8 +6,7 @@ using UnityEngine;
 
 namespace NeonLite.Modules.Optimization
 {
-    [HarmonyPatch]
-    internal class EnsureTimer : IModule
+    public class EnsureTimer : IModule
     {
 #pragma warning disable CS0414
         const bool priority = true;
@@ -24,7 +23,6 @@ namespace NeonLite.Modules.Optimization
         static Vector3 currentPos;
         static long currentMS;
         static bool extendedTrigger;
-        static bool maybeET;
 
         internal static Collider cOverride;
 
@@ -34,7 +32,12 @@ namespace NeonLite.Modules.Optimization
 
         static long ghostTimer;
 
-        static void Activate(bool _) => NeonLite.Game.OnLevelLoadComplete += SetTrue;
+        static void Activate(bool _)
+        {
+            NeonLite.Game.OnLevelLoadComplete += SetTrue;
+
+            Patching.PerformHarmonyPatches(typeof(EnsureTimer));
+        }
 
         [HarmonyPatch(typeof(LevelPlaythrough), "Reset")]
         [HarmonyPatch(typeof(Game), "LevelSetupRoutine")]
@@ -83,7 +86,7 @@ namespace NeonLite.Modules.Optimization
 
         [HarmonyPatch(typeof(FirstPersonDrifter), "Update")]
         [HarmonyPrefix]
-        static void FPDUpdate(FirstPersonDrifter __instance) => processed = true;
+        static void FPDUpdate() => processed = true;
 
         [HarmonyPatch(typeof(FirstPersonDrifter), "UpdateVelocity")]
         [HarmonyPostfix]
@@ -119,30 +122,13 @@ namespace NeonLite.Modules.Optimization
                 extendedTrigger = true;
                 cOverride = c;
             }
-
-            maybeET = true;
-            //if (NeonLite.DEBUG)
-            //    NeonLite.Logger.Msg($"dt pre");
-
-            //if (NeonLite.DEBUG)
-            //    NeonLite.Logger.Msg($"dt {c} override? {cOverride}");
         }
-        [HarmonyPatch(typeof(DamageableTrigger), "OnTriggerStay")]
-        [HarmonyPostfix]
-        static void DamageableTriggerStop()
-        {
-            maybeET = false;
-            //if (NeonLite.DEBUG)
-            //    NeonLite.Logger.Msg($"dt post");
-        }
-
-
 
         [HarmonyPatch(typeof(MechController), "Die")]
         [HarmonyPrefix]
         static void OnDie() => locked = true;
 
-        internal static long CalculateOffset(Collider trigger)
+        public static long CalculateOffset(Collider trigger)
         {
             var rigidbody = (extendedTrigger ? RM.drifter.playerDashDamageableTrigger as Component : RM.drifter).GetComponent<Rigidbody>();
             NeonLite.Logger.DebugMsg($"trigger {trigger} rigidbody {rigidbody}");
@@ -243,7 +229,7 @@ namespace NeonLite.Modules.Optimization
 
             var hits = rigidbody.SweepTestAll(vel.normalized, balanced, QueryTriggerInteraction.Collide);
             if (hits.Length > 0)
-                hit = hits.OrderBy(x => x.distance).FirstOrDefault(x => x.collider == trigger);
+                hit = hits.OrderBy(static x => x.distance).FirstOrDefault(x => x.collider == trigger);
 
             rigidbody.position = prePos;
             rigidbody.gameObject.layer = preLayer;

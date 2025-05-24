@@ -25,7 +25,7 @@ namespace NeonLite.Modules.Optimization
 
             setting.IsHidden = true;
             return;
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate)
@@ -59,11 +59,11 @@ namespace NeonLite.Modules.Optimization
         {
             if (!popup.Value)
             {
-                MainMenu.Instance()._popup.SetPopup("NeonLite/AUTOGLOBAL_NOTICE", () =>
+                MainMenu.Instance()._popup.SetPopup("NeonLite/AUTOGLOBAL_NOTICE", static () =>
                 {
                     setting.Value = false;
                     MelonPreferences.Save();
-                }, () => { });
+                }, static () => { });
                 popup.Value = true;
                 MelonPreferences.Save();
             }

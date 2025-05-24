@@ -13,7 +13,7 @@ namespace NeonLite.Modules.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noBloom", "Disable bloom", "Disable the bloom effect.\n(Requires restart to re-enable.)", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;

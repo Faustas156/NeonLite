@@ -59,7 +59,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Speedometer", "enabled", "Speedometer", "Enables displaying additional information about the player.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
 
             alpha = Settings.Add(Settings.h, "Speedometer", "alpha", "Opacity", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             scale = Settings.Add(Settings.h, "Speedometer", "scale", "Scale", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 5));
@@ -72,7 +72,7 @@ namespace NeonLite.Modules.UI
             fastC = Settings.Add(Settings.h, "Speedometer", "fastColor", "Text color (Fast)", null, Color.green);
             slowC = Settings.Add(Settings.h, "Speedometer", "slowColor", "Text color (Slow)", null, Color.red);
             oldStyle = Settings.Add(Settings.h, "Speedometer", "oldStyle", "Use Arial Font", "Enable to somewhat replicate how it looks in PuppyPowertools.", true);
-            oldStyle.OnEntryValueChanged.Subscribe((_, _) => Relocalize());
+            oldStyle.OnEntryValueChanged.Subscribe(static (_, _) => Relocalize());
             minimal = Settings.Add(Settings.h, "Speedometer", "minimal", "Minimal", "Gets rid of most text and only show numbers.", false);
 
             position = Settings.Add(Settings.h, "Speedometer", "position", "Show Position", null, true);
@@ -83,7 +83,7 @@ namespace NeonLite.Modules.UI
             swapTimer = Settings.Add(Settings.h, "Speedometer", "swapTimer", "Show Swap Timer", null, false);
             coyoteTimer = Settings.Add(Settings.h, "Speedometer", "coyoteTimer", "Show Coyote Timer", null, true);
 
-            NeonLite.OnBundleLoad += bundle =>
+            NeonLite.OnBundleLoad += static bundle =>
             {
                 prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/Speedometer.prefab");
                 if (tried)
@@ -192,7 +192,7 @@ namespace NeonLite.Modules.UI
         class Position : MonoBehaviour, AxKLocalizedTextObject_Interface
         {
             TextMeshProUGUI text;
-            StringBuilder sb = new();
+            static readonly StringBuilder sb = new();
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start() => AxKLocalizedTextLord.GetInstance().AddText(this);
             void LateUpdate()
@@ -214,7 +214,7 @@ namespace NeonLite.Modules.UI
         class Rotation : MonoBehaviour, AxKLocalizedTextObject_Interface
         {
             TextMeshProUGUI text;
-            readonly StringBuilder sb = new();
+            static readonly StringBuilder sb = new();
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start() => AxKLocalizedTextLord.GetInstance().AddText(this);
             void LateUpdate()
@@ -244,7 +244,7 @@ namespace NeonLite.Modules.UI
             static FullVelocity instance;
             TextMeshProUGUI text;
             string localizeCache;
-            readonly StringBuilder sb = new();
+            static readonly StringBuilder sb = new();
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
             {
@@ -281,7 +281,7 @@ namespace NeonLite.Modules.UI
             static Lateral instance;
             TextMeshProUGUI text;
             string localizeCache;
-            readonly StringBuilder sb = new();
+            static readonly StringBuilder sb = new();
             Vector2 v = new();
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
@@ -324,7 +324,7 @@ namespace NeonLite.Modules.UI
             static YVelocity instance;
             TextMeshProUGUI text;
             string localizeCache;
-            readonly StringBuilder sb = new();
+            static readonly StringBuilder sb = new();
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
             {
@@ -362,7 +362,7 @@ namespace NeonLite.Modules.UI
             static SwapTimer instance;
             TextMeshProUGUI text;
             string localizeCache;
-            readonly StringBuilder sb = new();
+            static readonly StringBuilder sb = new();
             static readonly FieldInfo stField = Helpers.Field(typeof(MechController), "weaponReloadTimer");
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()
@@ -395,7 +395,7 @@ namespace NeonLite.Modules.UI
             static CoyoteTimer instance;
             TextMeshProUGUI text;
             string localizeCache;
-            readonly StringBuilder sb = new();
+            static readonly StringBuilder sb = new();
             static readonly FieldInfo cyField = Helpers.Field(typeof(FirstPersonDrifter), "jumpForgivenessTimer");
             void Awake() => text = GetComponent<TextMeshProUGUI>();
             void Start()

@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MelonLoader;
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace NeonLite.Modules
 
         static void Setup()
         {
-            NeonLite.OnBundleLoad += bundle =>
+            NeonLite.OnBundleLoad += static bundle =>
             {
                 prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/AnticheatText.prefab");
                 if (hasSetup)
@@ -44,11 +44,11 @@ namespace NeonLite.Modules
             };
 
             force = Settings.Add(Settings.h, "Misc", "anticheatOn", "Force Anticheat", null, false, true);
-            force.SetupForModule(MaybeActivate, (_, after) => after);
+            force.SetupForModule(MaybeActivate, static (_, after) => after);
             active = force.Value || assemblies.Count > 0;
 
             ghost = Settings.Add(Settings.h, "Misc", "overrideGhost", "Ghost Name", null, "", true);
-            ghost.OnEntryValueChanged.Subscribe((_, after) => SetGhostName(NeonLite.i.MelonAssembly, after));
+            ghost.OnEntryValueChanged.Subscribe(static (_, after) => SetGhostName(NeonLite.i.MelonAssembly, after));
             SetGhostName(NeonLite.i.MelonAssembly, ghost.Value);
         }
         static void MaybeActivate(bool _) => Activate(assemblies.Count > 0);
@@ -233,7 +233,7 @@ namespace NeonLite.Modules
 
             return new CodeMatcher(instructions, generator)
                 .MatchForward(false, new CodeMatch(OpCodes.Call, Helpers.Method(typeof(File), "Exists"))) // go to file exists
-                .MatchBack(false, new CodeMatch(x => x.IsLdloc())) // go backwards to the stloc
+                .MatchBack(false, new CodeMatch(static x => x.IsLdloc())) // go backwards to the stloc
                 .CloneInPlace(out var ldloc)
                 .Do(() => ldlocN = ldloc.Opcode.Name.Last().ToString())
                 .MatchBack(true, new CodeMatch(x => x.IsStloc() && x.opcode.Name.EndsWith(ldlocN))) // go back to the **matching** stloc
@@ -245,7 +245,7 @@ namespace NeonLite.Modules
                 .Advance(1)
                 .Insert(
                     new CodeInstruction(OpCodes.Dup), // duplicate the path
-                    Transpilers.EmitDelegate<Func<string, bool>>(x => x.EndsWith(".phant")), // check if we end with phant
+                    Transpilers.EmitDelegate<Func<string, bool>>(static x => x.EndsWith(".phant")), // check if we end with phant
                     new CodeInstruction(OpCodes.Brtrue, after)) // if we do, branch forward
                 .MatchBack(true, new CodeMatch(x => x.IsStloc() && x.opcode.Name.EndsWith(ldlocN))) // go back to the *other* matching stloc
                 .Advance(1)

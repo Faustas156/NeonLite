@@ -1,6 +1,4 @@
-﻿#if DEBUG
-#define ENABLE_PROFILER
-#else
+﻿#if !DEBUG
 // #define ENABLE_PROFILER
 #endif
 
@@ -177,10 +175,18 @@ namespace NeonLite
         static readonly Stack<ProfilerMarker> currentMarkers = [];
         static readonly Stack<Tuple<string, Stopwatch>> currentWatches = [];
 
+        static bool profiling = true;
+
+        [Conditional("ENABLE_PROFILER")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EnableProfiling(bool enable) => profiling = enable;
+
         [Conditional("ENABLE_PROFILER")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void StartProfiling(string name)
         {
+            if (!profiling)
+                return;
             if (NeonLite.DEBUG)
                 currentWatches.Push(new(name, new Stopwatch()));
             currentMarkers.Push(new(ProfilerCategory.Scripts, name));
@@ -215,6 +221,9 @@ namespace NeonLite
         [Conditional("ENABLE_PROFILER")]
         public static void EndProfiling()
         {
+            if (!profiling)
+                return;
+
             currentMarkers.Pop().End();
             if (NeonLite.DEBUG)
             {

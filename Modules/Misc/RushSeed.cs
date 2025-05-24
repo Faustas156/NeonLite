@@ -20,7 +20,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             setting = Settings.Add(Settings.h, "Misc", "rushSeed", "Level Rush Seed", "Negative is random.", -1);
-            setting.OnEntryValueChanged.Subscribe((before, after) =>
+            setting.OnEntryValueChanged.Subscribe(static (before, after) =>
             {
                 if (before < 0 && after >= 0)
                     Activate(true);

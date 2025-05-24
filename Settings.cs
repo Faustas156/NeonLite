@@ -311,6 +311,15 @@ namespace NeonLite
                 }
             }
 
+            category = MelonPreferences.CreateCategory("FullSync");
+            migrated = category.CreateEntry("MIGRATED", false, is_hidden: true).Value;
+            if (!migrated)
+            {
+                category.GetEntry<bool>("MIGRATED").Value = true;
+
+                Find<bool>(h, "Optimization", "fullSync").Value = category.CreateOrFind("Apply Patch", true, true).Value;
+            }
+
             while (readVersion < VERSION)
             {
                 switch (readVersion)

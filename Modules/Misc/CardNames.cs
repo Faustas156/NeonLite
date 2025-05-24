@@ -30,7 +30,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Cards", "enabled", "Card Customizations", "Lets you customize the text on each card. Changes require full level restart.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
 
             elevate = Settings.Add(Settings.h, "Cards", "elevate", "Elevate Text", null, "Elevate");
             purify = Settings.Add(Settings.h, "Cards", "purify", "Purify Text", null, "Purify");
@@ -43,7 +43,7 @@ namespace NeonLite.Modules.Misc
             health = Settings.Add(Settings.h, "Cards", "health", "Health Text", null, "Health");
 
             setting = Settings.Add(Settings.h, "Cards", "allCards", "Show on All Cards", "Displays text for cards that normally don't have any.\nDoesn't require Card Customizations to be enabled.", false);
-            AllAbilities.active = setting.SetupForModule(AllAbilities.Activate, (_, after) => after);
+            AllAbilities.active = setting.SetupForModule(AllAbilities.Activate, static (_, after) => after);
 
             katana = Settings.Add(Settings.h, "Cards", "katana", "Katana Text", null, "Katana");
             katanaM = Settings.Add(Settings.h, "Cards", "katanaM", "Miracle Katana Text", null, "Miracle Katana");

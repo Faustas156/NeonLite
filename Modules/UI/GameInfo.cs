@@ -47,7 +47,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/Info", "enabled", "Enable Game Info", "Enables additional information about the game and current level in the top left.", true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
 
             alpha = Settings.Add(Settings.h, "UI/Info", "alpha", "Opacity", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 1));
             scale = Settings.Add(Settings.h, "UI/Info", "scale", "Scale", null, 1f, new MelonLoader.Preferences.ValueRange<float>(0, 5));
@@ -57,9 +57,9 @@ namespace NeonLite.Modules.UI
             totalAttempts = Settings.Add(Settings.h, "UI/Info", "totalAttempts", "Show Total Restarts", "Shows how many attempts you've made for this stage.", true);
             seshAttempts = Settings.Add(Settings.h, "UI/Info", "seshAttempts", "Show Session Restarts", "Shows how many attempts you've made for this stage this session.", true);
             showCompleted = Settings.Add(Settings.h, "UI/Info", "showCompleted", "Show # of Finishes", "Additionally shows the amount of completed finishes on the session attempts.", true);
-            showCompleted.OnEntryValueChanged.Subscribe((_, _) => AttemptsNow.Relocalize());
+            showCompleted.OnEntryValueChanged.Subscribe(static (_, _) => AttemptsNow.Relocalize());
 
-            NeonLite.OnBundleLoad += bundle =>
+            NeonLite.OnBundleLoad += static bundle =>
             {
                 NeonLite.Logger.DebugMsg("GameInfo onBundleLoad");
 
@@ -189,7 +189,7 @@ namespace NeonLite.Modules.UI
 
                 NeonLite.holder.AddComponent<RestartManager>();
 
-                NeonLite.Game.OnLevelLoadComplete += () =>
+                NeonLite.Game.OnLevelLoadComplete += static () =>
                 {
                     if (!lastLevel || lastLevel.type == LevelData.LevelType.Hub)
                         return;
@@ -203,7 +203,7 @@ namespace NeonLite.Modules.UI
                     instance?.seshAttemptsI.UpdateText(ri.session, ri.completed);
                 };
 
-                NeonLite.Game.winAction += () =>
+                NeonLite.Game.winAction += static () =>
                 {
                     var ri = restarts[lastLevel.levelID];
                     ri.completed++;

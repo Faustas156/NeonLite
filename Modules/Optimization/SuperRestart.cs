@@ -1,4 +1,4 @@
-﻿using ClockStone;
+using ClockStone;
 using Guirao.UltimateTextDamage;
 using HarmonyLib;
 using MelonLoader;
@@ -36,10 +36,10 @@ namespace NeonLite.Modules.Optimization
             pauseStaging = Settings.Add(Settings.h, "Optimization", "pauseStagingSR", "Pause Restarts to Staging", null, true, true);
             gcTimer = Settings.Add(Settings.h, "Optimization", "gcTimerSR", "Restarts to call GC", null, 50, true);
             memTimer = Settings.Add(Settings.h, "Optimization", "memTimerSR", "Restarts to call Resource cleanup", null, 10, true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
 
             var useScreenshot = Settings.Add(Settings.h, "Optimization", "useScreenshotSR", "Minimize Flashing", "Use a screenshot of the stage to minimize flashing.\n**Requires Quick Restart.**", true);
-            LoadingScreenshot.active = useScreenshot.SetupForModule(LoadingScreenshot.Activate, (_, after) => after);
+            LoadingScreenshot.active = useScreenshot.SetupForModule(LoadingScreenshot.Activate, static (_, after) => after);
         }
 
         static readonly List<MethodInfo> prefixToRegister = [
@@ -221,7 +221,7 @@ namespace NeonLite.Modules.Optimization
             if (LevelRush.IsLevelRush() && g.GetCurrentLevelTimerMicroseconds() > 0)
                 LevelRush.UpdateLevelRushTimerMicroseconds(g.GetCurrentLevelTimerMicroseconds());
             if (___audioBoostLoop)
-                    ___audioBoostLoop.Stop();
+                ___audioBoostLoop.Stop();
             if (RM.alertManager)
                 RM.alertManager.ClearAlert(false);
             AudioController.Play("UI_LEVEL_RESET", MainMenu.Instance().transform);
@@ -234,11 +234,53 @@ namespace NeonLite.Modules.Optimization
         static void SetActiveScene(int activeSceneIndex) => activeScene = activeSceneIndex;
 
         static readonly HashSet<GameObject> destroy = [];
+        static readonly HashSet<(GameObject, Object)> restores = [];
+
+        static bool RestoresContainObject(GameObject obj)
+        {
+            foreach ((var x, _) in restores)
+            {
+                if (x == obj)
+                    return true;
+            }
+            return false;
+        }
+
+        static bool RestoresContainSpawner(Object obj)
+        {
+            foreach ((_, var y) in restores)
+            {
+                if (y == obj)
+                    return true;
+            }
+            return false;
+        }
+
+        static void RemoveFromRestores(MonoBehaviour __instance) => restores.RemoveWhere(((GameObject, Object) xy) => xy.Item1 == __instance.gameObject);
+
         static void MarkForDestroy(GameObject __result) => destroy.Add(__result);
         static void MarkForDestroyEnemy(GameObject ____enemyObj) => destroy.Add(____enemyObj);
 
-        static void MarkForDestroyCard(GameObject obj) => destroy.Add(obj);
-        static void MarkForDestroyCard2(ref CardPickup pickup)
+        static void MarkForDestroyCard(CardPickupSpawner __instance, GameObject obj)
+        {
+            if (__instance.holderType == CardPickupSpawner.Type.Card && __instance.spawnOnStart)
+            {
+
+                destroy.Remove(obj);
+                restores.Add((obj, __instance));
+
+                var card = obj.GetComponent<CardPickup>();
+                var action = (Action)Helpers.Field(typeof(CardPickup), "_onPickupCollected").GetValue(card);
+                card.SetPickupAction(() =>
+                {
+                    action?.Invoke();
+                    RemoveFromRestores(card);
+                });
+            }
+            else if (!RestoresContainObject(obj))
+                destroy.Add(obj);
+        }
+        static void MarkForDestroyCard2(CardPickup pickup)
         {
             if (pickup)
                 destroy.Add(pickup.gameObject);
@@ -335,7 +377,7 @@ namespace NeonLite.Modules.Optimization
                 }.transform;
                 reserve.gameObject.SetActive(false);
 
-                iter = Object.FindObjectsOfType<BaseDamageable>(true).Select(x => x.gameObject);
+                iter = Object.FindObjectsOfType<BaseDamageable>(true).Select(static x => x.gameObject);
 
                 foreach (var comp in iter)
                 {
@@ -436,6 +478,7 @@ namespace NeonLite.Modules.Optimization
 
         static readonly FieldInfo ltrigTriggered = Helpers.Field(typeof(LevelTrigger), "_triggered");
 
+        static readonly FieldInfo cardCollected = Helpers.Field(typeof(CardPickupSpawner), "_cardHasBeenCollected");
         static IEnumerator QuickLevelSetup(Game game, LevelData level, bool staging = true)
         {
             AsyncOperation cop = null;
@@ -508,7 +551,7 @@ namespace NeonLite.Modules.Optimization
             {
                 if (obj)
                 {
-                    foreach (var mat in obj.GetComponentsInParent<Renderer>().SelectMany(x => x.materials))
+                    foreach (var mat in obj.GetComponentsInParent<Renderer>().SelectMany(static x => x.materials))
                         Object.Destroy(mat);
                     Object.Destroy(obj);
                 }
@@ -602,7 +645,7 @@ namespace NeonLite.Modules.Optimization
             }
 
             ObjectManager.Instance.Reset();
-            Utils.ClearPreloadedObjectsFromResources();
+            // Utils.ClearPreloadedObjectsFromResources(); // do not do this, speeds stuff up
             destroy.Clear();
             RM.time.SetTargetTimescale(1, true);
 
@@ -643,7 +686,15 @@ namespace NeonLite.Modules.Optimization
             foreach (var spawner in InRegistry<CardPickupSpawner>(true).ProfileLoop("Respawn Cards"))
             {
                 if (spawner.spawnOnStart)
-                    spawner.SpawnCard();
+                {
+                    if (!RestoresContainSpawner(spawner))
+                    {
+                        cardCollected.SetValue(spawner, false);
+                        spawner.SpawnCard();
+                    }
+                    else
+                        AddToRegistry(spawner);
+                }
             }
             foreach (var spawner in InRegistry<ObjectSpawner>(true).ProfileLoop("Respawn ObjectSpawners"))
             {
@@ -862,7 +913,7 @@ namespace NeonLite.Modules.Optimization
 
         static void Setup()
         {
-            NeonLite.OnBundleLoad += bundle =>
+            NeonLite.OnBundleLoad += static bundle =>
             {
                 prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/LoadingRawImage.prefab");
                 if (tried)

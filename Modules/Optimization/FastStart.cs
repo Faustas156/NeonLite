@@ -54,19 +54,13 @@ namespace NeonLite.Modules.Optimization
 
             wasSetup = true;
             var setting = Settings.Add(Settings.h, "Optimization", "fastStart", "Fast Startup", "Preloads essential scenes before the game even initializes to speed up the menu load.", true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
             if (active)
             {
                 GS.savingAllowed = false;
                 Preload();
                 SceneManager.activeSceneChanged += OnFirstLoad;
             }
-        }
-
-        static IEnumerator ActivatePriority()
-        {
-            yield return null;
-            NeonLite.ActivatePriority();
         }
 
         static void Activate(bool activate) => active = activate;
@@ -77,7 +71,7 @@ namespace NeonLite.Modules.Optimization
             stopwatch.Start();
 
             audioPreload = SceneManager.LoadSceneAsync("Audio", LoadSceneMode.Additive);
-            audioPreload.completed += _ => PreloadDone();
+            audioPreload.completed += static _ => PreloadDone();
             NeonLite.LoadAssetBundle();
         }
 
@@ -103,9 +97,7 @@ namespace NeonLite.Modules.Optimization
         {
             SceneManager.activeSceneChanged -= OnFirstLoad;
 
-            Localization.Activate(true);
-
-            MelonCoroutines.Start(ActivatePriority());
+            NeonLite.ActivatePriority();
             MelonCoroutines.Start(LoadScenes());
         }
 
@@ -205,7 +197,7 @@ namespace NeonLite.Modules.Optimization
 
             Dictionary<string, AudioItem> res = new(count);
             
-            foreach (var item in controllers.SelectMany(x => x.AudioCategories).SelectMany(x => x.AudioItems))
+            foreach (var item in controllers.SelectMany(static x => x.AudioCategories).SelectMany(static x => x.AudioItems))
             {
                 if (item == null || res.ContainsKey(item.Name))
                     continue;

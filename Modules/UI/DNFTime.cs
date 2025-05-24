@@ -24,7 +24,7 @@ namespace NeonLite.Modules.UI
             sfxSetting = Settings.Add(Settings.h, "UI/In-game", "dnfSound", "DNF Sound FX", "The sound to play when you DNF.\nBlank to disable.", "UI_CUTIN_IN");
             resetOnDie = Settings.Add(Settings.h, "UI/In-game", "dnfReset", "Reset DNF Time on Enemy Death", null, true);
 
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate)

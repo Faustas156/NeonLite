@@ -78,7 +78,6 @@ namespace NeonLite.Modules
 
         public static event Action AssetsFinished;
         static bool fetched;
-        static bool activated;
         static bool loaded;
 
         public static MelonPreferences_Entry<bool> setting;
@@ -100,9 +99,9 @@ namespace NeonLite.Modules
             hideLeaderboard = Settings.Add(Settings.h, "Medals", "hideLeaderboard", "Hide Leaderboard Medals", "Unachieved medals will appear the same as your own on the leaderboards.", false);
             overrideURL = Settings.Add(Settings.h, "Medals", "overrideURL", "Extension URL", "Specifies additional community medals JSON URL to apply on top of the existing community medals.", "");
 
-            active = setting.SetupForModule(Activate, (_, after) => after);
-            hueShift.OnEntryValueChanged.Subscribe((_, after) => HueShiftMat?.SetFloat("_Shift", after));
-            overrideURL.OnEntryValueChanged.Subscribe((_, after) => RefetchMedals());
+            active = setting.SetupForModule(Activate, static (_, after) => after);
+            hueShift.OnEntryValueChanged.Subscribe(static (_, after) => HueShiftMat?.SetFloat("_Shift", after));
+            overrideURL.OnEntryValueChanged.Subscribe(static (_, after) => RefetchMedals());
 
             NeonLite.OnBundleLoad += AssetsDone;
         }
@@ -205,18 +204,31 @@ namespace NeonLite.Modules
                 else
                     load = true;
 
-                if (load && overrideURL.Value != "")
-                {
-                    Helpers.DownloadURL(overrideURL.Value, request =>
-                    {
-                        var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text);
-                        if (!load)
-                            NeonLite.Logger.Warning("Failed to load extended community medals.");
-                    });
-                }
-
                 if (load)
-                    NeonLite.Logger.Msg("Fetched community medals!");
+                {
+                    if (overrideURL.Value != "")
+                    {
+                        void FetchNext(string next)
+                        {
+                            var split = next.Split(['\n'], 1);
+                            var url = split[0].Trim();
+
+                            Helpers.DownloadURL(url, request =>
+                            {
+                                var load = request.result == UnityEngine.Networking.UnityWebRequest.Result.Success && Load(request.downloadHandler.text);
+                                if (!load)
+                                    NeonLite.Logger.Warning($"Failed to load extended community medals from URL {url}.");
+
+                                if (split.Length <= 1)
+                                    NeonLite.Logger.Msg("Finished loading extended community medals!");
+                                else 
+                                    FetchNext(split[1]);
+                            });
+                        }
+                    }
+                    else
+                        NeonLite.Logger.Msg("Fetched community medals!");
+                }
             });
         }
 
@@ -236,7 +248,6 @@ namespace NeonLite.Modules
 
         static void Activate(bool activate)
         {
-            activated = true;
             OnLevelLoad(null);
 
             Patching.TogglePatch(activate, typeof(LevelInfo), "SetLevel", Helpers.HM(PostSetLevel).SetPriority(Priority.First), Patching.PatchTarget.Postfix);
@@ -273,7 +284,7 @@ namespace NeonLite.Modules
         {
             loaded = true;
             NeonLite.Logger.DebugMsg("CommunityMedals onBundleLoad");
-            if (!activated)
+            if (!NeonLite.activateLate)
                 return;
             loaded = false;
 

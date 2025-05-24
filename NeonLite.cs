@@ -38,9 +38,8 @@ namespace NeonLite
         internal static AssetBundle bundle;
         internal static event Action<AssetBundle> OnBundleLoad;
 
-        static bool setupCalled;
-        static bool activateEarly;
-        static bool activateLate;
+        internal static bool activateEarly;
+        internal static bool activateLate;
 
         public override void OnEarlyInitializeMelon()
         {
@@ -52,8 +51,12 @@ namespace NeonLite
 
         public override void OnInitializeMelon()
         {
+            VersionText.ver = Info.Version;
+            Logger.Msg($"Version: {Info.Version}");
+            UnityEngine.Debug.Log($"NeonLite Version: {Info.Version}");
+
 #if DEBUG
-            Settings.mainCategory.GetEntry<bool>("DEBUG").OnEntryValueChanged.Subscribe((_, a) => DEBUG = a);
+            Settings.mainCategory.GetEntry<bool>("DEBUG").OnEntryValueChanged.Subscribe(static (_, a) => DEBUG = a);
             DEBUG = Settings.mainCategory.GetEntry<bool>("DEBUG").Value;
 
             Anticheat.Register(MelonAssembly);
@@ -61,35 +64,6 @@ namespace NeonLite
             Harmony = HarmonyInstance;
 
             LoadModules(MelonAssembly);
-
-            Helpers.StartProfiling("NeonLite Setup Pass");
-            foreach (var module in modules)
-            {
-                Logger.DebugMsg($"{module} Setup");
-
-                Helpers.StartProfiling($"{module}");
-
-                try
-                {
-                    Helpers.Method(module, "Setup", [])?.Invoke(null, null);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error($"error in {module} Setup:");
-                    Logger.Error(e);
-                    continue;
-                }
-                finally
-                {
-                    Helpers.EndProfiling();
-                }
-            }
-            Helpers.EndProfiling();
-
-            setupCalled = true;
-            VersionText.ver = Info.Version;
-            Logger.Msg($"Version: {Info.Version}");
-            UnityEngine.Debug.Log($"NeonLite Version: {Info.Version}");
         }
 
         internal static void ActivatePriority()
@@ -99,7 +73,7 @@ namespace NeonLite
 
             Helpers.StartProfiling("NeonLite Activate-priority Pass");
 
-            foreach (var module in modules.Where(t => (bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
+            foreach (var module in modules.Where(static t => (bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
             {
                 Logger.DebugMsg($"{module} Activate");
 
@@ -131,7 +105,7 @@ namespace NeonLite
             if (bundleLoading != null)
                 return;
             bundleLoading = AssetBundle.LoadFromMemoryAsync(Resources.r.bundle);
-            bundleLoading.completed += _ =>
+            bundleLoading.completed += static _ =>
             {
                 Logger.Msg("AssetBundle loading done!");
                 bundle = bundleLoading.assetBundle;
@@ -164,7 +138,7 @@ namespace NeonLite
 
             // perform the later inits
             Helpers.StartProfiling("NeonLite Activate-nonpriority Pass");
-            foreach (var module in modules.Where(t => !(bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
+            foreach (var module in modules.Where(static t => !(bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
             {
                 Logger.DebugMsg($"{module} Activate");
                 Helpers.StartProfiling($"{module}");
@@ -199,11 +173,12 @@ namespace NeonLite
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LoadModules(MelonAssembly assembly)
         {
-            Logger.Msg($"Loading modules from {assembly.Assembly.GetName().Name}");
+            var addedModules = assembly.Assembly.GetTypes().Where(static t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t));
 
-            var addedModules = assembly.Assembly.GetTypes().Where(t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t));
-            if (setupCalled)
             {
+                int iS = 0;
+                int completedS = 0;
+
                 Helpers.StartProfiling($"NeonLite Setup Pass - {assembly.Assembly.GetName().Name}");
 
                 foreach (var module in addedModules)
@@ -215,26 +190,33 @@ namespace NeonLite
                     try
                     {
                         Helpers.Method(module, "Setup", [])?.Invoke(null, null);
+                        ++completedS;
                     }
                     catch (Exception e)
                     {
-                        Logger.Error($"error in {module} Setup:");
+                        Logger.Warning($"Error in {module} Setup:");
                         Logger.Error(e);
                         continue;
                     }
                     finally
                     {
+                        ++iS;
                         Helpers.EndProfiling();
                     }
                 }
+
+                Logger.Msg($"Setup {completedS}/{iS} modules from {assembly.Assembly.GetName().Name}.");
                 Helpers.EndProfiling();
             }
+
+            int i = 0;
+            int completed = 0;
 
             if (activateEarly)
             {
                 Helpers.StartProfiling($"NeonLite Activate-priority Pass - {assembly.Assembly.GetName().Name}");
 
-                foreach (var module in addedModules.Where(t => (bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
+                foreach (var module in addedModules.Where(static t => (bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
                 {
                     Logger.DebugMsg($"{module} Activate");
                     Helpers.StartProfiling($"{module}");
@@ -242,18 +224,21 @@ namespace NeonLite
                     try
                     {
                         Helpers.Method(module, "Activate", [typeof(bool)])?.Invoke(null, [true]);
+                        ++completed;
                     }
                     catch (Exception e)
                     {
-                        Logger.Error($"error in {module} Activate:");
+                        Logger.Warning($"Error in {module} Activate:");
                         Logger.Error(e);
                         continue;
                     }
                     finally
                     {
+                        ++i;
                         Helpers.EndProfiling();
                     }
                 }
+
                 Helpers.EndProfiling();
             }
 
@@ -261,7 +246,7 @@ namespace NeonLite
             {
                 Helpers.StartProfiling($"NeonLite Activate-nonpriority Pass - {assembly.Assembly.GetName().Name}");
 
-                foreach (var module in addedModules.Where(t => !(bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
+                foreach (var module in addedModules.Where(static t => !(bool)Helpers.Field(t, "priority").GetValue(null) && (bool)Helpers.Field(t, "active").GetValue(null)))
                 {
                     Logger.DebugMsg($"{module} Activate");
                     Helpers.StartProfiling($"{module}");
@@ -269,18 +254,21 @@ namespace NeonLite
                     try
                     {
                         Helpers.Method(module, "Activate", [typeof(bool)])?.Invoke(null, [true]);
+                        ++completed;
                     }
                     catch (Exception e)
                     {
-                        Logger.Error($"error in {module} Activate:");
+                        Logger.Warning($"Error in {module} Activate:");
                         Logger.Error(e);
                         continue;
                     }
                     finally
                     {
+                        ++i;
                         Helpers.EndProfiling();
                     }
                 }
+
                 Helpers.EndProfiling();
             }
 

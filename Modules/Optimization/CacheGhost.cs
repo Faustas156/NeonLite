@@ -17,7 +17,7 @@ namespace NeonLite.Modules.Optimization
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Optimization", "cacheGhosts", "Cache Ghosts", "Caches the ghosts so they don't have to reload every restart.\nDisable if you're messing with ghosts manually.", true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
 #if XBOX

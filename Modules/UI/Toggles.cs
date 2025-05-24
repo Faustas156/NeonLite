@@ -15,7 +15,7 @@ namespace NeonLite.Modules.UI.Toggles
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "noPortrait", "Disable player portrait", "Disables the bottom-left player portrait.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;
@@ -34,7 +34,7 @@ namespace NeonLite.Modules.UI.Toggles
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "noBackstory", "Disable player backstory", "Disables the bottom-left player backstory.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;
@@ -53,7 +53,7 @@ namespace NeonLite.Modules.UI.Toggles
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "noFlames", "Disable bottom bar", "Disables the bottom flames.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;
@@ -72,7 +72,7 @@ namespace NeonLite.Modules.UI.Toggles
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "noWarning", "Disable low HP overlay", "Disables the red overlay for low HP.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;
@@ -92,7 +92,7 @@ namespace NeonLite.Modules.UI.Toggles
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI", "noCRT", "Disable CRT in menus", "Disables the CRT-like effect in menus.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate)

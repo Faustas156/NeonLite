@@ -1,4 +1,5 @@
 using HarmonyLib;
+using MelonLoader;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -58,14 +59,16 @@ namespace NeonLite
             if (!patches.ContainsKey(method))
                 patches[method] = [];
             var patchlist = patches[method];
+
+            if (patchlist.Any(x => x.patch.method == patch.method))
+                return false;
+
             var info = new PatchInfo
             {
                 patch = patch,
                 target = target,
                 registered = instant
             };
-            if (patchlist.Any(x => x == info))
-                return false;
             patchlist.Add(info);
 
             if (instant)
@@ -132,24 +135,33 @@ namespace NeonLite
             ConcurrentBag<PatchJob> bag = null;
             if (parallel)
                 bag = [];
+
+            var mCount = 0;
+            var pCount = 0;
+
             foreach (var kv in patches)
             {
-                if (kv.Value.All(x => x.registered))
+                if (kv.Value.All(static x => x.registered))
                     continue;
+
+                ++mCount;
 
                 if (!parallel)
                     Helpers.StartProfiling($"{kv.Key.DeclaringType.FullName}.{kv.Key.Name}");
 
                 var curJob = new PatchJob()
                 {
-                    methodName = NeonLite.DEBUG ? $"{kv.Key.DeclaringType.FullName}.{kv.Key.Name}" : "",
+#if DEBUG
+                    methodName = $"{kv.Key.DeclaringType.FullName}.{kv.Key.Name}",
+#endif
                     processor = NeonLite.Harmony.CreateProcessor(kv.Key),
-                    patchInfos = kv.Value.Where(x => !x.registered).ToArray()
+                    patchInfos = kv.Value.Where(static x => !x.registered).ToArray()
                 };
                 if (parallel)
                     bag.Add(curJob);
                 else
                 {
+                    pCount += curJob.patchInfos.Length;
                     Helpers.StartProfiling($"Instant-patch all");
                     curJob.Execute();
                     Helpers.EndProfiling();
@@ -167,17 +179,51 @@ namespace NeonLite
 
             if (parallel)
             {
-                patchRunner = new Thread(() => Parallel.ForEach(bag, x => x.Execute()));
+                patchRunner = new Thread(() =>
+                {
+                    NeonLite.Logger.Msg("Starting parallel patching...");
+                    Parallel.ForEach(bag, static x => x.Execute());
+                    NeonLite.Logger.Msg($"Ran {bag.SelectMany(x => x.patchInfos).Count()} patches for {bag.Count} functions in parallel.");
+                });
                 patchRunner.Start();
             }
+            else if (pCount > 0)
+                NeonLite.Logger.Msg($"Ran {pCount} patches for {mCount} functions.");
+
             firstPass = true;
             Helpers.EndProfiling();
+        }
+
+        public static void PerformHarmonyPatches(Type type)
+        {
+            foreach (var method in type.GetMethods(AccessTools.allDeclared).Where(x => x.IsStatic && x.CustomAttributes.Any(x => x.AttributeType == typeof(HarmonyPatch))))
+            {
+                var prefix = method.GetCustomAttribute<HarmonyPrefix>() != null;
+                var postfix = method.GetCustomAttribute<HarmonyPostfix>() != null;
+                var transfix = method.GetCustomAttribute<HarmonyTranspiler>() != null;
+
+                foreach (var patch in method.GetCustomAttributes<HarmonyPatch>())
+                {
+                    var pm = Helpers.Method(patch.info.declaringType, patch.info.methodName, patch.info.argumentTypes);
+                    if (patch.info.methodType == MethodType.Enumerator)
+                        pm = pm.MoveNext();
+
+                    if (prefix)
+                        AddPatch(pm, method.ToNewHarmonyMethod(), PatchTarget.Prefix);
+                    if (postfix)
+                        AddPatch(pm, method.ToNewHarmonyMethod(), PatchTarget.Postfix);
+                    if (transfix)
+                        AddPatch(pm, method.ToNewHarmonyMethod(), PatchTarget.Transpiler);
+                }
+            }
         }
 
         struct PatchJob
         {
             internal static readonly object locker = new();
+#if DEBUG
             public string methodName;
+#endif
             public PatchProcessor processor;
             public PatchInfo[] patchInfos;
 
@@ -195,15 +241,25 @@ namespace NeonLite
 
                 foreach (var patch in patchInfos)
                 {
+#if DEBUG
                     if (NeonLite.DEBUG)
                     {
                         lock (locker)
                             NeonLite.Logger.Msg($"{methodName}:{patch.patch.method.Name} on #{Thread.CurrentThread.ManagedThreadId}");
                     }
+#endif
 
                     if (current[patch.target])
                     {
-                        processor.Patch();
+                        try
+                        {
+                            processor.Patch();
+                        }
+                        catch (Exception e)
+                        {
+                            NeonLite.Logger.Warning($"Error performing patch from {patch.patch.method.Name}:");
+                            NeonLite.Logger.Error(e);
+                        }
                         processor.AddPrefix(hmNull);
                         processor.AddPostfix(hmNull);
                         processor.AddTranspiler(hmNull);
@@ -232,7 +288,7 @@ namespace NeonLite
                     current[patch.target] = true;
                 }
 
-                if (current.Any(kv => kv.Value))
+                if (current.Any(static kv => kv.Value))
                     processor.Patch();
             }
         }

@@ -21,7 +21,7 @@ namespace NeonLite.Modules.VFX
             startDelay = Settings.Add(Settings.h, "VFX", "fireballDelay", "Fireball skip", 
                 "Setting this option to anything above 0 will skip the first X seconds of the fireball instead of preventing it entirely.\nRequires the above setting to be on.", 
                 0f, new MelonLoader.Preferences.ValueRange<float>(0, 2));
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static readonly MethodInfo original = Helpers.Method(typeof(MechController), "FireballRoutine").MoveNext();

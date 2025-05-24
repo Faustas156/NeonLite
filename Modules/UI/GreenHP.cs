@@ -16,7 +16,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "UI/In-game", "greenHP", "Show Neon Green's HP", "Displays the HP of Neon Green in text form.", true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate) => active = activate;

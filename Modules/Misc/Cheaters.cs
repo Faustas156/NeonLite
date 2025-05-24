@@ -33,9 +33,9 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Misc", "cheaters", "Cheater Banlist", "Highlights known cheaters as red on the leaderboard.", true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
 
-            Helpers.DownloadURL(URL, request =>
+            Helpers.DownloadURL(URL, static request =>
             {
                 string backup = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", filename);
                 Helpers.CreateDirectories(backup);

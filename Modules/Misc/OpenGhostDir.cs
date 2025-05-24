@@ -18,7 +18,7 @@ namespace NeonLite.Modules.Misc
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "Misc", "ghostDir", "Open Ghost Directory Button", "Adds a button to access the ghost directory of the selected/current level.", true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate)
@@ -59,7 +59,7 @@ namespace NeonLite.Modules.Misc
 
                 var bh = obj.AddComponent<MenuButtonHolder>();
                 bh.ButtonRef.onClick.RemoveAllListeners();
-                bh.ButtonRef.onClick.AddListener(() => Process.Start("file://" + currentPath));
+                bh.ButtonRef.onClick.AddListener(static () => Process.Start("file://" + currentPath));
                 bh.animatorRef = ani;
                 buttons.Add(__instance, obj);
             }

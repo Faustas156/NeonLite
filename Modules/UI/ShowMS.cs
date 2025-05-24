@@ -21,7 +21,7 @@ namespace NeonLite.Modules.UI
         {
             setting = Settings.Add(Settings.h, "UI", "showMS", "Show full milliseconds in-game", "Show all 3 digits of milliseconds for the timer and finish.", true);
             extended = Settings.Add(Settings.h, "UI", "showMore", "Show full milliseconds everywhere", "Show all 3 digits of milliseconds everywhere applicable.", true);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate)

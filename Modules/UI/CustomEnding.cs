@@ -20,7 +20,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             setting = Settings.Add("NeonLite", "UI", "endingImage", "Custom ending image", "Set a custom in-game ending image of White by entering the path to a local image (2048x2048).\nMake sure to remove quotes!", "", null);
-            active = setting.SetupForModule(Activate, (_, after) => after != "");
+            active = setting.SetupForModule(Activate, static (_, after) => after != "");
         }
 
         static void Activate(bool activate)

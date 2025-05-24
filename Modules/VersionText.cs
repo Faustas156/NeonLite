@@ -17,7 +17,7 @@ namespace NeonLite.Modules
 
         static void Setup()
         {
-            NeonLite.OnBundleLoad += bundle =>
+            NeonLite.OnBundleLoad += static bundle =>
             {
                 prefab = bundle.LoadAsset<GameObject>("Assets/Prefabs/VersionText.prefab");
                 if (tried)

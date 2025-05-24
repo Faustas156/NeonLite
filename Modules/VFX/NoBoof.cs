@@ -14,7 +14,7 @@ namespace NeonLite.Modules.Misc.VFX
         static void Setup()
         {
             var setting = Settings.Add(Settings.h, "VFX", "noBoof", "Disable Book of Life overlay", "Disable the red diamond border from Book of Life.", false);
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         static void Activate(bool activate)

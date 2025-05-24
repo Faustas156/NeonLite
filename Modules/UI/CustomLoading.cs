@@ -20,7 +20,7 @@ namespace NeonLite.Modules.UI
         static void Setup()
         {
             setting = Settings.Add("NeonLite", "UI", "loadingIcon", "Custom Loading Icon", "Set a custom loading icon relacing Mikey by entering the path to a local image (256x256).\nMake sure to remove quotes!", "", null);
-            active = setting.SetupForModule(Activate, (_, after) => after != "");
+            active = setting.SetupForModule(Activate, static (_, after) => after != "");
         }
 
         static void Activate(bool activate)

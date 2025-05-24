@@ -25,7 +25,7 @@ namespace NeonLite.Modules
             // An empty string as the first argument means it goes into the main category.
             var setting = Settings.Add(Settings.h, "", "exampleMod", "Example Module Toggle", "This is a hidden toggle for the example module.", true);
             setting.IsHidden = true; //! REMOVE ME!
-            active = setting.SetupForModule(Activate, (_, after) => after);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
         }
 
         // Activate will be called either at the start of the game or on mod menu setup depending on the priority.
