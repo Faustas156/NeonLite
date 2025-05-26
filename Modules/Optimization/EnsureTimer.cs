@@ -43,7 +43,6 @@ namespace NeonLite.Modules.Optimization
         }
 
         static void Setup() { }
-        static void Activate(bool _) => NeonLite.Game.OnLevelLoadComplete += SetTrue;
         static void Activate(bool _)
         {
             NeonLite.Game.OnLevelLoadComplete += SetTrue;
