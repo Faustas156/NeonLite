@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using HarmonyLib;
 using MelonLoader;
 using NeonLite.Modules.Optimization;
