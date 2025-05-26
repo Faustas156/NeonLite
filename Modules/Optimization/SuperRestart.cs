@@ -739,6 +739,20 @@ namespace NeonLite.Modules.Optimization
             if (LoadingScreenshot.i)
                 LoadingScreenshot.i.Stop();
 
+            AudioObject currentMusic = null;
+            if (LevelRush.IsLevelRush())
+            {
+                if (LevelRush.GetShuffleMode())
+                    currentMusic = Singleton<Audio>.Instance.PlayMusic("MUSIC_GAMEPLAY_LEVELRUSH_SHUFFLE", Audio.AudioMusicPlaybackMode.PlayFromStartIfNotAlreadyPlaying);
+                else
+                    currentMusic = Singleton<Audio>.Instance.PlayMusic(level.music, Audio.AudioMusicPlaybackMode.PlayFromStartIfNotAlreadyPlaying);
+            }
+            else if (level.music != "")
+                currentMusic = Singleton<Audio>.Instance.PlayMusic(level.music, Audio.AudioMusicPlaybackMode.PlayFromLastTimestamp);
+
+            if (currentMusic)
+                currentMusic.transform.parent = MainMenu.Instance().transform;
+
             if (staging)
             {
                 MainMenu.Instance().SetState(MainMenu.State.Staging, true, true, true, false);
