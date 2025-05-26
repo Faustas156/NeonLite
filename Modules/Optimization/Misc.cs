@@ -128,6 +128,7 @@ namespace NeonLite.Modules.Optimization
             if (!LevelRush.IsLevelRush())
             {
                 var level = NeonLite.Game.GetCurrentLevel();
+                __instance.leaderboardsAndLevelInfoRef.gameObject.SetActive(true);
                 __instance.leaderboardsAndLevelInfoRef.SetLevel(level, false, true, false, !GameDataManager.GetLevelStats(level.levelID).IsNewBest());
             }
 
