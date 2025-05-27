@@ -19,7 +19,7 @@ namespace NeonLite.Modules.UI
 
         static void Setup()
         {
-            setting = Settings.Add("NeonLite", "UI", "endingImage", "Custom ending image", "Set a custom in-game ending image of White by entering the path to a local image (2048x2048).\nMake sure to remove quotes!", "", null);
+            setting = Settings.Add("NeonLite", "UI", "endingImage", "Custom ending image", "Set a custom in-game ending image of White by entering the path to a local image.\nMake sure to remove quotes!", "", null);
             active = setting.SetupForModule(Activate, static (_, after) => after != "");
         }
 
@@ -42,34 +42,16 @@ namespace NeonLite.Modules.UI
             string path = setting.Value;
             NeonLite.Logger.DebugMsg(path);
 
-            if (!File.Exists(path))
-                return;
-
             if (!cache)
             {
-                NeonLite.Logger.DebugMsg("build cache");
-                var file = File.ReadAllBytes(path);
-                var tex = LoadTexture(file);
-
-                if (tex.width != character.sprite.texture.width || tex.height != character.sprite.texture.height)
+                if (!File.Exists(path))
                     return;
 
-                tex.filterMode = FilterMode.Trilinear;
-                tex.wrapModeW = TextureWrapMode.Repeat;
-                cache = Sprite.Create(tex, character.sprite.rect, character.sprite.pivot);
+                var file = File.ReadAllBytes(path);
+                cache = Helpers.LoadSprite(file, wrapMode: TextureWrapMode.Repeat, pivot: character.sprite.pivot / character.sprite.rect.size);
             }
 
-            NeonLite.Logger.DebugMsg("set");
-
             character.sprite = cache;
-        }
-
-        private static Texture2D LoadTexture(byte[] image)
-        {
-            Texture2D texture2D = new(1, 1, TextureFormat.RGBA32, false);
-            ImageConversion.LoadImage(texture2D, image, true);
-            texture2D.wrapMode = TextureWrapMode.Clamp;
-            return texture2D;
         }
     }
 }

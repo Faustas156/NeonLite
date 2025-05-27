@@ -19,7 +19,7 @@ namespace NeonLite.Modules.UI
 
         static void Setup()
         {
-            setting = Settings.Add("NeonLite", "UI", "loadingIcon", "Custom Loading Icon", "Set a custom loading icon relacing Mikey by entering the path to a local image (256x256).\nMake sure to remove quotes!", "", null);
+            setting = Settings.Add("NeonLite", "UI", "loadingIcon", "Custom Loading Icon", "Set a custom loading icon relacing Mikey by entering the path to a local image.\nMake sure to remove quotes!", "", null);
             active = setting.SetupForModule(Activate, static (_, after) => after != "");
         }
 
@@ -42,36 +42,17 @@ namespace NeonLite.Modules.UI
             var mikey = __instance.mikeyIndicator.GetComponentInChildren<Image>();
 
             string path = setting.Value;
-            NeonLite.Logger.DebugMsg(path);
-
-            if (!File.Exists(path))
-                return;
-
             if (!cache)
             {
-                NeonLite.Logger.DebugMsg("build cache");
-                var file = File.ReadAllBytes(path);
-                var tex = LoadTexture(file);
-
-                if (tex.width != mikey.sprite.texture.width || tex.height != mikey.sprite.texture.height)
+                if (!File.Exists(path))
                     return;
 
-                tex.filterMode = FilterMode.Trilinear;
-                tex.wrapModeW = TextureWrapMode.Repeat;
-                cache = Sprite.Create(tex, mikey.sprite.rect, mikey.sprite.pivot);
+                var file = File.ReadAllBytes(path);
+                cache = Helpers.LoadSprite(file, wrapMode: TextureWrapMode.Repeat, pivot: mikey.sprite.pivot / mikey.sprite.rect.size);
             }
 
-            NeonLite.Logger.DebugMsg("set");
 
             mikey.sprite = cache;
-        }
-
-        private static Texture2D LoadTexture(byte[] image)
-        {
-            Texture2D texture2D = new(1, 1, TextureFormat.RGBA32, false);
-            ImageConversion.LoadImage(texture2D, image, true);
-            texture2D.wrapMode = TextureWrapMode.Clamp;
-            return texture2D;
         }
     }
 }

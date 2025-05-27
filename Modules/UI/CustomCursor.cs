@@ -45,7 +45,7 @@ namespace NeonLite.Modules.UI
 
                 if (!cache || cache.name != path)
                 {
-                    cache = LoadSprite(file);
+                    cache = Helpers.LoadSprite(file);
                     cache.name = path;
                 }
 
@@ -60,22 +60,6 @@ namespace NeonLite.Modules.UI
             }
 
             active = activate;
-        }
-
-        public static Texture2D LoadTexture(byte[] image, FilterMode filterMode = FilterMode.Trilinear, TextureWrapMode wrapMode = TextureWrapMode.Clamp)
-        {
-            Texture2D texture2D = new(1, 1, TextureFormat.RGBA32, false);
-            ImageConversion.LoadImage(texture2D, image, true);
-            texture2D.wrapMode = wrapMode;
-            texture2D.filterMode = filterMode;
-            return texture2D;
-        }
-
-        // load a sprite with a default centered pivot
-        public static Sprite LoadSprite(byte[] image, FilterMode filterMode = FilterMode.Trilinear, TextureWrapMode wrapMode = TextureWrapMode.Clamp)
-        {
-            var tex = LoadTexture(image, filterMode, wrapMode);
-            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new(tex.width / 2, tex.height / 2));
         }
     }
 }

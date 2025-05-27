@@ -166,6 +166,24 @@ namespace NeonLite
             return Vector3.Scale(centerBasedViewPortPosition, scale);
         }
 
+        public static Texture2D LoadTexture(byte[] image, FilterMode filterMode = FilterMode.Trilinear, TextureWrapMode wrapMode = TextureWrapMode.Clamp)
+        {
+            Texture2D texture2D = new(1, 1, TextureFormat.RGBA32, false);
+            ImageConversion.LoadImage(texture2D, image, true);
+            texture2D.wrapMode = wrapMode;
+            texture2D.filterMode = filterMode;
+            return texture2D;
+        }
+
+        // load a sprite with a default centered pivot
+        public static Sprite LoadSprite(byte[] image, FilterMode filterMode = FilterMode.Trilinear, TextureWrapMode wrapMode = TextureWrapMode.Clamp, Vector2? pivot = null)
+        {
+            var tex = LoadTexture(image, filterMode, wrapMode);
+            if (!pivot.HasValue)
+                pivot = Vector2.one / 2;
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(tex.width, tex.height) * pivot.Value);
+        }
+
         public static void DownloadURL(string url, Action<UnityWebRequest> callback)
         {
             UnityWebRequest webRequest = UnityWebRequest.Get(url);

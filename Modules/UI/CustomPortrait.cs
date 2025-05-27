@@ -15,7 +15,7 @@ namespace NeonLite.Modules.UI
 
         static void Setup()
         {
-            setting = Settings.Add(Settings.h, "UI/In-game", "portrait", "Custom portrait", "Set a custom in-game portrait by entering the path to a local image (512x512).\nMake sure to remove quotes!", "");
+            setting = Settings.Add(Settings.h, "UI/In-game", "portrait", "Custom portrait", "Set a custom in-game portrait by entering the path to a local image.\nMake sure to remove quotes!", "");
             active = setting.SetupForModule(Activate, static (_, after) => after != "");
         }
 
@@ -34,26 +34,17 @@ namespace NeonLite.Modules.UI
                 return;
 
             var portraitImg = uiPortrait.playerHolder.GetComponentInChildren<MeshRenderer>();
+            var path = setting.Value;
             if (!cache)
             {
-                var path = setting.Value;
-
                 if (!File.Exists(path))
                     return;
 
                 var imgBytes = File.ReadAllBytes(path);
-                cache = LoadTexture(imgBytes);
+                cache = Helpers.LoadTexture(imgBytes);
             }
 
             portraitImg.material.mainTexture = cache;
-        }
-
-        static Texture2D LoadTexture(byte[] image)
-        {
-            Texture2D texture = new(1, 1);
-            texture.LoadImage(image);
-            texture.wrapMode = TextureWrapMode.Clamp;
-            return texture;
         }
     }
 }
