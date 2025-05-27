@@ -51,6 +51,8 @@ namespace NeonLite.Modules.UI
             long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
             TextMeshPro frozenText = frozenTime.GetComponent<TextMeshPro>();
             var time = EnsureTimer.CalculateOffset(EnsureTimer.cOverride ?? __instance.GetComponentInChildren<MeshCollider>());
+            if (LevelRush.IsLevelRush())
+                time += LevelRush.GetCurrentLevelRushTimerMicroseconds();
             frozenText.color = best < time ? Color.red : Color.green;
             frozenText.enableWordWrapping = false;
             var local = Localization.Setup(frozenText);
