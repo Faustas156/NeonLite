@@ -70,6 +70,15 @@ namespace NeonLite.Modules
             if (force != null)
                 activate |= force.Value;
 
+
+            if (!activate)
+            {
+                if (textInstance)
+                    Destroy(textInstance.gameObject);
+                ClearTimes();
+                GameDataManager.LoadGame(null);
+            }
+
             Patching.TogglePatch(activate, typeof(MenuScreenTitle), "OnSetVisible", PreventNew, Patching.PatchTarget.Postfix);
 
             Patching.TogglePatch(activate, oglbui, UploadScoreStopper, Patching.PatchTarget.Prefix);
@@ -96,13 +105,6 @@ namespace NeonLite.Modules
                     Patching.RunPatches(false);
                 if (!textInstance && prefab && NeonLite.mmHolder)
                     textInstance = Utils.InstantiateUI(prefab, "AnticheatText", NeonLite.mmHolder.transform).AddComponent<Anticheat>();
-            }
-            else
-            {
-                if (textInstance)
-                    Destroy(textInstance.gameObject);
-                ClearTimes();
-                GameDataManager.LoadGame(null);
             }
 
             hasSetup = true;
@@ -144,7 +146,7 @@ namespace NeonLite.Modules
         static void GetGhostPath(GhostType ghostType, ref string filePath)
         {
             if (!fetchingGhost)
-                return;            
+                return;
             fetchingGhost = false;
             if (ghostType != GhostType.PersonalGhost || ghostNames.Count <= 0)
                 return;
