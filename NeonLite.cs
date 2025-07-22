@@ -173,7 +173,7 @@ namespace NeonLite
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LoadModules(MelonAssembly assembly)
         {
-            var addedModules = assembly.Assembly.GetTypes().Where(static t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t));
+            var addedModules = assembly.Assembly.GetTypes().Where(static t => typeof(IModule).IsAssignableFrom(t) && t != typeof(IModule) && !modules.Contains(t)).ToList();
 
             {
                 int iS = 0;

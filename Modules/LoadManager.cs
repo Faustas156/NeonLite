@@ -20,8 +20,6 @@ namespace NeonLite.Modules
 
         static void Activate(bool _)
         {
-            AddModules(NeonLite.modules);
-
             var method = Helpers.Method(typeof(Game), "LevelSetupRoutine");
             Patching.AddPatch(method, Helpers.HM(SetCurrentLevel).SetPriority(Priority.First), Patching.PatchTarget.Prefix);
             method = method.MoveNext();
