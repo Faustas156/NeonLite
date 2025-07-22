@@ -55,7 +55,8 @@ namespace NeonLite.Modules.Optimization
 
         static bool DisableNav(object o, InputActionChange change)
         {
-            if (EventSystem.current.currentSelectedGameObject &&
+            if (EventSystem.current &&
+                EventSystem.current.currentSelectedGameObject &&
                 (EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() ||
                  EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>()))
                 return false;

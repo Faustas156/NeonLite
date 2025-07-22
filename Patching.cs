@@ -3,6 +3,7 @@ using MelonLoader;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -182,8 +183,14 @@ namespace NeonLite
                 patchRunner = new Thread(() =>
                 {
                     NeonLite.Logger.Msg("Starting parallel patching...");
-                    Parallel.ForEach(bag, static x => x.Execute());
-                    NeonLite.Logger.Msg($"Ran {bag.SelectMany(x => x.patchInfos).Count()} patches for {bag.Count} functions in parallel.");
+                    var sw = new Stopwatch();
+                    var option = new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = 4 // this is fine  
+                    };
+                    sw.Start();
+                    Parallel.ForEach(bag, option, static x => x.Execute());
+                    NeonLite.Logger.Msg($"Ran {bag.SelectMany(x => x.patchInfos).Count()} patches for {bag.Count} functions in parallel ({sw.ElapsedMilliseconds}ms).");
                 });
                 patchRunner.Start();
             }

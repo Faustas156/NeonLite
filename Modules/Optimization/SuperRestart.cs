@@ -74,6 +74,7 @@ namespace NeonLite.Modules.Optimization
             Patching.TogglePatch(activate, typeof(ObjectSpawner), "SpawnObject", MarkForDestroy, Patching.PatchTarget.Postfix);
             Patching.TogglePatch(activate, typeof(EnemySpawner), "InstantiateEnemy", MarkForDestroyEnemy, Patching.PatchTarget.Postfix);
             Patching.TogglePatch(activate, typeof(ObjectPool), "Spawn", MarkForDestroy, Patching.PatchTarget.Postfix);
+            Patching.TogglePatch(activate, typeof(CardPickupSpawner), "ProcessObject", MarkForDestroyCardPre, Patching.PatchTarget.Prefix);
             Patching.TogglePatch(activate, typeof(CardPickupSpawner), "ProcessObject", MarkForDestroyCard, Patching.PatchTarget.Postfix);
             Patching.TogglePatch(activate, typeof(CardPickup), "Spawn", MarkForDestroyCard2, Patching.PatchTarget.Postfix);
             Patching.TogglePatch(activate, typeof(EnemyTripwire), "Die", MarkForDestroyTripwire, Patching.PatchTarget.Postfix);
@@ -218,14 +219,19 @@ namespace NeonLite.Modules.Optimization
             if (!restartImmediately || !playRestartSound)
                 return true;
             var g = Singleton<Game>.Instance;
-            if (LevelRush.IsLevelRush() && g.GetCurrentLevelTimerMicroseconds() > 0)
-                LevelRush.UpdateLevelRushTimerMicroseconds(g.GetCurrentLevelTimerMicroseconds());
+            if (LevelRush.IsLevelRush())
+            {
+                if (LevelRush.IsHellRush())
+                    return true;
+                if (g.GetCurrentLevelTimerMicroseconds() > 0)
+                    LevelRush.UpdateLevelRushTimerMicroseconds(g.GetCurrentLevelTimerMicroseconds());
+            }
             if (___audioBoostLoop)
                 ___audioBoostLoop.Stop();
             if (RM.alertManager)
                 RM.alertManager.ClearAlert(false);
             AudioController.Play("UI_LEVEL_RESET", MainMenu.Instance().transform);
-            dontSave = true;
+            dontSave = GS.savingAllowed;
             GS.savingAllowed = false;
             g.PlayLevel(g.GetCurrentLevel(), g.IsLevelPlayedFromArchive(), true);
             return false;
@@ -261,11 +267,14 @@ namespace NeonLite.Modules.Optimization
         static void MarkForDestroy(GameObject __result) => destroy.Add(__result);
         static void MarkForDestroyEnemy(GameObject ____enemyObj) => destroy.Add(____enemyObj);
 
+
+        static bool alreadySpawned;
+        static void MarkForDestroyCardPre(CardPickupSpawner __instance) => alreadySpawned = __instance.GetSpawnedGameObject();
         static void MarkForDestroyCard(CardPickupSpawner __instance, GameObject obj)
         {
-            if (__instance.holderType == CardPickupSpawner.Type.Card && __instance.spawnOnStart)
+            NeonLite.Logger.DebugMsg($"{obj} {alreadySpawned}");
+            if (__instance.holderType == CardPickupSpawner.Type.Card && __instance.spawnOnStart && !alreadySpawned)
             {
-
                 destroy.Remove(obj);
                 restores.Add((obj, __instance));
 
@@ -279,6 +288,7 @@ namespace NeonLite.Modules.Optimization
             }
             else if (!RestoresContainObject(obj))
                 destroy.Add(obj);
+            alreadySpawned = false;
         }
         static void MarkForDestroyCard2(CardPickup pickup)
         {
@@ -479,6 +489,7 @@ namespace NeonLite.Modules.Optimization
         static readonly FieldInfo ltrigTriggered = Helpers.Field(typeof(LevelTrigger), "_triggered");
 
         static readonly FieldInfo cardCollected = Helpers.Field(typeof(CardPickupSpawner), "_cardHasBeenCollected");
+        static readonly FieldInfo spawnedObject = Helpers.Field(typeof(CardPickupSpawner), "_spawnedObject");
         static IEnumerator QuickLevelSetup(Game game, LevelData level, bool staging = true)
         {
             AsyncOperation cop = null;
@@ -693,7 +704,17 @@ namespace NeonLite.Modules.Optimization
                         spawner.SpawnCard();
                     }
                     else
+                    {
+                        foreach ((var obj, var spawn) in restores)
+                        {
+                            if (spawn == spawner)
+                            {
+                                spawnedObject.SetValue(spawner, obj);
+                                break;
+                            }
+                        }
                         AddToRegistry(spawner);
+                    }
                 }
             }
             foreach (var spawner in InRegistry<ObjectSpawner>(true).ProfileLoop("Respawn ObjectSpawners"))
