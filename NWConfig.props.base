@@ -1,0 +1,21 @@
+<Project>
+    <!-- MAKE SURE TO COPY THIS FILE TO NWConfig.props !!! -->
+
+    <PropertyGroup>
+
+        <!-- The absolute directory where Neon White is installed, whether that be the Steam or Xbox directory -->
+        <NWDirectory Condition="'$(NWDirectory)' == ''">
+            C:/Program Files (x86)/Steam/steamapps/common/Neon White/
+        </NWDirectory>
+        <!-- Whether or not to copy the output to your own output folder (e.g. Mods). Either false or true -->
+        <NWCopy Condition="'$(NWCopy)' == ''">
+            true
+        </NWCopy>
+        <!-- Whether or not to build for Xbox/Gamepass. Either false or true.
+             Defines XBOX and loads the BitCode DLLs. -->
+        <NWXbox Condition="'$(NWXbox)' == ''">
+            false
+        </NWXbox>
+
+    </PropertyGroup>
+</Project>

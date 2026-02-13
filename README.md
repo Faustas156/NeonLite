@@ -52,6 +52,12 @@
 5. Download the `NeonLite.dll` from the [Releases page](https://github.com/Faustas156/NeonLite/releases) and drop it in the mods folder.
 6. Once it's all working, press F5 in-game to change the settings for the mod.
 
+## Building & Contributing
+This project is based on [**NWCommon.**](https://github.com/stxticOVFL/NWCommon/tree/master?tab=readme-ov-file) 
+Follow the build instructions on the repository.
+
+Make any edits as needed, and make a PR for review. PRs are very appreciated!
+
 ## SPECIAL CREDITS:
 
 * [MOPPI](https://github.com/MOPSKATER), majorly contributed to the project and was responsible for rewriting/updating NeonLite.

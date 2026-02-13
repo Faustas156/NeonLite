@@ -1,0 +1,65 @@
+// Project tasks configuration. See https://zed.dev/docs/tasks for documentation.
+
+[
+  {
+    "label": "Build",
+    "command": "dotnet build -v d",
+    //"args": [],
+    //"cwd": "/path/to/working/directory",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "no_focus",
+    "reveal_target": "dock",
+    "hide": "never",
+    "shell": "system",
+    "show_summary": false,
+    "show_command": true,
+    // "tags": []
+  },
+  {
+    "label": "Rebuild",
+    "command": "dotnet clean && dotnet build -v d",
+    //"args": [],
+    //"cwd": "/path/to/working/directory",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "no_focus",
+    "reveal_target": "dock",
+    "hide": "never",
+    "shell": "system",
+    "show_summary": false,
+    "show_command": true,
+    // "tags": []
+  },
+
+  {
+    "label": "Build (Release)",
+    "command": "dotnet build -c Release -v d",
+    //"args": [],
+    //"cwd": "/path/to/working/directory",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "no_focus",
+    "reveal_target": "dock",
+    "hide": "never",
+    "shell": "system",
+    "show_summary": false,
+    "show_command": true,
+    // "tags": []
+  },
+  {
+    "label": "Rebuild (Release)",
+    "command": "dotnet clean && dotnet -c Release -v d",
+    //"args": [],
+    //"cwd": "/path/to/working/directory",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "no_focus",
+    "reveal_target": "dock",
+    "hide": "never",
+    "shell": "system",
+    "show_summary": false,
+    "show_command": true,
+    // "tags": []
+  },
+]

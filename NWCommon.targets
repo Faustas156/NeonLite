@@ -1,0 +1,198 @@
+<Project>
+    <!-- you shouldn't have to look in here unless you're working on NWCommon itself -->
+
+    <Import Project="NWConfig.props" Condition="Exists('NWConfig.props')" />
+    <Import Project="NWConfig.props.base" Condition="!Exists('NWConfig.props')" />
+
+    <PropertyGroup>
+        <NWDirectory>$(NWDirectory.Trim())</NWDirectory>
+        <NWManaged>$(NWDirectory)/Neon White_Data/Managed</NWManaged>
+
+        <NWOutput>$(NWOutput.Trim())</NWOutput>
+
+        <NWXbox>$(NWXbox.Trim())</NWXbox>
+        <NWNeonLite>$(NWNeonLite.Trim())</NWNeonLite>
+        <NWUniLib>$(NWUniLib.Trim())</NWUniLib>
+        <NWAssembly>$(NWAssembly.Trim())</NWAssembly>
+        <NWCopy>$(NWCopy.Trim())</NWCopy>
+
+        <NWName>$(NWName.Trim())</NWName>
+        <NWAuthor>$(NWAuthor.Trim())</NWAuthor>
+        <NWVersion>$(NWVersion.Trim())</NWVersion>
+
+        <BaseOutputPath>out/bin/</BaseOutputPath>
+        <BaseIntermediateOutputPath>out/obj/</BaseIntermediateOutputPath>
+    </PropertyGroup>
+
+    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+
+    <PropertyGroup>
+        <!-- SDK props -->
+        <!-- this would normally break but i manually import -->
+        <TargetFramework>net472</TargetFramework>
+        <PlatformTarget>x64</PlatformTarget>
+        <WindowsPackageType>None</WindowsPackageType>
+        <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+        <OutputType>Library</OutputType>
+
+        <GenerateAssemblyInfo Condition="'$(NWAssembly)' != 'true'">false</GenerateAssemblyInfo>
+        <OutputPath>out/bin/$(Configuration)</OutputPath>
+        <IntermediateOutputPath>out/obj/$(Configuration)</IntermediateOutputPath>
+
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    </PropertyGroup>
+
+
+    <!-- For projects that use Unity they usually don't want to compile alongside the mod -->
+    <ItemGroup>
+        <Compile Remove="UnityProject/**/*.cs" />
+        <None Remove="UnityProject/**/*" />
+    </ItemGroup>
+
+    <Target Name="ValidateProperties" BeforeTargets="BeforeBuild">
+      <Warning
+            Text="NWConfig.props isn't copied! Using values from NWConfig.props.base, which could be wrong!!"
+            Condition="!Exists('NWConfig.props')"
+        />
+      <Error
+            Text="NWDirectory must be set to an existing, absolute path. Check NWConfig.props."
+            Condition="'$(NWDirectory)' == '' Or !Exists('$(NWDirectory)')"
+        />
+      <Warning
+            Text="NWXbox is not set! Assuming Steam build."
+            Condition="'$(NWXbox)' == ''"
+        />
+    </Target>
+
+    <!-- Basic references -->
+    <ItemGroup>
+        <!-- add all system references here -->
+        <Reference Include="$(NWDirectory)/MelonLoader/Managed/System.*" Private="false" />
+        <Reference Include="$(NWManaged)/System.*" Private="false" />
+        <Reference Include="$(NWDirectory)/MelonLoader/Managed/mscorlib.dll" Private="false" />
+        <Reference Include="$(NWDirectory)/MelonLoader/Managed/netstandard.dll" Private="false" />
+        <Reference Include="$(NWManaged)/mscorlib.dll" Private="false" />
+        <Reference Include="$(NWManaged)/netstandard.dll" Private="false" />
+
+        <!-- usual references -->
+        <Reference Include="$(NWDirectory)/MelonLoader/net35/MelonLoader.dll" Private="false" />
+        <Reference Include="$(NWDirectory)/MelonLoader/net35/0Harmony.dll" Private="false" />
+        <Reference Include="$(NWManaged)/Assembly-CSharp.dll" Private="false" />
+        <Reference Include="$(NWManaged)/Assembly-CSharp-firstpass.dll" Private="false" />
+        <Reference Include="$(NWManaged)/UnityEngine.dll" Private="false" />
+        <Reference Include="$(NWManaged)/UnityEngine.CoreModule.dll" Private="false" />
+
+        <!-- conditionals -->
+        <Reference Condition="'$(NWXbox)' == 'true'" Include="$(ManagedFolder)/BitCode.dll" Private="false" />
+        <Reference Condition="'$(NWXbox)' == 'true'" Include="$(ManagedFolder)/BitCode.Platform.PlayFab.dll" Private="false" />
+
+        <Reference Condition="'$(NWNeonLite)' == 'true'" Include="$(NWDirectory)/Mods/NeonLite.dll" Private="false" />
+
+        <Reference Condition="'$(NWUniLib)' == 'true' And Exists('$(NWDirectory)/Mods/UniverseLib.Mono.dll')" Include="$(NWDirectory)/Mods/UniverseLib.Mono.dll" Private="false" />
+        <Reference Condition="'$(NWUniLib)' == 'true' And Exists('$(NWDirectory)/UserLibs/UniverseLib.Mono.dll')" Include="$(NWDirectory)/UserLibs/UniverseLib.Mono.dll" Private="false" />
+    </ItemGroup>
+
+    <!-- For NeonLite projects, there are some useless errors for modules -->
+    <PropertyGroup Condition="'$(NWNeonLite)' == 'true'">
+        <NoWarn>$(NoWarn);CS0414;IDE0051;IDE0052</NoWarn>
+    </PropertyGroup>
+    <!-- For projects using implicit usings -->
+    <ItemGroup Condition="'$(NWNeonLite)' == 'true'">
+        <Using Include="NeonLite" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(NWXbox)' == 'true'">
+        <DefineConstants>$(DefineConstants);XBOX</DefineConstants>
+    </PropertyGroup>
+
+    <Target Name="MoveDLL" AfterTargets="AfterBuild" Condition="Exists('$(TargetDir)$(TargetName).dll') And Exists('$(NWDirectory)') And '$(NWCopy)' == 'true'">
+      <Message Text="Copying $(TargetName).dll to $(NWOutput) folder..." Importance="high" />
+      <Delete Condition="Exists('$(NWDirectory)/$(NWOutput)/$(TargetName).dll.old')" Files="$(NWDirectory)/$(NWOutput)/$(TargetName).dll.old" />
+      <Move Condition="Exists('$(NWDirectory)/$(NWOutput)/$(TargetName).dll')" SourceFiles="$(NWDirectory)/$(NWOutput)/$(TargetName).dll" DestinationFiles="$(NWDirectory)/$(NWOutput)/$(TargetName).dll.old" />
+      <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(NWDirectory)/$(NWOutput)/$(TargetName).dll" />
+    </Target>
+
+    <!-- generate assembly for them -->
+    <PropertyGroup Condition="'$(NWAssembly)' == 'true'">
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <Product>$(NWName)</Product>
+        <Company>$(NWAuthor)</Company>
+        <!-- replace the + if they want to follow neonlite's system -->
+        <Version>$(NWVersion.Replace('+', '.'))</Version>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+        <InformationalVersion>$(NWVersion)</InformationalVersion>
+
+        <AssemblyTitle>$(NWName)</AssemblyTitle>
+
+        <NWMelonClass Condition="'$(NWMelonClass)' == ''">$(RootNamespace)</NWMelonClass>
+        <NWMelonClass>$(NWMelonClass.Trim())</NWMelonClass>
+
+        <NWAuthorColor Condition="'$(NWAuthorColor)' == ''">#FFFFFF</NWAuthorColor>
+        <NWAuthorColor>$(NWAuthorColor.Trim().Replace('#', ''))</NWAuthorColor>
+        <_NWACR>0x$(NWAuthorColor.Substring(0, 2))</_NWACR>
+        <_NWACG>0x$(NWAuthorColor.Substring(2, 2))</_NWACG>
+        <_NWACB>0x$(NWAuthorColor.Substring(4, 2))</_NWACB>
+
+        <NWColor Condition="'$(NWColor)' == ''">#FFFFFF</NWColor>
+        <NWColor>$(NWColor.Trim().Replace('#', ''))</NWColor>
+        <_NWCR>0x$(NWColor.Substring(0, 2))</_NWCR>
+        <_NWCG>0x$(NWColor.Substring(2, 2))</_NWCG>
+        <_NWCB>0x$(NWColor.Substring(4, 2))</_NWCB>
+    </PropertyGroup>
+
+    <Target Name="GenerateNWAssembly" BeforeTargets="BeforeBuild" Condition="'$(NWAssembly)' == 'true'">
+        <Error
+            Text="NWAuthorColor is incorrectly configured."
+            Condition="$(NWAuthorColor.Length) != 6"
+        />
+        <Error
+            Text="NWColor is incorrectly configured."
+            Condition="$(NWColor.Length) != 6"
+        />
+
+        <ItemGroup>
+            <_NWAssemblies Include="MelonLoader.MelonGameAttribute" >
+                <_Parameter1>Little Flag Software, LLC</_Parameter1>
+                <_Parameter2>Neon White</_Parameter2>
+            </_NWAssemblies>
+            <_NWAssemblies Include="MelonLoader.VerifyLoaderVersionAttribute">
+                <_Parameter1>0.6.1</_Parameter1>
+            </_NWAssemblies>
+            <_NWAssemblies Include="MelonLoader.MelonAuthorColorAttribute">
+                <_Parameter1>0xFF</_Parameter1>
+                <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+                <_Parameter2>$(_NWACR)</_Parameter2>
+                <_Parameter2_IsLiteral>true</_Parameter2_IsLiteral>
+                <_Parameter3>$(_NWACG)</_Parameter3>
+                <_Parameter3_IsLiteral>true</_Parameter3_IsLiteral>
+                <_Parameter4>$(_NWACB)</_Parameter4>
+                <_Parameter4_IsLiteral>true</_Parameter4_IsLiteral>
+            </_NWAssemblies>
+            <_NWAssemblies Include="MelonLoader.MelonColorAttribute">
+                <_Parameter1>0xFF</_Parameter1>
+                <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+                <_Parameter2>$(_NWCR)</_Parameter2>
+                <_Parameter2_IsLiteral>true</_Parameter2_IsLiteral>
+                <_Parameter3>$(_NWCG)</_Parameter3>
+                <_Parameter3_IsLiteral>true</_Parameter3_IsLiteral>
+                <_Parameter4>$(_NWCB)</_Parameter4>
+                <_Parameter4_IsLiteral>true</_Parameter4_IsLiteral>
+            </_NWAssemblies>
+            <_NWAssemblies Include="MelonLoader.MelonInfoAttribute">
+                <_Parameter1>$(RootNamespace).$(NWMelonClass)</_Parameter1>
+                <_Parameter1_TypeName>System.Type</_Parameter1_TypeName>
+                <_Parameter2>$(NWName)</_Parameter2>
+                <_Parameter3>$(NWVersion)</_Parameter3>
+                <_Parameter4>$(NWAuthor)</_Parameter4>
+            </_NWAssemblies>
+        </ItemGroup>
+
+        <WriteCodeFragment AssemblyAttributes="@(_NWAssemblies)"
+                           Language="C#"
+                           OutputDirectory="$(IntermediateOutputPath)"
+                           OutputFile="NWAssembly.cs">
+            <Output TaskParameter="OutputFile" ItemName="Compile" />
+            <Output TaskParameter="OutputFile" ItemName="FileWrites" />
+        </WriteCodeFragment>
+    </Target>
+</Project>
