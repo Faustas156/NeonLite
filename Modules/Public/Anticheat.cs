@@ -326,6 +326,7 @@ namespace NeonLite.Modules
                 assemblies.Remove(assembly);
                 SetGhostName(assembly, null);
             }
+            toRemove.Clear();
 
             Activate(assemblies.Count > 0);
         }
