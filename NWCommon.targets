@@ -83,8 +83,8 @@
         <Reference Include="$(NWManaged)/UnityEngine.CoreModule.dll" Private="false" />
 
         <!-- conditionals -->
-        <Reference Condition="'$(NWXbox)' == 'true'" Include="$(ManagedFolder)/BitCode.dll" Private="false" />
-        <Reference Condition="'$(NWXbox)' == 'true'" Include="$(ManagedFolder)/BitCode.Platform.PlayFab.dll" Private="false" />
+        <Reference Condition="'$(NWXbox)' == 'true'" Include="$(NWManaged)/BitCode.dll" Private="false" />
+        <Reference Condition="'$(NWXbox)' == 'true'" Include="$(NWManaged)/BitCode.Platform.PlayFab.dll" Private="false" />
 
         <Reference Condition="'$(NWNeonLite)' == 'true'" Include="$(NWDirectory)/Mods/NeonLite.dll" Private="false" />
 
