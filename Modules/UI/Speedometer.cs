@@ -1,9 +1,7 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using System.Text;
 using I2.Loc;
 using MelonLoader;
-using System;
-using System.Reflection;
-using System.Text;
 using TMPro;
 using UnityEngine;
 

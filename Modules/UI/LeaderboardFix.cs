@@ -1,7 +1,6 @@
-﻿using HarmonyLib;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
+using HarmonyLib;
 
 namespace NeonLite.Modules.UI
 {

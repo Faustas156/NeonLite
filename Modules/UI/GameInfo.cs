@@ -1,12 +1,7 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
 using I2.Loc;
 using MelonLoader;
 using MelonLoader.TinyJSON;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using TMPro;
 using UnityEngine;
 

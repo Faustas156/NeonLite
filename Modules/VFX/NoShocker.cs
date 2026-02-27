@@ -1,7 +1,6 @@
-﻿using HarmonyLib;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
+using HarmonyLib;
 
 #pragma warning disable CS0414
 

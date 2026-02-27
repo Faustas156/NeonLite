@@ -78,6 +78,7 @@ namespace NeonLite.Modules
         }
 
         const ulong k_UGCHandleInvalid = 0xfffffffffffffffful;
+        const int UGC_LIMIT = 1;
 
         static BinaryWriter selfCache;
         static long tmp;
@@ -117,6 +118,22 @@ namespace NeonLite.Modules
             LBType type = ___globalNeonRankingsRequest ? LBType.Global : (rushtype != null ? LBType.Rush : LBType.Level);
 
             NeonLite.Logger.BetaMsg($"Outputting to {filepath}. Type? {type}");
+
+            var fc = SteamRemoteStorage.GetFileCount();
+
+            NeonLite.Logger.BetaMsg($"Current file count: {fc}/{UGC_LIMIT}");
+
+            while (fc >= UGC_LIMIT)
+            {
+                // uhoh
+                var fn = SteamRemoteStorage.GetFileNameAndSize(0, out var size);
+                NeonLite.Logger.BetaMsg($"File count over UGC limit. Name to remove: {fn}");
+                SteamRemoteStorage.FileDelete(fn);
+                fc = SteamRemoteStorage.GetFileCount();
+
+                NeonLite.Logger.BetaMsg($"Current file count: {fc}/{UGC_LIMIT}");
+            }
+
 
             var handle = SteamRemoteStorage.FileWriteStreamOpen(filepath);
 
@@ -203,6 +220,10 @@ namespace NeonLite.Modules
             if (pCallback.m_eResult != EResult.k_EResultOK || bIOfailure)
             {
                 NeonLite.Logger.Error($"Failed to share the UGC for the Steam LB. Error: {pCallback.m_eResult}");
+
+                skip = true;
+                Helpers.Method(typeof(LeaderboardIntegrationSteam), "OnLeaderboardScoreUploaded2").Invoke(null, [uploadT, false]);
+                skip = false;
                 return;
             }
 
@@ -213,21 +234,20 @@ namespace NeonLite.Modules
 
         static void OnUGCSetCB(LeaderboardUGCSet_t pCallback, bool bIOfailure)
         {
-            if (pCallback.m_eResult != EResult.k_EResultOK || bIOfailure)
-            {
-                NeonLite.Logger.Error("Failed to set the UGC for the Steam LB.");
-                return;
-            }
-
 #if !DEBUG
             SteamRemoteStorage.FileDelete($"nlugc{tmp}.tmp");
 #endif
 
-            if (selfCache != null)
+            if (pCallback.m_eResult != EResult.k_EResultOK || bIOfailure)
+                NeonLite.Logger.Error("Failed to set the UGC for the Steam LB.");
+            else
             {
-                File.Move(Path.Combine(cacheDir, "self.read"), Path.Combine(cacheDir, $"{selfHandle}.bin"));
-                selfCache.Dispose();
-                selfCache = null;
+                if (selfCache != null)
+                {
+                    File.Move(Path.Combine(cacheDir, "self.read"), Path.Combine(cacheDir, $"{selfHandle}.bin"));
+                    selfCache.Dispose();
+                    selfCache = null;
+                }
             }
 
             skip = true;
