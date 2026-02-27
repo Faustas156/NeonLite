@@ -19,7 +19,6 @@ stxticCustoms
 YourStory
 NeonSoundReplacer
 SecretShop
-GiftHunt
 NeonCollate
 HeavenlyLoading
 ListPB
@@ -37,6 +36,8 @@ CustomCardLoadout
 MikeyMode
 MoreRushes
 Hardcore
+GiftHunt
+KillTrigger
 
 // these old mods are here for compatibility, let me know if i missed any
 NeonsOnSpeed
