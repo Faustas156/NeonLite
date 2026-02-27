@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Tomlet;
+using Tomlet.Models;
 using UnityEngine;
 
 namespace NeonLite
@@ -50,7 +52,7 @@ namespace NeonLite
             {
                 catHolders[holder].Add(name ?? "", c);
             }
-            catch (Exception)
+            catch
             {
                 NeonLite.Logger.Error($"Tried to add category {holder}/{name}, but {holder} hasn't been added!");
             }
@@ -67,7 +69,7 @@ namespace NeonLite
                 var val = catHolders[holder];
                 return (val.TryGetValue(name, out var c) ? c : null) ?? CreateCategory(holder, name);
             }
-            catch (Exception)
+            catch
             {
                 NeonLite.Logger.Error($"Tried to fetch from category {holder}, but {holder} hasn't been added!");
             }
@@ -87,6 +89,16 @@ namespace NeonLite
 
         public static MelonPreferences_Entry<T> Add<T>(string holder, string category, string id, string display, string description, T defaultVal, bool hide, MelonLoader.Preferences.ValueValidator validator = null)
         {
+            if (typeof(T).IsEnum && typeof(T).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
+            {
+                // this is an enum flag. we have to do stupid tomlet shit
+
+                TomletMain.RegisterMapper(
+                    flags => new TomlString(flags.ToString()),
+                    tomlValue => (T)Enum.Parse(typeof(T), tomlValue.StringValue)
+                );
+            }
+
             var cat = FindCategory(holder, category);
             var ret = cat.CreateEntry(id, defaultVal, display, description: description, validator: validator, is_hidden: hide);
             string catloc = new([.. category.Where(char.IsLetter).Select(char.ToUpper)]);

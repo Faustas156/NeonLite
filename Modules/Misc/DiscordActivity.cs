@@ -1,11 +1,8 @@
+using System.Text;
 using Discord;
 using I2.Loc;
 using MelonLoader;
 using NeonLite.Modules.UI;
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace NeonLite.Modules.Misc

@@ -1,5 +1,4 @@
 ﻿using TMPro;
-using UnityEngine;
 
 namespace NeonLite.Modules.UI.Status
 {

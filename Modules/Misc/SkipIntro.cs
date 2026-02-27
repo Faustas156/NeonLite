@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 
-
 namespace NeonLite.Modules.Misc
 {
     [HarmonyPatch(typeof(IntroCards))]

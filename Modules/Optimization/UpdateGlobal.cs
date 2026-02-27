@@ -1,5 +1,4 @@
 ﻿#if !XBOX
-using HarmonyLib;
 using MelonLoader;
 using System.Reflection;
 

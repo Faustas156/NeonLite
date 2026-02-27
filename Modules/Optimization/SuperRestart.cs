@@ -2,16 +2,11 @@ using ClockStone;
 using Guirao.UltimateTextDamage;
 using HarmonyLib;
 using MelonLoader;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Management.Instrumentation;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Scripting;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 

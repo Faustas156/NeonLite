@@ -1,6 +1,4 @@
 ﻿#pragma warning disable IDE0130
-using System;
-
 namespace NeonLite.Modules
 {
     /// <summary>

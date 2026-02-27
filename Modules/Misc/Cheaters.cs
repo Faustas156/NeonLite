@@ -1,9 +1,4 @@
-﻿using HarmonyLib;
-using MelonLoader.TinyJSON;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using MelonLoader.TinyJSON;
 using System.Reflection;
 using System.Text;
 using UnityEngine;

@@ -1,7 +1,6 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using HarmonyLib;
 using I2.Loc;
-using System.Linq;
-using System.Reflection;
 using TMPro;
 using UnityEngine;
 

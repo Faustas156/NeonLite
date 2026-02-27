@@ -1,16 +1,9 @@
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using HarmonyLib;
 using MelonLoader;
 using NeonLite.Modules.Optimization;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using UnityEngine.Scripting;
 
 namespace NeonLite
 {
@@ -288,7 +281,7 @@ namespace NeonLite
                             {
                                 NeonLite.Logger.Msg($"patch {method.DeclaringType.FullName}.{method.Name}:{patch.patch.method.Name} on #{Thread.CurrentThread.ManagedThreadId}");
                             }
-                            catch (Exception) { }
+                            catch { }
                         }
                     }
 #endif

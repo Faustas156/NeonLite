@@ -1,15 +1,11 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+using HarmonyLib;
 using I2.Loc;
 using MelonLoader;
 using MelonLoader.TinyJSON;
 using NeonLite.Modules.UI;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -88,9 +84,10 @@ namespace NeonLite.Modules
         internal static MelonPreferences_Entry<bool> hideLeaderboard;
         public static MelonPreferences_Entry<float> hueShift;
         internal static MelonPreferences_Entry<string> overrideURL;
+#if !XBOX
         internal static MelonPreferences_Entry<bool> uploadGlobal;
-        public static MelonPreferences_Entry<bool> showExtendedGlobal;
-
+        public static MelonPreferences_Entry<LBDisplay> showGlobalMedals;
+#endif
         public static Material HueShiftMat { get; private set; } = null;
         static Material defaultMat;
 
@@ -105,9 +102,11 @@ namespace NeonLite.Modules
             oldStyle = Settings.Add(Settings.h, "Medals", "oldStyle", "Stamp Style", "Display the community medals in the level info as it was pre-3.0.0.", false);
             hideOld = Settings.Add(Settings.h, "Medals", "hideOld", "Hide Times", "Hides unachieved medal times.", false);
             hideLeaderboard = Settings.Add(Settings.h, "Medals", "hideLeaderboard", "Hide Leaderboard Medals", "Unachieved medals will appear the same as your own on the leaderboards.", false);
+#if !XBOX
             uploadGlobal = Settings.Add(Settings.h, "Medals", "uploadGlobal", "Upload to Global", "Whether to upload your medal data to global. This uploads all your level medals for other mods to potentially look at. Works with extended medals.", true);
+            showGlobalMedals = Settings.Add(Settings.h, "Medals", "showGlobalMedals", "Global Medals to Display", "Which medals to show on the global leaderboard.", LBDisplay.Dev | LBDisplay.Emerald | LBDisplay.Amethyst | LBDisplay.Sapphire);
+#endif
             overrideURL = Settings.Add(Settings.h, "Medals", "overrideURL", "Extension URL", "Specifies additional community medals JSON URL to apply on top of the existing community medals.", "");
-            showExtendedGlobal = Settings.Add(Settings.h, "Medals", "showExtendedGlobal", "Show Extended Medals on Global", "Show other people's extended medals on the global leaderboard, even if you don't have them yourself.", false);
 
             active = setting.SetupForModule(Activate, static (_, after) => after);
             hueShift.OnEntryValueChanged.Subscribe(static (_, after) => HueShiftMat?.SetFloat("_Shift", after));
@@ -754,11 +753,28 @@ namespace NeonLite.Modules
             return LB_FILE;
         }
 
+        [Flags]
+        public enum LBDisplay
+        {
+            None = 0,
+            Bronze = 1 << 0,
+            Silver = 1 << 1,
+            Gold = 1 << 2,
+            Ace = 1 << 3,
+            Dev = 1 << 4,
+            Emerald = 1 << 5,
+            Amethyst = 1 << 6,
+            Sapphire = 1 << 7,
+            Extended = 1 << 8,
+        }
+
         static void OnSteamLBRead(BinaryReader reader, int length, LeaderboardScore score)
         {
             var ver = reader.ReadByte();
 
             List<(Color, int)> medals = [];
+
+            var medalshow = showGlobalMedals.Value;
 
             switch (ver)
             {
@@ -776,11 +792,15 @@ namespace NeonLite.Modules
 
                         // read nonsaphs
                         for (int i = 0; i < I(MedalEnum.Sapphire); ++i)
-                            medals.Add((Colors[i], reader.ReadByte()));
+                        {
+                            var count = reader.ReadByte();
+                            if (medalshow.HasFlag((LBDisplay)(1 << i)) && count != 0)
+                                medals.Add((Colors[i], count));
+                        }
 
                         var anyOver = reader.ReadBoolean();
 
-                        if (anyOver && showExtendedGlobal.Value)
+                        if (anyOver && medalshow.HasFlag(LBDisplay.Extended))
                         {
                             // alright we got the CrAAAAYZ shit
                             // skip the combined saph byte
@@ -788,7 +808,8 @@ namespace NeonLite.Modules
 
                             // read the solo saph byte
                             var count = reader.ReadByte();
-                            medals.Add((Colors[I(MedalEnum.Sapphire)], count));
+                            if (medalshow.HasFlag(LBDisplay.Sapphire) && count != 0)
+                                medals.Add((Colors[I(MedalEnum.Sapphire)], count));
                             NeonLite.Logger.BetaMsg($"Medal UGC: Read just saph {count}");
 
                             while (reader.BaseStream.Position < length)
@@ -802,13 +823,16 @@ namespace NeonLite.Modules
                                 count = reader.ReadByte();
                                 NeonLite.Logger.BetaMsg($"Count? {count}");
 
-                                medals.Add((col, count));
+                                if (count != 0)
+                                    medals.Add((col, count));
                             }
                         }
                         else
                         {
                             // read the combined byte and we're done
-                            medals.Add((Colors[I(MedalEnum.Sapphire)], reader.ReadByte()));
+                            var count = reader.ReadByte();
+                            if (medalshow.HasFlag(LBDisplay.Sapphire) && count != 0)
+                                medals.Add((Colors[I(MedalEnum.Sapphire)], count));
                         }
 
 
@@ -817,26 +841,25 @@ namespace NeonLite.Modules
             }
 
             StringBuilder builder = new(); // we make the demon now
-            const string COLORED = "<size=175%><voffset=-0.07em>\u2022</voffset></size><size=50%> </size>";
-            const int MARGIN = 15;
+            const string COLORED = "<size=155%><voffset=-0.09em>\u2022</voffset></size><size=30%> </size>";
+            const int MARGIN = 12;
 
             medals.Reverse();
             foreach ((var color, var count) in medals)
             {
-                if (count == 0)
-                    continue;
-
                 Color.RGBToHSV(color, out var h, out var s, out var v);
                 h -= hueShift.Value;
                 while (h < 0)
                     h += 1;
 
                 s -= 0.1f;
-                v += 0.25f;
+                v += 0.15f;
+                if (v > 1)
+                    v = 1;
 
                 var cstr = ColorUtility.ToHtmlStringRGB(Color.HSVToRGB(h, s, v));
 
-                builder.Append($"<color=#{cstr}>{COLORED}</color>{count} ");
+                builder.Append($"<color=#{cstr}>{COLORED}</color>{count}<size=80%> </size>");
             }
 
             var tmp = Utils.InstantiateUI(score._scoreValue.gameObject, "MedalCount", score.transform).GetComponent<TextMeshProUGUI>();
@@ -846,7 +869,7 @@ namespace NeonLite.Modules
             tmp.alignment = TextAlignmentOptions.MidlineRight;
             tmp.richText = true;
             tmp.text = builder.ToString();
-            tmp.fontSize = 17;
+            tmp.fontSize = 16;
             tmp.margin = new(0, 0, MARGIN, 0);
 
             var username = score._username.rectTransform;

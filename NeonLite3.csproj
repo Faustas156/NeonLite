@@ -3,7 +3,7 @@
         <!-- The name of the mod -->
         <NWName>NeonLite</NWName>
         <NWAuthor>Faustas, MOPSKATER, stxticOVFL</NWAuthor>
-        <NWVersion>3.0.11-b5.2</NWVersion>
+        <NWVersion>3.0.11</NWVersion>
         <!-- The name of the *DLL* -->
         <AssemblyName>$(NWName)</AssemblyName>
 
@@ -49,10 +49,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>12.0</LangVersion>
         <NoWarn>$(NoWarn);CS0414;IDE0051;IDE0052</NoWarn>
+        <NoWarn Condition="'$(Configuration)'!='Debug'">$(NoWarn);CS0162</NoWarn>
+
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <DefineConstants Condition="'$(Configuration)'=='Debug'">$(DefineConstants);ENABLE_PROFILER;</DefineConstants>
-
         <DefineConstants Condition="$(NWVersion.Contains('-b'))">$(DefineConstants);BETA;</DefineConstants>
     </PropertyGroup>
 
@@ -86,6 +87,8 @@
         <Reference Include="$(NWManaged)/Newtonsoft.Json.dll" Private="false" />
 
         <Reference Include="$(NWManaged)/eToileAssembly.dll" Private="false" Condition="'$(NWXbox)' != 'true'" />
+
+        <Reference Include="$(NWDirectory)/MelonLoader/net35/Tomlet.dll" Private="false" />
     </ItemGroup>
 
     <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />

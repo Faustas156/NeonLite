@@ -1,7 +1,6 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
 using I2.Loc;
 using MelonLoader;
-using System.Reflection;
 
 namespace NeonLite.Modules.Misc
 {

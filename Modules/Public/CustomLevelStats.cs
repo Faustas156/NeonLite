@@ -283,7 +283,7 @@ namespace NeonLite.Modules
                     val = JsonConvert.DeserializeObject<T>(data);
                     return true;
                 }
-                catch (Exception)
+                catch
                 {
                     val = default;
                     return false;

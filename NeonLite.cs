@@ -1,12 +1,10 @@
-using HarmonyLib;
+using System.Runtime.CompilerServices;
 using MelonLoader;
 using NeonLite.Modules;
 using NeonLite.Modules.Optimization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
+
+[assembly: MelonPriority(-1000)]
 
 namespace NeonLite
 {

@@ -1,7 +1,5 @@
-using System.ComponentModel;
 using I2.Loc;
 using NeonLite.Modules.UI.Status;
-using Steamworks;
 using TMPro;
 using UnityEngine;
 
@@ -57,9 +55,12 @@ namespace NeonLite.Modules.Verification
             running = true;
         }
 
+
+        static readonly HashSet<MainMenu.State> pauseStates = [MainMenu.State.Pause, MainMenu.State.Options, MainMenu.State.OptionsRebind];
+
         static void PostSetState(MainMenu.State newState)
         {
-            if (newState != MainMenu.State.Pause)
+            if (!pauseStates.Contains(newState))
             {
                 if (LevelRush.IsLevelRush())
                     rushText.gameObject.SetActive(false);

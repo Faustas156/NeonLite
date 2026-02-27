@@ -1,16 +1,13 @@
 ﻿// #define ENABLE_PROFILER
 
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
 using HarmonyLib;
 using MelonLoader;
 using NeonLite.Modules;
 using NeonLite.Modules.UI;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Networking;

@@ -1,12 +1,9 @@
-﻿using HarmonyLib;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿using System.Reflection;
+using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UI;
 
 namespace NeonLite.Modules.Optimization

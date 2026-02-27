@@ -1,4 +1,3 @@
-
 using UnityEngine.Scripting;
 
 namespace NeonLite.Modules.Optimization

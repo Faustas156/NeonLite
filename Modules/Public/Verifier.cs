@@ -1,18 +1,10 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using System.Text;
+using HarmonyLib;
 using I2.Loc;
 using MelonLoader;
-using NeonLite.Modules;
 using NeonLite.Modules.UI.Status;
 using Semver;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -196,7 +188,7 @@ namespace NeonLite.Modules
                         verifiedMods.Add(new(line.Trim(), null));
                 }
             }
-            catch (Exception)
+            catch
             {
                 return false;
             }
