@@ -27,6 +27,7 @@ connie modpack
 connie.modpack
 NoMoreNewFile
 HideLBNames
+NeonEraser
 
 // The listed mods are not allowed, but correctly handle being enabled/disabled,
 // whether that be via Verifier.SetStatus or CheckVerifiable on a module, or will be eventually configured.
