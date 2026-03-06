@@ -328,16 +328,12 @@ namespace NeonLite.Modules
 
         static void SetText()
         {
-            text = StatusText.i.MakeText("Anticheat", "ANTICHEAT ACTIVE");
+            text = StatusText.i.MakeText("Anticheat", "ANTICHEAT ACTIVE", -999);
             text.color = new(1, 0.69f, 0.494f);
             text.alpha = 0.7f;
             text.fontSize = 20;
 
             text.gameObject.SetActive(Active);
-
-            var dev = StatusText.i.transform.Find("dev");
-            if (dev)
-                text.transform.SetSiblingIndex(dev.GetSiblingIndex());
         }
     }
 }

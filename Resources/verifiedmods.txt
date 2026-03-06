@@ -14,7 +14,7 @@ CustomRush
 TexturedDeck 1.2.2
 ReverseMode
 StreamView
-SuperPotato 1.2.1
+SuperPotato 1.2.3
 stxticCustoms
 YourStory
 NeonSoundReplacer

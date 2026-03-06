@@ -40,6 +40,7 @@ namespace NeonLite.Modules.UI.Status
         {
             i = this;
             baseText = GetComponentInChildren<TextMeshProUGUI>(true);
+            baseText.GetOrAddComponent<Order>().order = int.MinValue;
             baseText.gameObject.SetActive(false);
             c = GetComponentInParent<Canvas>();
             Update();
@@ -51,15 +52,33 @@ namespace NeonLite.Modules.UI.Status
             OnTextReady?.Invoke();
         }
 
-        internal TextMeshProUGUI MakeText(string name, string text)
+        class Order : MonoBehaviour
+        {
+            public int order;
+        }
+
+        internal TextMeshProUGUI MakeText(string name, string text, int order)
         {
             var textO = Utils.InstantiateUI(baseText.gameObject, name, transform).GetComponent<TextMeshProUGUI>();
             textO.text = text;
+            textO.GetOrAddComponent<Order>().order = order;
             textO.gameObject.SetActive(true);
+
+            // have 2 keep seperate because reordering in a foreach transform is bad :broken:
+            var ordered = GetComponentsInChildren<Transform>(true) // catch the inactices too
+                                    .Where(t => t.parent == transform) // directs only
+                                    .OrderByDescending(t => t.GetComponent<Order>().order)
+                                    .GetEnumerator();
+
+            for (int i = 0; ordered.MoveNext(); ++i)
+                ordered.Current.SetSiblingIndex(i);
+
             return textO;
         }
 
-        void Update() => transform.localPosition = c.ViewportToCanvasPosition(new Vector3(0f, 0f, 0));
+        [Obsolete("Use MakeText with int order instead.")]
+        internal TextMeshProUGUI MakeText(string name, string text) => MakeText(name, text, 0);
 
+        void Update() => transform.localPosition = c.ViewportToCanvasPosition(new Vector3(0f, 0f, 0));
     }
 }

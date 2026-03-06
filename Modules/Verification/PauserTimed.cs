@@ -23,7 +23,11 @@ namespace NeonLite.Modules.Verification
         static bool rushFail = false;
         const string RUSH_FAILTEXT = "Pauses exceeded {0}m";
 
-        static void Setup() => StatusText.OnTextReady += SetText;
+        static void Setup()
+        {
+            StatusText.OnTextReady += SetText;
+            Verifier.OnReset += OnReset;
+        }
 
         static void Activate(bool _)
         {
@@ -31,7 +35,7 @@ namespace NeonLite.Modules.Verification
             Patching.AddPatch(typeof(MainMenu), "SetState", PostSetState, Patching.PatchTarget.Postfix);
         }
 
-        static void OnLevelLoad(LevelData _)
+        static void OnReset()
         {
             running = false;
             levelFail = false;
@@ -115,7 +119,7 @@ namespace NeonLite.Modules.Verification
 
         static void SetText()
         {
-            rushText = StatusText.i.MakeText("Rush Timer", "aaaaa");
+            rushText = StatusText.i.MakeText("Rush Timer", "aaaaa", 10);
             rushText.gameObject.SetActive(false);
             rushText.color = Color.white;
             rushText.alpha = 0;

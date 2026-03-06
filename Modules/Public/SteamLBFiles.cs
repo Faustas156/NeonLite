@@ -81,7 +81,7 @@ namespace NeonLite.Modules
         const int UGC_LIMIT = 1;
 
         static BinaryWriter selfCache;
-        static long tmp;
+        const string TMP_FILE = "nllastugc.bin";
 
         static bool OnLBUploaded(LeaderboardScoreUploaded_t pCallback, bool bIOFailure, Leaderboards ___leaderboardsRef, bool ___globalNeonRankingsRequest)
         {
@@ -111,8 +111,7 @@ namespace NeonLite.Modules
                                 : (rushtype != null ? Path.Combine("NeonLite", "Rush", rushtype, "lbugc.bin") :
                                     Path.Combine("NeonLite", "Levels", level.levelID, "lbugc.bin"));
 #else
-            tmp = DateTime.UtcNow.ToBinary();
-            string filepath = $"nlugc{tmp}.tmp";
+            string filepath = TMP_FILE;
 #endif
 
             LBType type = ___globalNeonRankingsRequest ? LBType.Global : (rushtype != null ? LBType.Rush : LBType.Level);
@@ -151,14 +150,21 @@ namespace NeonLite.Modules
             {
                 using MemoryStream final = new();
                 using MemoryStream file = new();
-                string filename;
+                string filename = null;
 
+                try
                 {
                     using BinaryWriter writer = new(file, Encoding.UTF8, true);
                     filename = dg.Invoke(writer, type, pCallback.m_bScoreChanged == 0);
 
                     if (filename == null)
                         continue;
+                }
+                catch (Exception e)
+                {
+                    NeonLite.Logger.Warning("Error writing to LB file (will continue to next function):");
+                    NeonLite.Logger.Error(e);
+                    continue;
                 }
 
                 if (filename.Length > 0xFF)
@@ -234,10 +240,6 @@ namespace NeonLite.Modules
 
         static void OnUGCSetCB(LeaderboardUGCSet_t pCallback, bool bIOfailure)
         {
-#if !DEBUG
-            SteamRemoteStorage.FileDelete($"nlugc{tmp}.tmp");
-#endif
-
             if (pCallback.m_eResult != EResult.k_EResultOK || bIOfailure)
                 NeonLite.Logger.Error("Failed to set the UGC for the Steam LB.");
             else

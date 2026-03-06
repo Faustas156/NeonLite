@@ -30,9 +30,11 @@ namespace NeonLite.Modules.Verification
 
             instance.Controls.Gameplay.FireCard.canceled += c => InputRelease(c, 0);
             instance.Controls.Gameplay.FireCardAlt.canceled += c => InputRelease(c, 1);
+
+            Verifier.OnReset += OnReset;
         }
 
-        static void OnLevelLoad(LevelData _)
+        static void OnReset()
         {
             autoclickFailed = false;
             dragclickFailed = false;

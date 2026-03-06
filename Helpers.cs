@@ -252,6 +252,18 @@ namespace NeonLite
             webRequest.SendWebRequest().completed += _ => callback(webRequest);
         }
 
+        public static void ResizeWithPivot(this RectTransform transform, Vector2 diff)
+        {
+            var upos = transform.localPosition;
+            var d = diff * transform.pivot;
+            upos += new Vector3(d.x, d.y, 0);
+            transform.localPosition = upos;
+
+            var usize = transform.sizeDelta;
+            usize += diff;
+            transform.sizeDelta = usize;
+        }
+
         static readonly Stack<ProfilerMarker> currentMarkers = [];
         static readonly Stack<Tuple<string, Stopwatch>> currentWatches = [];
 
