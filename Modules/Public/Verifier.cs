@@ -174,13 +174,14 @@ namespace NeonLite.Modules
             try
             {
                 string line;
-                while ((line = reader.ReadLine().Trim()) != null)
+                while ((line = reader.ReadLine()) != null)
                 {
+                    line = line.Trim();
                     if (line.StartsWith("//") || string.IsNullOrEmpty(line))
                         continue;
 
                     if (line.Contains("//"))
-                        line = line.Substring(line.IndexOf("//"));
+                        line = line.Substring(0, line.IndexOf("//"));
 
                     var split = line.Split();
 
@@ -582,8 +583,21 @@ namespace NeonLite.Modules
 
         static void VerifyMSLR(MenuScreenLevelRushComplete __instance)
         {
-            __instance.timeText.spriteAsset = SpriteAsset;
-            __instance.timeText.text += $" <sprite={(prevVerified ? 1 : 0)} tint>";
+            if (__instance.bestTimeText.isActiveAndEnabled)
+            {
+                // add it to the new best test
+
+                var nb = __instance.bestTimeText;
+                nb.GetComponent<AxKLocalizedText>().Localize();
+                var nbT = nb.GetComponent<TextMeshProUGUI>();
+                nbT.spriteAsset = SpriteAsset;
+                nbT.text = $"<sprite={(prevVerified ? 1 : 0)} tint> " + nbT.text;
+            }
+            else
+            {
+                __instance.timeText.spriteAsset = SpriteAsset;
+                __instance.timeText.text = $"<sprite={(prevVerified ? 1 : 0)} tint> " + __instance.timeText.text;
+            }
         }
     }
 }

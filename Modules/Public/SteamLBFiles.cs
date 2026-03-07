@@ -246,7 +246,12 @@ namespace NeonLite.Modules
             {
                 if (selfCache != null)
                 {
-                    File.Move(Path.Combine(cacheDir, "self.read"), Path.Combine(cacheDir, $"{selfHandle}.bin"));
+                    var cacheout = Path.Combine(cacheDir, $"{selfHandle}.bin");
+
+                    if (File.Exists(cacheout)) // steam is smart unfortunately
+                        File.Delete(Path.Combine(cacheDir, "self.read"));
+                    else
+                        File.Move(Path.Combine(cacheDir, "self.read"), cacheout);
                     selfCache.Dispose();
                     selfCache = null;
                 }

@@ -419,7 +419,7 @@ namespace NeonLite.Modules
 
             {
                 // pastsight compatibility
-                int pastSight = GetMedalIndex(level.levelID, levelStats.GetTimePastSight());
+                int pastSight = GetMedalIndex(level.levelID, levelStats.GetTimePastSight(true));
                 if (!level.isSidequest)
                     __instance._levelMedal.sprite = Medals[pastSight];
                 else

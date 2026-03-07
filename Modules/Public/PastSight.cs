@@ -1,5 +1,7 @@
 #pragma warning disable IDE0130
+using System.Runtime.CompilerServices;
 using MelonLoader;
+using NeonLite.Modules.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,7 +14,7 @@ namespace NeonLite.Modules
         const bool active = true;
 
         static float timer = 1;
-        static float Opacity => AxKEasing.EaseInCubic(0, 1, Math.Abs(timer));
+        public static float Opacity => AxKEasing.EaseInCubic(0, 1, Math.Abs(timer));
 
         public static bool Active => timer < 0;
 
@@ -20,7 +22,8 @@ namespace NeonLite.Modules
 
         static MelonPreferences_Entry<Key> key;
 
-        static readonly Dictionary<object, Extra> registered = [];
+        static ConditionalWeakTable<LevelStats, LevelStats> preWins = new();
+        internal static readonly Dictionary<object, Extra> registered = [];
 
         static void Setup()
         {
@@ -30,10 +33,12 @@ namespace NeonLite.Modules
 
         static void Activate(bool _)
         {
-            NeonLite.holder.AddComponent<PastSightBehavior>();
+            NeonLite.holder.AddComponent<Fader>();
 
             Patching.AddPatch(typeof(LevelInfo), "SetLevel", PreSetLevelInfo, Patching.PatchTarget.Prefix);
             Patching.AddPatch(typeof(LevelInfo), "SetLevel", PostSetLevelInfo, Patching.PatchTarget.Postfix);
+
+            Patching.AddPatch(typeof(Game), "OnLevelWin", PreWin, Patching.PatchTarget.Prefix);
         }
 
         public static long GetTimePastSight(this LevelStats stats)
@@ -43,7 +48,51 @@ namespace NeonLite.Modules
             return stats.GetTimeBestMicroseconds();
         }
 
-        class Extra
+        public static long GetTimePastSight(this LevelStats stats, bool preWinIfActive)
+        {
+            if (preWinIfActive && Active)
+                return stats.GetPreWinStats().GetTimeLastMicroseconds();
+            return stats.GetTimePastSight();
+        }
+
+        // Will return the existing stats if there's no pre-win stats.
+        public static LevelStats GetPreWinStats(this LevelStats stats)
+        {
+            if (preWins.TryGetValue(stats, out var ret))
+                return ret;
+            return stats;
+        }
+
+        static void PreWin()
+        {
+            var stats = GameDataManager.GetLevelStats(NeonLite.Game.GetCurrentLevel().levelID);
+            if (stats == null)
+                return;
+
+            var prev = preWins.GetOrCreateValue(stats);
+            prev._timeLastMicroseconds = stats._timeLastMicroseconds;
+            prev._timeBestMicroseconds = stats._timeBestMicroseconds;
+            prev._newBest = stats._newBest;
+        }
+
+        static void OnLevelLoad(LevelData level)
+        {
+            if (!level)
+                return;
+
+            var stats = GameDataManager.GetLevelStats(level.levelID);
+            if (stats == null)
+                return;
+
+            if (preWins.TryGetValue(stats, out var prev))
+            {
+                prev._timeLastMicroseconds = stats._timeLastMicroseconds;
+                prev._timeBestMicroseconds = stats._timeBestMicroseconds;
+                prev._newBest = stats._newBest;
+            }
+        }
+
+        internal class Extra
         {
             public LevelData level;
         }
@@ -89,7 +138,7 @@ namespace NeonLite.Modules
             if (__instance._levelBestTimeDescription_Localized.localizationKey != prevtime)
                 extra.bestTimeKey = __instance._levelBestTimeDescription_Localized.localizationKey;
 
-            __instance._levelBestTime.text = Helpers.FormatTime(stats.GetTimePastSight() / 1000, split: '.', cutoff: true);
+            __instance._levelBestTime.text = Helpers.FormatTime(stats.GetTimePastSight(true) / 1000, split: '.', cutoff: true);
             if (Active)
                 __instance._levelBestTimeDescription_Localized.SetKey(prevtime);
             else if (__instance._levelBestTimeDescription_Localized.localizationKey != extra.bestTimeKey)
@@ -107,7 +156,7 @@ namespace NeonLite.Modules
 
         }
 
-        class PastSightBehavior : MonoBehaviour
+        class Fader : MonoBehaviour
         {
             const float SPEED = 0.25f;
 
@@ -150,8 +199,11 @@ namespace NeonLite.Modules
                         else
                             levelInfo._crystalHolderFilledImage.SetAlpha(Opacity);
                     }
+                    else if (kv.Key is Deltatime dt)
+                    {
+                        dt.text.alpha = Opacity;
+                    }
                 }
-
             }
 
             static void OnFlip()
