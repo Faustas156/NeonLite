@@ -28,6 +28,7 @@ connie.modpack
 NoMoreNewFile
 HideLBNames
 NeonEraser
+NeonMenuCustomizer
 
 // The listed mods are not allowed, but correctly handle being enabled/disabled,
 // whether that be via Verifier.SetStatus or CheckVerifiable on a module, or will be eventually configured.
