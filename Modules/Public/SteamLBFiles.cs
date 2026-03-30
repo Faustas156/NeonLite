@@ -189,7 +189,6 @@ namespace NeonLite.Modules
                     final.Position = final.Length;
                     file.Seek(0, SeekOrigin.Begin);
                     file.CopyTo(final);
-
                 }
 
                 selfCache.Write(final.GetBuffer(), 0, size);
@@ -381,8 +380,12 @@ namespace NeonLite.Modules
 
             void ReadIntoStream(int len)
             {
+                NeonLite.Logger.DebugMsg($"{ugcBuffer.Length} {ugcStream.Capacity} {len}");
+
                 if (ugcBuffer.Length < len)
                 {
+                    ugcReader.Close();
+
                     ugcBuffer = new byte[len];
                     ugcStream = new(ugcBuffer);
                     ugcReader = new(ugcStream);

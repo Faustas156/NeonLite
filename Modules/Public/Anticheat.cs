@@ -5,6 +5,10 @@ using System.Reflection.Emit;
 using TMPro;
 using static GhostUtils;
 using NeonLite.Modules.UI.Status;
+using UnityEngine;
+using Newtonsoft.Json;
+
+
 
 
 #if XBOX
@@ -30,6 +34,7 @@ namespace NeonLite.Modules
         static readonly List<MelonAssembly> toRemove = [];
 
         static TextMeshProUGUI text;
+        static TextMeshProUGUI onlyLB;
 
         static MelonPreferences_Entry<bool> force;
         static MelonPreferences_Entry<string> ghost;
@@ -65,9 +70,6 @@ namespace NeonLite.Modules
             if (force != null)
                 activate |= force.Value;
 
-            if (text)
-                text.gameObject.SetActive(activate);
-
             if (!activate)
             {
                 ClearTimes();
@@ -94,27 +96,54 @@ namespace NeonLite.Modules
 #endif
             Patching.TogglePatch(activate, oggtp, GetGhostPath, Patching.PatchTarget.Postfix);
 
+            Patching.TogglePatch(activate, typeof(GameDataManager), "GetPlayerSaveDataPath", DoSaveRedirection, Patching.PatchTarget.Prefix);
+            Patching.TogglePatch(activate, oggtp, DoGhostFolderRedir, Patching.PatchTarget.Prefix);
+#if !XBOX
+            Patching.TogglePatch(activate, typeof(GameDataManager), "SaveGameBackup", BackupSaveRedir, Patching.PatchTarget.Prefix);
+#endif
+
             if (activate)
             {
                 if (Patching.firstPass)
                     Patching.RunPatches(false);
+            }
+            else if (saveRedir != null)
+            {
+                // load it AGAIN, this time without save redirection
+                GameDataManager.LoadGame(null);
             }
 
             hasSetup = true;
 
             active = activate;
 
-            if (MainMenu.Instance()?._screenTitle)
+            if (MainMenu.Instance())
                 PreventNew(MainMenu.Instance()._screenTitle as MenuScreenTitle);
+
+            if (text)
+            {
+                text.gameObject.SetActive(activate && saveRedir == null);
+                onlyLB.gameObject.SetActive(activate && saveRedir != null);
+            }
         }
 
-        static void PreventNew(MenuScreenTitle __instance) => __instance.newGameButton.GetComponent<MenuButtonHolder>().ShouldBeInteractable = !active;
+        static void PreventNew(MenuScreenTitle __instance)
+        {
+            bool interact = !Active;
+            if (saveRedir != null && allowNewGame)
+                interact = true;
+
+            __instance.newGameButton.GetComponent<MenuButtonHolder>().ShouldBeInteractable = interact;
+        }
 
         static Dictionary<string, LevelStats> oldStats;
         internal static readonly HashSet<LevelStats> modified = [];
 
         static bool DontUpdateTime(LevelStats __instance, long newTime, ref long ____timeBestMicroseconds)
         {
+            if (saveRedir != null)
+                return true;
+
             oldStats ??= GameDataManager.levelStats;
 
             if (!modified.Contains(__instance))
@@ -126,6 +155,9 @@ namespace NeonLite.Modules
 
         public static void ClearTimes()
         {
+            if (saveRedir != null)
+                return;
+
             if (oldStats != null)
                 GameDataManager.levelStats = oldStats;
             oldStats = null;
@@ -146,7 +178,7 @@ namespace NeonLite.Modules
 #if XBOX
             filePath += "_" + ghostNames.First().Item2.Replace(" ", "") + ".phant";
 #else
-            filePath = Path.Combine(filePath, ghostNames.First().Item2 + ".phant");
+            filePath = Path.Combine(filePath, ghostNames.First().Item2 + ".phant.mod");
 #endif
         }
 
@@ -162,7 +194,7 @@ namespace NeonLite.Modules
 #if XBOX
         static void UploadScoreStopper(ref bool uploadScore) => uploadScore = false;
         static bool NoSaveGhostCompressed(Task __result) {
-            if (ghostNames.Count > 0)
+            if (ghostNames.Count > 0 || saveRedir != null)
                 return true;
 
             __result = Task.CompletedTask;
@@ -170,6 +202,8 @@ namespace NeonLite.Modules
         }
 
         static bool NoSaveGame(Task __result) {
+            if (saveRedir != null)
+                return true;
             __result = Task.CompletedTask;
             return false;
         }
@@ -251,10 +285,10 @@ namespace NeonLite.Modules
                 .InstructionEnumeration();
         }
 
-        static bool NoSaveGame() => false;
+        static bool NoSaveGame() => saveRedir != null;
         static bool NoSaveGhostCompressed()
         {
-            if (ghostNames.Count > 0)
+            if (ghostNames.Count > 0 || saveRedir != null)
                 return true;
             return false;
         }
@@ -274,7 +308,7 @@ namespace NeonLite.Modules
         }
 #endif
 
-        static void NeverNew(ref bool isNewScore) => isNewScore = false;
+        static void NeverNew(ref bool isNewScore) => isNewScore &= saveRedir != null;
 
         public static void Register(MelonAssembly assembly)
         {
@@ -314,6 +348,77 @@ namespace NeonLite.Modules
                 toRemove.Add(assembly);
         }
 
+        static string saveRedir = null;
+        static bool allowNewGame = false;
+
+        public static void EnableSaveRedirection(string path, bool newGameAllowed = false)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return;
+
+            saveRedir = path;
+            allowNewGame = newGameAllowed;
+        }
+
+
+        static bool DoSaveRedirection(ref string __result)
+        {
+            if (saveRedir == null)
+                return true;
+#if XBOX
+            var trimmed = saveRedir.Replace(" ", "").Replace("/", "").Replace("\\", "");
+            __result = $"savedata_{trimmed}.dat";
+#else
+            __result = Path.Combine(saveRedir, "savedata.dat");
+#endif
+            return false;
+        }
+
+        static bool DoGhostFolderRedir(string levelName, GhostType ghostType, ref string filePath)
+        {
+            if (ghostType != GhostType.PersonalGhost || saveRedir == null)
+                return true;
+
+#if XBOX
+            var trimmed = saveRedir.Replace(" ", "").Replace("/", "").Replace("\\", "");
+            filePath += trimmed;
+#else
+            filePath = Path.Combine(Path.GetFullPath(Application.persistentDataPath), saveRedir, "Ghosts", levelName);
+#endif
+            return false;
+        }
+
+#if !XBOX
+        static bool BackupSaveRedir()
+        {
+            if (saveRedir == null)
+                return true;
+
+            var backups = Path.Combine(saveRedir, "Backups");
+            if (Directory.Exists(backups))
+            {
+                foreach (FileInfo item in (from i in Directory.EnumerateFiles(backups)
+                                           select new FileInfo(i) into i
+                                           orderby i.LastWriteTime descending
+                                           select i).Skip(9))
+                    item.Delete();
+            }
+            var fn = "backup" + DateTime.Now.ToString("yyyyMMddTHHmmss") + "_savedata.dat";
+
+            GameDataManager.saveData.campaignStats = new SerializableDictionary<string, CampaignStats>(GameDataManager.campaignStats);
+            GameDataManager.saveData.levelStats = new SerializableDictionary<string, LevelStats>(GameDataManager.levelStats);
+            GameDataManager.saveData.missionStats = new SerializableDictionary<string, MissionStats>(GameDataManager.missionStats);
+            GameDataManager.saveData.cardShowcase = new SerializableDictionary<string, bool>(GameDataManager.cardShowcase);
+            GameDataManager.saveData.hubVariables = new SerializableDictionary<string, int>(GameDataManager.hubVariables);
+            GameDataManager.saveData.relationships = new SerializableDictionary<string, RelationshipStats>(GameDataManager.relationships);
+            GameDataManager.saveData.freshFile = false;
+            string value = JsonConvert.SerializeObject(GameDataManager.saveData, Formatting.Indented);
+            FileManagement.SetStringWithEncryption(Path.Combine(backups, fn), value);
+
+            return false;
+        }
+#endif
+
         static void OnLevelLoad(LevelData _)
         {
             foreach (var assembly in toRemove)
@@ -333,7 +438,14 @@ namespace NeonLite.Modules
             text.alpha = 0.7f;
             text.fontSize = 20;
 
-            text.gameObject.SetActive(Active);
+            text.gameObject.SetActive(Active && saveRedir == null);
+
+            onlyLB = StatusText.i.MakeText("AnticheatLB", "LBs disabled", -999);
+            onlyLB.color = new(0.98039f, 0.86667f, 0.79216f);
+            onlyLB.alpha = 0.6f;
+            onlyLB.fontSize = 18;
+
+            onlyLB.gameObject.SetActive(Active && saveRedir != null);
         }
     }
 }

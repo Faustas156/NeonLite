@@ -159,14 +159,14 @@ namespace NeonLite
             patchRunner?.Join();
 
             NeonLite.Logger.DebugMsg("RunPatches");
-
-            GCManager.DisableGC(GCManager.GCType.Patching);
             Helpers.StartProfiling($"Setup Patches ({parallel})");
 
             List<PatchJob> bag = new(patches.Count(static x => x.Value.Any(static y => !y.registered)));
 
             if (bag.Capacity != 0)
             {
+                GCManager.DisableGC(GCManager.GCType.Patching);
+
                 foreach (var kv in patches.Where(static x => x.Value.Any(static y => !y.registered)))
                 {
 

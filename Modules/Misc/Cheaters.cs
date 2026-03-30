@@ -122,12 +122,7 @@ namespace NeonLite.Modules.Misc
         private static void PostSetScore(LeaderboardScore __instance, ref ScoreData newData)
         {
             if (bannedIDs == null || !activeCheaters.Contains(newData._ranking))
-            {
-                // lrogue reference
-                DateTime now = DateTime.Now;
-                if (!newData._userScore || now.Month != 4 || now.Day != 1)
-                    return;
-            }
+                return;
 
             __instance._ranking.color = Color.red;
             __instance._username.color = Color.red;

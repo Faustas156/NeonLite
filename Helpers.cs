@@ -264,6 +264,9 @@ namespace NeonLite
             transform.sizeDelta = usize;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string FpLn([CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0) => $"[{Path.GetFileName(fp)}:{ln}]";
+
         static readonly Stack<ProfilerMarker> currentMarkers = [];
         static readonly Stack<Tuple<string, Stopwatch>> currentWatches = [];
 
@@ -277,7 +280,7 @@ namespace NeonLite
 
         [Conditional("ENABLE_PROFILER")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void StartProfiling(string name)
+        public static void StartProfiling(string name, [CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0)
         {
             if (!profiling)
                 return;
@@ -287,22 +290,22 @@ namespace NeonLite
             currentMarkers.Peek().Begin();
             if (NeonLite.DEBUG || FORCE_PROFILING)
             {
-                NeonLite.Logger.Msg($"{name} - START");
+                NeonLite.Logger.Msg($"{FpLn(fp, ln)} {name} - START");
                 currentWatches.Peek().Item2.Start();
             }
         }
 #if ENABLE_PROFILER
-        public static IEnumerable<T> ProfileLoop<T>(this IEnumerable<T> loop, string name)
+        public static IEnumerable<T> ProfileLoop<T>(this IEnumerable<T> loop, string name, [CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0)
         {
-            StartProfiling(name);
+            StartProfiling(name, fp, ln);
             int i = 0;
             foreach (T t in loop)
             {
-                StartProfiling($"{name}#{++i}");
+                StartProfiling($"{name}#{++i}", fp, ln);
                 yield return t;
-                EndProfiling();
+                EndProfiling(fp, ln);
             }
-            EndProfiling();
+            EndProfiling(fp, ln);
         }
 #else
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -310,10 +313,10 @@ namespace NeonLite
 #endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Conditional("ENABLE_PROFILER")]
-        public static void EndProfiling(string _) => EndProfiling();
+        public static void EndProfiling(string _, [CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0) => EndProfiling();
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Conditional("ENABLE_PROFILER")]
-        public static void EndProfiling()
+        public static void EndProfiling([CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0)
         {
             if (!profiling)
                 return;
@@ -323,18 +326,18 @@ namespace NeonLite
             {
                 (var name, var watch) = currentWatches.Pop();
                 watch.Stop();
-                NeonLite.Logger.Msg($"{name} - {watch.Elapsed.TotalMilliseconds}ms");
+                NeonLite.Logger.Msg($"[{FpLn(fp, ln)}] {name} - {watch.Elapsed.TotalMilliseconds}ms");
             }
         }
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void DebugMsg(this MelonLogger.Instance log, string msg)
+        internal static void DebugMsg(this MelonLogger.Instance log, string msg, [CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0)
         {
             if (NeonLite.DEBUG)
             {
-                log.Msg(msg);
-                UnityEngine.Debug.Log($"[NeonLite] {msg}");
+                log.Msg($"{FpLn(fp, ln)} {msg}");
+                UnityEngine.Debug.Log($"[NeonLite] {FpLn(fp, ln)} {msg}");
             }
         }
 

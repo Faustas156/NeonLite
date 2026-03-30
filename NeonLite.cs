@@ -64,6 +64,7 @@ namespace NeonLite
             DEBUG = Settings.mainCategory.GetEntry<bool>("DEBUG").Value;
 
             Anticheat.Register(MelonAssembly);
+            // Anticheat.EnableSaveRedirection("testma", true);
 #endif
             Harmony = HarmonyInstance;
 
