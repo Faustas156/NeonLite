@@ -395,9 +395,9 @@ namespace NeonLite.Modules.Misc
     {
 #pragma warning disable CS0414
         const bool priority = true;
-        static bool active = true;
+        static bool active = false;
 
-        const bool force = true;
+        const bool force = false;
         static readonly TimeSpan range = TimeSpan.FromHours(12);
         static System.Random randist;
 
@@ -789,23 +789,21 @@ namespace NeonLite.Modules.Misc
             ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
             */
 
-            var setting = Settings.Add(Settings.h, "Misc", "antiFun", "Anti-Fun Mode", "Disable April Fools bits", false, true);
-            active = setting.SetupForModule(Activate, static (_, after) => !after);
+            var center = new DateTime(DateTime.Now.Year, 4, 1, 0, 0, 0, DateTimeKind.Local);
+            var now = DateTime.Now;
+
+            // if in range
+            if ((now > center - range && now < center.AddDays(1) + range) || force)
+            {
+                var setting = Settings.Add(Settings.h, "Misc", "antiFun", "Anti-Fun Mode", "Disable April Fools bits", false);
+                active = setting.SetupForModule(Activate, static (_, after) => !after);
+            }
         }
 
         static void Activate(bool activate)
         {
             if (activate)
-            {
-                var center = new DateTime(DateTime.Now.Year, 4, 1, 0, 0, 0, DateTimeKind.Local);
-                var now = DateTime.Now;
-
-                // if in range
-                if ((now > center - range && now < center.AddDays(1) + range) || force)
-                    randist = new System.Random((int)now.ToBinary());
-                else
-                    activate = false;
-            }
+                randist = new System.Random((int)DateTime.Now.ToBinary());
 
             Patching.TogglePatch(activate, typeof(NoMission), "PreCreateButton", DontBlock, Patching.PatchTarget.Prefix);
             Patching.TogglePatch(activate, typeof(LeaderboardScore), "SetScore", LBSetScore, Patching.PatchTarget.Postfix);

@@ -274,7 +274,7 @@ namespace NeonLite.Modules
                 .Advance(1)
                 .Insert(
                     new CodeInstruction(OpCodes.Dup), // duplicate the path
-                    Transpilers.EmitDelegate<Func<string, bool>>(static x => x.EndsWith(".phant")), // check if we end with phant
+                    Transpilers.EmitDelegate<Func<string, bool>>(static x => x.EndsWith(".phant") || x.EndsWith(".phant.mod")), // check if we end with phant
                     new CodeInstruction(OpCodes.Brtrue, after)) // if we do, branch forward
                 .MatchBack(true, new CodeMatch(x => x.IsStloc() && x.opcode.Name.EndsWith(ldlocN))) // go back to the *other* matching stloc
                 .Advance(1)
@@ -374,7 +374,7 @@ namespace NeonLite.Modules
             return false;
         }
 
-        static bool DoGhostFolderRedir(string levelName, GhostType ghostType, ref string filePath)
+        static bool DoGhostFolderRedir(string levelName, GhostType ghostType, ref string filePath, ref bool __result)
         {
             if (ghostType != GhostType.PersonalGhost || saveRedir == null)
                 return true;
@@ -385,6 +385,7 @@ namespace NeonLite.Modules
 #else
             filePath = Path.Combine(Path.GetFullPath(Application.persistentDataPath), saveRedir, "Ghosts", levelName);
 #endif
+            __result = true;
             return false;
         }
 
