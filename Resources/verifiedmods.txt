@@ -19,6 +19,7 @@ stxticCustoms
 YourStory
 NeonSoundReplacer
 SecretShop
+GreenShop
 NeonCollate
 HeavenlyLoading
 ListPB
