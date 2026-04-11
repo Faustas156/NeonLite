@@ -201,9 +201,14 @@ namespace NeonLite.Modules
             return false;
         }
 
-        static bool NoSaveGame(Task __result) {
-            if (saveRedir != null)
-                return true;
+        static bool NoSaveGame(string __0, Task __result) {
+            if (saveRedir != null) {
+                var trimmed = saveRedir.Replace(" ", "").Replace("/", "").Replace("\\", "");
+                var t = $"savedata_{trimmed}.dat";
+
+                if (__0.Contains(t))
+                    return true;
+            }
             __result = Task.CompletedTask;
             return false;
         }
@@ -285,7 +290,16 @@ namespace NeonLite.Modules
                 .InstructionEnumeration();
         }
 
-        static bool NoSaveGame() => saveRedir != null;
+        static bool NoSaveGame(string name)
+        {
+            if (saveRedir != null)
+            {
+                var p = Path.Combine(saveRedir, "savedata.dat");
+                if (name.Contains(p))
+                    return true;
+            }
+            return false;
+        }
         static bool NoSaveGhostCompressed()
         {
             if (ghostNames.Count > 0 || saveRedir != null)
