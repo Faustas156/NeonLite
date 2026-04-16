@@ -89,6 +89,11 @@ namespace NeonLite
 #endif
 
         static readonly Dictionary<Type, Dictionary<string, MethodInfo>> cachedMethods = new(200);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public MethodInfo Method<T>(string name, Type[] param = null, Type[] generics = null) =>
+            Method(typeof(T), name, param, generics);
+
         static public MethodInfo Method(Type type, string name, Type[] param = null, Type[] generics = null)
         {
             var key = $"{name}|{param?.Join()}|{generics?.Join()}";
@@ -120,10 +125,10 @@ namespace NeonLite
                         // great, 2 functions have the same params and name but one is generic and one isn't.
                         // now we have to do the annoying thing of iterating them
 
-                        method = type.GetMethods(AccessTools.all).Where(x =>
+                        method = type.GetMethods(AccessTools.all).FirstOrDefault(x =>
                             x.Name == name &&
                             x.GetParameters().Select(p => p.ParameterType).SequenceEqual(param) &&
-                            x.IsGenericMethod == (generics != null)).FirstOrDefault();
+                            x.IsGenericMethod == (generics != null));
                     }
                 }
 
@@ -145,6 +150,9 @@ namespace NeonLite
             return method;
         }
         static readonly Dictionary<Type, Dictionary<string, FieldInfo>> cachedFields = new(200);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static public FieldInfo Field<T>(string name) =>
+            Field(typeof(T), name);
         static public FieldInfo Field(Type type, string name)
         {
             if (!cachedFields.TryGetValue(type, out var names) || !names.TryGetValue(name, out var field))

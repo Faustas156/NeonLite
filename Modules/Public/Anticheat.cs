@@ -327,6 +327,8 @@ namespace NeonLite.Modules
         public static void Register(MelonAssembly assembly)
         {
             assemblies.Add(assembly);
+            if (toRemove.Contains(assembly))
+                toRemove.Remove(assembly);
             Activate(assemblies.Count > 0);
         }
 
@@ -358,7 +360,7 @@ namespace NeonLite.Modules
 
         public static void Unregister(MelonAssembly assembly)
         {
-            if (!toRemove.Contains(assembly))
+            if (!toRemove.Contains(assembly) && assemblies.Contains(assembly))
                 toRemove.Add(assembly);
         }
 
