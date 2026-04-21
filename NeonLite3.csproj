@@ -41,7 +41,7 @@
         <NWAuthorColor>#FFFFFF</NWAuthorColor>
     </PropertyGroup>
 
-    <Import Project="NWCommon.targets" />
+    <Import Project=".NWCommon/NWCommon.targets" />
 
     <!-- Non-NWCommon properties, items, etc go here -->
     <PropertyGroup>
@@ -55,17 +55,6 @@
         <DefineConstants Condition="'$(Configuration)'=='Debug'">$(DefineConstants);ENABLE_PROFILER;</DefineConstants>
         <DefineConstants Condition="$(NWVersion.Contains('-b'))">$(DefineConstants);BETA;</DefineConstants>
     </PropertyGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Update="Resources/r.resx">
-            <!-- <Generator>ResXFileCodeGenerator</Generator> -->
-            <Generator>MSBuild:Compile</Generator>
-            <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-            <StronglyTypedNamespace>NeonLite.Resources</StronglyTypedNamespace>
-            <StronglyTypedFileName>$(IntermediateOutputPath)r.Designer.cs</StronglyTypedFileName>
-            <StronglyTypedClassName>r</StronglyTypedClassName>
-        </EmbeddedResource>
-    </ItemGroup>
 
     <ItemGroup>
         <!-- Add further references by using $(NWManaged) and $(NWDirectory): -->

@@ -100,7 +100,7 @@ namespace NeonLite.Modules.Misc
             string file = Directory.GetCurrentDirectory() + "/discord_game_sdk.dll";
             if (File.Exists(file))
                 return;
-            File.WriteAllBytes(file, Resources.r.DiscordDLL);
+            File.WriteAllBytes(file, Resources.DiscordDLL.GetBytes());
         }
 
         static void Activate(bool activate)

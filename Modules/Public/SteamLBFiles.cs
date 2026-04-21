@@ -393,7 +393,7 @@ namespace NeonLite.Modules
 
                 if (ugcdown.cache != null)
                 {
-                    ugcStream.Seek(0, SeekOrigin.Begin);
+                    ugcStream.Position = 0;
                     ugcdown.cache.BaseStream.Seek(offset, SeekOrigin.Begin);
                     ugcdown.cache.BaseStream.CopyTo(ugcStream, len);
                 }

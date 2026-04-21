@@ -116,7 +116,7 @@ namespace NeonLite
         {
             if (bundleLoading != null)
                 return;
-            bundleLoading = AssetBundle.LoadFromMemoryAsync(Resources.r.bundle);
+            bundleLoading = AssetBundle.LoadFromStreamAsync(Resources.neonlite.GetStream());
             bundleLoading.completed += static _ =>
             {
                 Logger.Msg("AssetBundle loading done!");

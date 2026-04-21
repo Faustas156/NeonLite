@@ -212,7 +212,7 @@ namespace NeonLite.Modules
                 else if (!File.Exists(backup) || !Load(File.ReadAllText(backup)))
                 {
                     NeonLite.Logger.Warning("Could not load up to date community medals. Loading the backup resource; this could be really outdated!");
-                    if (!Load(Encoding.UTF8.GetString(Resources.r.communitymedals)))
+                    if (!Load(Resources.communitymedals.GetUTF8String()))
                         NeonLite.Logger.Error("Failed to load community medals.");
                 }
                 else

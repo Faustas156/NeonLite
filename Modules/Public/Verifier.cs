@@ -156,7 +156,7 @@ namespace NeonLite.Modules
                     if (print)
                         NeonLite.Logger.Warning("Could not load up to date verified mod list. Loading the backup resource; this could be really outdated!");
 
-                    var resource = Resources.r.verifiedmods;
+                    var resource = Resources.verifiedmods.GetUTF8String();
                     if (!Load(resource, print) && print)
                         NeonLite.Logger.Error("Failed to load the verified mod list.");
                 }

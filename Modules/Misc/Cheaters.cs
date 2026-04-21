@@ -42,11 +42,11 @@ namespace NeonLite.Modules.Misc
                 {
                     NeonLite.Logger.Warning("Could not load up to date cheater list. Loading the backup resource; this could be really outdated!");
 #if XBOX
-                    var resource = Resources.r.cheaterlist_xbox;
+                    var resource = Resources.cheaterlist_xbox.GetUTF8String();
 #else
-                    var resource = Resources.r.cheaterlist;
+                    var resource = Resources.cheaterlist.GetUTF8String();
 #endif
-                    if (!Load(Encoding.UTF8.GetString(resource)))
+                    if (!Load(resource))
                         NeonLite.Logger.Error("Failed to load the cheater list.");
                 }
             });
