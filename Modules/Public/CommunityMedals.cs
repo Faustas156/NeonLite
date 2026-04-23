@@ -277,7 +277,7 @@ namespace NeonLite.Modules
         static Sprite LoadSpriteData(Sprite sBase, byte[] data)
         {
             var t = sBase.texture;
-            var newTex = new Texture2D(t.width, t.height, t.format, t.mipmapCount, true)
+            var newTex = new Texture2D(t.width, t.height, t.format, t.mipmapCount, false)
             {
                 wrapMode = t.wrapMode,
                 filterMode = t.filterMode
