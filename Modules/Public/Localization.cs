@@ -37,6 +37,15 @@ namespace NeonLite.Modules
                 return;
             wasActivated = true;
 
+            // setup sidequests from the helper aprt of the sheet
+            var gd = NeonLite.Game.GetGameData();
+            var sqs = gd.GetCampaign("C_SIDEQUESTS");
+            if (sqs)
+            {
+                foreach (var mission in sqs.missionData)
+                    mission.missionDisplayName = "Interface/" + mission.missionID;
+            }
+
             SetupFontSet();
         }
 

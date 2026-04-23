@@ -72,6 +72,7 @@
         <Reference Include="$(NWManaged)/UnityEngine.UI.dll" Private="false" />
         <Reference Include="$(NWManaged)/UnityEngine.UIModule.dll" Private="false" />
         <Reference Include="$(NWManaged)/UnityEngine.UnityWebRequestModule.dll" Private="false" />
+        <Reference Include="$(NWManaged)/UnityEngine.TextRenderingModule.dll" Private="false" />
         <Reference Include="$(NWManaged)/Newtonsoft.Json.dll" Private="false" />
 
         <Reference Include="$(NWManaged)/eToileAssembly.dll" Private="false" Condition="'$(NWXbox)' != 'true'" />

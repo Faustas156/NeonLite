@@ -854,8 +854,11 @@ namespace NeonLite.Modules.Misc
                 __result.transform.SetAsFirstSibling();
         }
 
-        static bool FunkyLocale(string Term, object[] __args, ref string __result)
+        static bool FunkyLocale(string Term, string overrideLanguage, object[] __args, ref string __result)
         {
+            if (overrideLanguage == "English")
+                return true;
+
             const string HEADER = "NLAF/";
             if (string.IsNullOrWhiteSpace(Term) || Term.StartsWith(HEADER))
                 return true;

@@ -52,12 +52,15 @@ namespace NeonLite.Modules.Optimization
             Patching.AddPatch(typeof(GameInput), "OnActionChange", DisableNav, Patching.PatchTarget.Prefix);
         }
 
-        static bool DisableNav(object o, InputActionChange change)
+        static bool DisableNav()
         {
-            if (EventSystem.current &&
-                EventSystem.current.currentSelectedGameObject &&
-                (EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() ||
-                 EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>()))
+            if (!EventSystem.current || EventSystem.current == null)
+                return true;
+            if (!EventSystem.current.currentSelectedGameObject ||
+                EventSystem.current.currentSelectedGameObject == null)
+                return true;
+            if (EventSystem.current.currentSelectedGameObject.GetComponent<InputField>() ||
+                 EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>())
                 return false;
             return true;
         }

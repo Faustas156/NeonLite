@@ -34,7 +34,7 @@ namespace NeonLite.Modules.Optimization
     {
 #pragma warning disable CS0414
         const bool priority = true;
-        static bool active = false;
+        internal static bool active = false;
 
         static bool wasSetup = false;
         static bool gameDataLoaded = false;
@@ -107,6 +107,8 @@ namespace NeonLite.Modules.Optimization
             if (!active)
                 return true;
 
+            if (initializationState == GameInit.Start)
+                __instance.OnInitializationComplete += NeonLite.i.OnInitComplete;
 #if DEBUG
             NeonLite.Logger.DebugMsg($"SetInitState {initializationState}");
 
