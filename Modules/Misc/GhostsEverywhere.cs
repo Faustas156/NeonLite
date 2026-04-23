@@ -59,7 +59,7 @@ namespace NeonLite.Modules.Misc
             }
 
             bool showing = level && CommunityMedals.Ready && CommunityMedals.medalTimes.ContainsKey(level.levelID) &&
-                (!CommunityMedals.oldStyle.Value ||
+                (CommunityMedals.style.Value != CommunityMedals.DisplayStyle.Stamps ||
                 (CommunityMedals.GetMedalIndex(level.levelID, stats._timeBestMicroseconds) >= (int)CommunityMedals.MedalEnum.Emerald));
 
             Image[] dotteds = __instance._insightAniamtor.GetComponentsInChildren<Image>();

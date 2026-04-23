@@ -133,21 +133,32 @@ namespace NeonLite.Modules.Optimization
             {
                 var level = NeonLite.Game.GetCurrentLevel();
                 __instance.leaderboardsAndLevelInfoRef.gameObject.SetActive(true);
-                __instance.leaderboardsAndLevelInfoRef.SetLevel(level, false, true, false, !GameDataManager.GetLevelStats(level.levelID).IsNewBest());
+                var gd = NeonLite.Game.GetGameData();
+                var lb = __instance.leaderboardsAndLevelInfoRef.leaderboardsRef;
+                if (gd.GetLevelStats(level.levelID).GetCompleted() && gd.IsArchiveUnlockedForLevel(level))
+                {
+                    lb.gameObject.SetActive(true);
+                    lb.SetLevel(level, !GameDataManager.GetLevelStats(level.levelID).IsNewBest());
+                }
+                else
+                    lb.gameObject.SetActive(false);
             }
 
             while (__result.MoveNext())
                 yield return __result.Current;
         }
 
+        static void SetLevelWrapper(LeaderboardsAndLevelInfo lali, LevelData level, bool fromStore, bool isNewScore, bool skipNewScoreInitalDelay, bool _)
+        {
+            lali.insightInfoRef.SetLevel(level);
+            lali.levelInfoRef.SetLevel(level, fromStore, isNewScore, skipNewScoreInitalDelay);
+        }
+
         static IEnumerable<CodeInstruction> SkipOverLevel(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
-                .MatchForward(true, new CodeMatch(static x => x.Calls(Helpers.Method(typeof(LeaderboardsAndLevelInfo), "SetLevel"))))
-                .MatchBack(true, new CodeMatch(static x => x.Branches(out _)))
-                .CloneInPlace(out var branch)
-                .Advance(1)
-                .Insert(new CodeInstruction(OpCodes.Br, branch.Operand))
+                .MatchForward(false, new CodeMatch(static x => x.Calls(Helpers.Method(typeof(LeaderboardsAndLevelInfo), "SetLevel"))))
+                .SetInstruction(CodeInstruction.Call(typeof(EarlyLBUpload), "SetLevelWrapper"))
                 .InstructionEnumeration();
         }
     }

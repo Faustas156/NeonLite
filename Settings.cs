@@ -1,6 +1,7 @@
 ﻿using I2.Loc;
 using MelonLoader;
 using MelonLoader.TinyJSON;
+using NeonLite.Modules;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,7 @@ namespace NeonLite
 {
     public static class Settings
     {
-        internal static readonly int VERSION = 3001003; // 1223344
+        internal static readonly int VERSION = 3001107; // 1223344
         internal static MelonPreferences_Category mainCategory;
 
         static readonly Dictionary<MelonPreferences_Entry, (string, string)> entryLoc = new(256);
@@ -367,6 +368,13 @@ namespace NeonLite
                     case 309:
                         Find<bool>(h, "VFX", "noStompSplash").Value = Find<bool>(h, "VFX", "noStomp").Value;
                         readVersion = 3001003;
+                        break;
+                    case 3001003:
+                        Find<bool>(h, "UI", "showLevelName").Value = Find<bool>(h, "Medals", "comMedals").Value;
+                        if (Find<bool>(h, "Medals", "oldStyle").Value)
+                            Find<CommunityMedals.DisplayStyle>(h, "Medals", "style").Value
+                                = CommunityMedals.DisplayStyle.Stamps;
+                        readVersion = 3001107;
                         break;
                 }
 

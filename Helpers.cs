@@ -351,7 +351,8 @@ namespace NeonLite
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void DebugMsg(this MelonLogger.Instance log, object obj) => DebugMsg(log, obj.ToString());
+        internal static void DebugMsg(this MelonLogger.Instance log, object obj, [CallerFilePath] string fp = "", [CallerLineNumber] int ln = 0)
+            => DebugMsg(log, obj.ToString(), fp, ln);
 
         [Conditional("BETA"), Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
