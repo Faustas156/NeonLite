@@ -118,4 +118,41 @@ namespace NeonLite.Modules.Optimization
             RemoveBinding("<Keyboard>/d");
         }
     }
+
+    [Module]
+    class AltTabFix : MonoBehaviour
+    {
+        const bool priority = false;
+        static bool active = true;
+
+        static AltTabFix i;
+
+        static void Setup()
+        {
+            var setting = Settings.Add(Settings.h, "Misc", "alttab", "Alt-tab Fix", "Resets button presses, etc. after alt-tabbing to prevent \"sticky keys.\"", true);
+            active = setting.SetupForModule(Activate, static (_, after) => after);
+        }
+
+        static void Activate(bool activate)
+        {
+            if (!i)
+                i = NeonLite.holder.AddComponent<AltTabFix>();
+
+            i.enabled = activate;
+            active = activate;
+        }
+
+        void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus)
+            {
+                if (Keyboard.current != null)
+                    InputSystem.ResetDevice(Keyboard.current);
+                if (Mouse.current != null)
+                    InputSystem.ResetDevice(Mouse.current);
+                if (Gamepad.current != null)
+                    InputSystem.ResetDevice(Gamepad.current);
+            }
+        }
+    }
 }

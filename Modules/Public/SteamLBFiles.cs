@@ -83,6 +83,9 @@ namespace NeonLite.Modules
         static BinaryWriter selfCache;
         const string TMP_FILE = "nllastugc.bin";
 
+        const int MAX_FILESIZE = 10 * 1024 * 1024;
+
+        static readonly FieldInfo lbCurLvl = Helpers.Field(typeof(Leaderboards), "currentLevelData");
         static bool OnLBUploaded(LeaderboardScoreUploaded_t pCallback, bool bIOFailure, Leaderboards ___leaderboardsRef, bool ___globalNeonRankingsRequest)
         {
             if (!skip)
@@ -105,7 +108,7 @@ namespace NeonLite.Modules
                 LevelRush.GetCurrentLevelRush().levelRushType.ToString() + "_" +
                     (LevelRush.IsHellRush() ? "Hell" : "Heaven") : null;
 
-            var level = (LevelData)Helpers.Field(typeof(Leaderboards), "currentLevelData").GetValue(___leaderboardsRef);
+            var level = (LevelData)lbCurLvl.GetValue(___leaderboardsRef);
 #if DEBUG
             string filepath = ___globalNeonRankingsRequest ? Path.Combine("NeonLite", "globallbugc.bin")
                                 : (rushtype != null ? Path.Combine("NeonLite", "Rush", rushtype, "lbugc.bin") :
@@ -174,9 +177,9 @@ namespace NeonLite.Modules
                 }
 
                 int size = (int)(filename.Length + 1 + sizeof(int) + file.Length);
-                if (size > 100 * 1024 * 1024)
+                if (size > MAX_FILESIZE)
                 {
-                    NeonLite.Logger.Error($"Steam UGC file {filename} is over 100MiB (+ {filename.Length + 1 + sizeof(int)} header.)");
+                    NeonLite.Logger.Error($"Steam UGC file {filename} is over 10MiB (+ {filename.Length + 1 + sizeof(int)} header.)");
                     continue;
                 }
 
@@ -264,6 +267,7 @@ namespace NeonLite.Modules
         class UGCDown(ref LeaderboardEntry_t entry)
         {
             public LeaderboardScore score = null;
+            public LevelData level = null;
             public CSteamID steamID = entry.m_steamIDUser;
             public UGCHandle_t ugcH = entry.m_hUGC;
             public CallResult<RemoteStorageDownloadUGCResult_t> cb =
@@ -315,7 +319,7 @@ namespace NeonLite.Modules
 
         static void CollectUGCDown(ref LeaderboardEntry_t pLeaderboardEntry) => ugcDowns.Add(new(ref pLeaderboardEntry));
 
-        static void DownloadUGC(bool atleastOneEntry, List<GameObject> ___createdScores)
+        static void DownloadUGC(bool atleastOneEntry, List<GameObject> ___createdScores, LevelData ___currentLevelData)
         {
             if (!atleastOneEntry)
                 return;
@@ -323,6 +327,8 @@ namespace NeonLite.Modules
             foreach (var (lbc, ugcd) in ___createdScores.Select(x => x.GetComponent<LeaderboardScore>()).Zip(ugcDowns, static (x, y) => (x, y)))
             {
                 ugcd.score = lbc;
+                ugcd.level = ___currentLevelData;
+
                 if (ugcd.cb != null)
                 {
                     NeonLite.Logger.DebugMsg($"UGCHANDLE {ugcd.ugcH}");
@@ -351,7 +357,8 @@ namespace NeonLite.Modules
             }
         }
 
-        static byte[] ugcBuffer = new byte[1024];
+        const int UGCBUF_DEFAULT = 256;
+        static byte[] ugcBuffer = new byte[UGCBUF_DEFAULT];
         static MemoryStream ugcStream = new(ugcBuffer);
         static BinaryReader ugcReader = new(ugcStream);
 
@@ -362,6 +369,11 @@ namespace NeonLite.Modules
 
             var ugcdown = ugcDowns.FirstOrDefault(x => x.steamID == (CSteamID)pCallback.m_ulSteamIDOwner);
             if (ugcdown == default(UGCDown) || !ugcdown.score)
+                return;
+
+            var lb = ugcdown.score.GetComponentInParent<Leaderboards>();
+            var lvl = (LevelData)lbCurLvl.GetValue(lb);
+            if (ugcdown.level != lvl)
                 return;
 
             uint offset = 0;
@@ -380,6 +392,17 @@ namespace NeonLite.Modules
 
             void ReadIntoStream(int len)
             {
+                if (len > MAX_FILESIZE)
+                {
+                    // im gonna resize this as to not prevent further issues
+                    ugcReader.Close();
+                    ugcBuffer = new byte[UGCBUF_DEFAULT];
+                    ugcStream = new(ugcBuffer);
+                    ugcReader = new(ugcStream);
+
+                    throw new ArgumentOutOfRangeException("Attempting to read more than 10MiB");
+                }
+
                 NeonLite.Logger.DebugMsg($"{ugcBuffer.Length} {ugcStream.Capacity} {len}");
 
                 if (ugcBuffer.Length < len)

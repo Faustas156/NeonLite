@@ -158,14 +158,11 @@ namespace NeonLite.Modules
                 existingValue ??= new LevelStats();
 
                 int startDepth = reader.Depth + 1;
-                NeonLite.Logger.DebugMsg($"read start depth {startDepth}");
 
                 try
                 {
                     while (reader.Read() && reader.Depth >= startDepth)
                     {
-                        NeonLite.Logger.DebugMsg($"type {reader.TokenType} value {reader.Value} depth {reader.Depth}");
-
                         // it should ALWAYS start at propertyname
                         var prop = (string)reader.Value;
                         if (prop == "mod")
@@ -202,10 +199,8 @@ namespace NeonLite.Modules
 
                             if (f != null)
                             {
-                                NeonLite.Logger.DebugMsg($"{f} {f.FieldType}");
                                 reader.Read();
                                 var r = serializer.Deserialize(reader, f.FieldType);
-                                NeonLite.Logger.DebugMsg($"{r}");
                                 f.SetValue(existingValue, r);
                             }
                             else
@@ -221,8 +216,6 @@ namespace NeonLite.Modules
                     NeonLite.Logger.Warning("Error parsing LevelStats");
                     NeonLite.Logger.Error(e);
                 }
-
-                NeonLite.Logger.DebugMsg($"end read");
 
                 return existingValue;
             }

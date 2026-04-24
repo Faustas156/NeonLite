@@ -82,8 +82,6 @@ namespace NeonLite.Modules.Verification
                 autoComp[i - 2] = diff;
             }
 
-            NeonLite.Logger.DebugMsg(string.Format("AUTO1 MIN {0:F2} MAX {1:F2} AVG {2:F2} {3:F2}", autoComp.Min(), autoComp.Max(), autoComp.Average(), AUTOCLICK_CHECK));
-
             // the fact we're here at all means it didn't pass the speed check
             for (i = 0; i < AUTOCLICK_COUNT - 2; ++i)
                 autoCons[i] = autoComp[i] - autoComp[i + 1];
@@ -91,13 +89,9 @@ namespace NeonLite.Modules.Verification
             if (Math.Abs(autoCons.Average()) > AUTOCLICK_THRES)
                 return;
 
-            NeonLite.Logger.DebugMsg(string.Format("AUTO2 MIN {0:F2} MAX {1:F2} AVG {2:F2} {3:F2}", autoCons.Min(), autoCons.Max(), autoCons.Average(), AUTOCLICK_THRES));
-
             // didn't pass the consistency check
             if (autoHold.Average() > AUTOCLICK_HOLDS)
                 return;
-
-            NeonLite.Logger.DebugMsg(string.Format("AUTO3 MIN {0:F2} MAX {1:F2} AVG {2:F2} {3:F2}", autoHold.Min(), autoHold.Max(), autoHold.Average(), AUTOCLICK_HOLDS));
 
             // we failed
             autoclickFailed = true;
@@ -130,21 +124,12 @@ namespace NeonLite.Modules.Verification
             Verifier.SetRunUnverifiable(typeof(AutoDragDetect), string.Format(DRAGCLICK_FAIL, DRAGCLICK_COUNT, dragComp.Min(), dragComp.Max(), dragComp.Average()));
         }
 
-#if DEBUG
-        static readonly double[] holddiff = new double[2];
-#endif
-
         static void InputStart(InputAction.CallbackContext context, int which)
         {
             var auto = autoQueueS[which];
             var drag = dragQueue[which];
 
             var ms = context.time * 1000;
-
-#if DEBUG
-            NeonLite.Logger.DebugMsg($"INPUTSTART {ms}");
-            holddiff[which] = ms;
-#endif
             auto.CycleQueue(ms, AUTOCLICK_COUNT);
             if (!dragclickFailed && drag.CycleQueue(ms, DRAGCLICK_COUNT))
                 CheckDragQueue(drag);
@@ -155,10 +140,6 @@ namespace NeonLite.Modules.Verification
             var auto = autoQueueR[which];
 
             var ms = context.time * 1000;
-#if DEBUG
-            NeonLite.Logger.DebugMsg($"INPUTRELEASE {ms} {ms - holddiff[which]}");
-#endif
-
             if (!autoclickFailed && auto.CycleQueue(ms, AUTOCLICK_COUNT))
                 CheckAutoQueue(autoQueueS[which], auto);
         }

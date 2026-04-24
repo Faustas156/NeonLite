@@ -243,7 +243,7 @@ namespace NeonLite.Modules
                     {
                         if (res.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
                             return;
-                        void SetTex() => data.sStamp = LoadSpriteData(Stamps[0], res.downloadHandler.data);
+                        void SetTex() => data.sStamp = LoadSpriteData(Stamps[I(MedalEnum.Dev)], res.downloadHandler.data);
                         if (!Ready)
                             AssetsFinished += SetTex;
                         else

@@ -516,20 +516,20 @@ namespace NeonLite.Modules.Optimization
 
             game.SetWaitForStaging(staging);
 
-            foreach (var tripwire in InRegistry<TripwireWeapon>(true).ProfileLoop("Tripwire Cancels"))
+            foreach (var tripwire in InRegistry<TripwireWeapon>(true))
                 tripwire.CancelTripRoutine();
-            foreach (var beam in InRegistry<BeamWeapon>(true).ProfileLoop("Beam Weapon Cancels"))
+            foreach (var beam in InRegistry<BeamWeapon>(true))
                 beam.CancelBeamTrackingRoutine();
 
             var audioObjects = AudioController.GetPlayingAudioObjects(true);
-            foreach (var audio in audioObjects.ProfileLoop("Audio Object Stops"))
+            foreach (var audio in audioObjects)
             {
                 if (audio.transform.parent != MainMenu.Instance().transform)
                     audio.Stop(0);
             }
             AudioObjectSplineMover.ReleaseAudioObjects();
 
-            foreach (var ghost in InRegistry<GhostPlayback>(true, false).ProfileLoop("GhostPlayback Resets"))
+            foreach (var ghost in InRegistry<GhostPlayback>(true, false))
             {
                 if (!ghost || ghost.gameObject.scene.name == "Player")
                     GhostPlaybackLord.i.ghostPlaybacks.Remove(ghost);
@@ -539,22 +539,22 @@ namespace NeonLite.Modules.Optimization
 
             //yield return null;
 
-            foreach (var encounter in InRegistry<EnemyEncounter>().ProfileLoop("Enemy Encounter Stops"))
+            foreach (var encounter in InRegistry<EnemyEncounter>())
                 encounter.StopAllCoroutines();
 
-            foreach (var spawner in InRegistry<CardPickupSpawner>().ProfileLoop("Card Pickup Stops"))
+            foreach (var spawner in InRegistry<CardPickupSpawner>())
                 spawner.StopAllCoroutines();
-            foreach (var spawner in InRegistry<ObjectSpawner>().ProfileLoop("Object Spawner Stops"))
+            foreach (var spawner in InRegistry<ObjectSpawner>())
                 spawner.StopAllCoroutines();
-            foreach (var spawner in InRegistry<EnemySpawner>(true).ProfileLoop("Enemy Spawner Stops"))
+            foreach (var spawner in InRegistry<EnemySpawner>(true))
                 spawner.StopAllCoroutines();
-            foreach (var spawner in InRegistry<EnemyWaveSpecificObject>(true).ProfileLoop("Wave Specific Object Disables"))
+            foreach (var spawner in InRegistry<EnemyWaveSpecificObject>(true))
             {
                 if (spawner.holder)
                     spawner.holder.SetActive(false);
             }
 
-            foreach (var obj in destroy.ProfileLoop("Destroys"))
+            foreach (var obj in destroy)
             {
                 if (obj)
                 {
@@ -563,7 +563,7 @@ namespace NeonLite.Modules.Optimization
                     Object.Destroy(obj);
                 }
             }
-            foreach (var particle in InRegistry<ParticleSystem>(true).ProfileLoop("Particle Stops"))
+            foreach (var particle in InRegistry<ParticleSystem>(true))
             {
                 if (!particle.main.loop)
                 {
@@ -571,7 +571,7 @@ namespace NeonLite.Modules.Optimization
                     particle.Clear();
                 }
             }
-            foreach (var hint in InRegistry<GhostHintOriginVFX>(true).ProfileLoop("Hint Resets"))
+            foreach (var hint in InRegistry<GhostHintOriginVFX>(true))
             {
                 if (hintActive.GetValue<bool>(hint))
                 {
@@ -594,10 +594,10 @@ namespace NeonLite.Modules.Optimization
             }
             Helpers.EndProfiling();
 
-            foreach (var remember in InRegistry<RememberTransform>(true).ProfileLoop("Apply RememberTransform"))
+            foreach (var remember in InRegistry<RememberTransform>(true))
                 remember.Apply();
 
-            foreach (var region in InRegistry<OnRegion>().ProfileLoop("Handle OnRegions"))
+            foreach (var region in InRegistry<OnRegion>())
             {
                 region.enabled = false;
                 for (int i = 0; i < region.monoBehavioursToEnable.Length; ++i)
@@ -640,7 +640,7 @@ namespace NeonLite.Modules.Optimization
                 }
             }
 
-            foreach (var trigger in InRegistry<LevelTrigger>(true).ProfileLoop("Reset LevelTriggers"))
+            foreach (var trigger in InRegistry<LevelTrigger>(true))
             {
                 if (trigger.triggerAction == LevelTrigger.TriggerAction.EnableObjects)
                     foreach (var obj in trigger.gameObjects)
@@ -690,7 +690,7 @@ namespace NeonLite.Modules.Optimization
                 AddToRegistry(region);
                 region.enabled = true;
             }
-            foreach (var spawner in InRegistry<CardPickupSpawner>(true).ProfileLoop("Respawn Cards"))
+            foreach (var spawner in InRegistry<CardPickupSpawner>(true))
             {
                 if (spawner.spawnOnStart)
                 {
@@ -713,19 +713,19 @@ namespace NeonLite.Modules.Optimization
                     }
                 }
             }
-            foreach (var spawner in InRegistry<ObjectSpawner>(true).ProfileLoop("Respawn ObjectSpawners"))
+            foreach (var spawner in InRegistry<ObjectSpawner>(true))
             {
                 if (spawner.spawnOnStart)
                     spawner.Spawn();
             }
 
-            foreach (var wave in InRegistry<EnemyWave>(true).ProfileLoop("Reset EnemyWaves"))
+            foreach (var wave in InRegistry<EnemyWave>(true))
             {
                 enemydict.GetValue<IDictionary>(wave).Clear();
                 enemycount.SetValue(wave, 0);
             }
 
-            foreach (var encounter in InRegistry<EnemyEncounter>(true).ProfileLoop("Reset Encounter"))
+            foreach (var encounter in InRegistry<EnemyEncounter>(true))
                 encounter.Setup();
 
             RM.time.SetTargetTimescale(0, true);
@@ -741,7 +741,7 @@ namespace NeonLite.Modules.Optimization
             do yield return new WaitForEndOfFrame();
             while (!cop?.isDone ?? false);
 
-            foreach (var gate in InRegistry<LevelGate>(true).ProfileLoop("Gate Particles"))
+            foreach (var gate in InRegistry<LevelGate>(true))
             {
                 AddToRegistry(gate);
                 if (!gate.Unlocked)
