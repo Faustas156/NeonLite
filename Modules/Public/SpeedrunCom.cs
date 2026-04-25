@@ -193,6 +193,8 @@ namespace NeonLite.Modules
 
         public static long GetLevelWR(string levelID)
         {
+            if (!_wrCache.ContainsKey("L/" + levelID))
+                return long.MinValue;
             var cache = _wrCache["L/" + levelID];
             if (cache.lastFetched <= DateTime.UtcNow.AddMinutes(-1))
                 FetchLevelWR(levelID);
