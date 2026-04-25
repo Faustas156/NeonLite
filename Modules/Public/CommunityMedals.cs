@@ -258,7 +258,6 @@ namespace NeonLite.Modules
                             SetTex();
                     });
 
-                    NeonLite.Logger.DebugMsg($"add ext {rank}");
                     extensions.Add(rank, data);
                     ++index;
                 }
@@ -291,8 +290,6 @@ namespace NeonLite.Modules
 
         static void FinalizeExtensions()
         {
-            NeonLite.Logger.DebugMsg($"finalize extensions exts? {extensions.Count} current {_medalDatas.Count}");
-
             var exts = extensions
                     .OrderBy(kv => kv.Key)
                     .Select(kv => kv.Value)
@@ -315,8 +312,6 @@ namespace NeonLite.Modules
 
                 _medalDatas.Add(ext);
             }
-
-            NeonLite.Logger.DebugMsg($"post finalize exts? {extensions.Count} current {_medalDatas.Count}");
         }
 
         public static int GetMedalIndex(string level, long time = -1)
@@ -349,12 +344,10 @@ namespace NeonLite.Modules
         {
             if (fetching)
                 return;
-            NeonLite.Logger.DebugMsg($"DownloadMedals exts? {extensions.Count} medaldatas? {_medalDatas.Count}");
             fetched = true;
             extensions.Clear();
             if (_medalDatas.Count > I(MedalEnum.Plus)) // remove all exts
                 _medalDatas.RemoveRange(I(MedalEnum.Plus), _medalDatas.Count - I(MedalEnum.Plus));
-            NeonLite.Logger.DebugMsg($"postclear {_medalDatas.Count}");
 
             fetching = true;
             Helpers.DownloadURL(URL, request =>
@@ -383,8 +376,6 @@ namespace NeonLite.Modules
                         {
                             var split = next.Split(['\n'], 2);
                             var url = split[0].Trim();
-
-                            NeonLite.Logger.DebugMsg($"ext fetch {url}");
 
                             Helpers.DownloadURL(url, request =>
                             {

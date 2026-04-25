@@ -3,7 +3,7 @@
         <!-- The name of the mod -->
         <NWName>NeonLite</NWName>
         <NWAuthor>Faustas, MOPSKATER, stxticOVFL</NWAuthor>
-        <NWVersion>3.0.11+7</NWVersion>
+        <NWVersion>3.0.11+8</NWVersion>
         <!-- The name of the *DLL* -->
         <AssemblyName>$(NWName)</AssemblyName>
 
