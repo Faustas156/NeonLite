@@ -67,6 +67,8 @@ namespace NeonLite.Modules
         {
             Patching.AddPatch(typeof(Leaderboards), "SetLevel", FetchWR, Patching.PatchTarget.Postfix);
             Patching.AddPatch(typeof(Leaderboards), "DisplayScores_AsyncRecieve", CheckWR, Patching.PatchTarget.Postfix);
+            Patching.AddPatch(typeof(MenuScreenResults), "LevelCompleteRoutine", SetupResults, Patching.PatchTarget.Prefix);
+            Patching.AddPatch(Helpers.Method(typeof(AudioController), "Play", [typeof(string)]), PlayWRSound, Patching.PatchTarget.Prefix);
 
             new Request("/games")
                 .Add("abbreviation", "neon_white")
@@ -200,7 +202,7 @@ namespace NeonLite.Modules
 
         static void FetchWR(LevelData newData) => GetLevelWR(newData.levelID);
 
-        static readonly string TIME_FORMAT_LB = @"m\:ss\.fff";
+        const string TIME_FORMAT_LB = @"m\:ss\.fff";
         static void CheckWR(bool atleastOneEntry, LevelData ___currentLevelData, List<GameObject> ___createdScores)
         {
             if (!atleastOneEntry || !___currentLevelData)
@@ -220,6 +222,41 @@ namespace NeonLite.Modules
                 lbscore.GetComponentsInChildren<TextMeshProUGUI>().Do(x => x.fontStyle |= FontStyles.Italic);
                 lbscore.GetComponentsInChildren<Text>().Do(x => x.fontStyle |= FontStyle.Italic);
             }
+        }
+
+        static bool prepWRSound = false;
+        static void SetupResults(MenuScreenResults __instance)
+        {
+            if (Anticheat.Active)
+                return;
+
+            var level = LoadManager.currentLevel;
+            var wr = GetLevelWR(level.levelID);
+            if (wr == long.MinValue)
+                return;
+
+            var stats = GameDataManager.GetLevelStats(level.levelID);
+            if (!stats.IsNewBest())
+                return;
+
+            if (wr < stats._timeBestMicroseconds)
+            {
+                __instance._levelCompleteNewBestText.GetComponent<AxKLocalizedText>().SetKey("Interface/RESULTS_NEWBEST");
+                __instance._resultsScreenNewBestTimeIndicator.GetComponent<AxKLocalizedText>().SetKey("Interface/RESULTS_NEWBEST");
+                return;
+            }
+
+            __instance._levelCompleteNewBestText.GetComponent<AxKLocalizedText>().SetKey("NeonLite/RESULTS_NEWBEST_WR");
+            __instance._resultsScreenNewBestTimeIndicator.GetComponent<AxKLocalizedText>().SetKey("NeonLite/RESULTS_NEWBEST_WR");
+            prepWRSound = true;
+        }
+
+        static void PlayWRSound(ref string audioID)
+        {
+            if (!prepWRSound || audioID == "LEVEL_COMPLETE")
+                return;
+            audioID = "MUSIC_JINGLE_LEVEL_COMPLETE_MEDAL";
+            prepWRSound = false;
         }
     }
 }

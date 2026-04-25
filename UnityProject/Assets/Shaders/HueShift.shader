@@ -3,7 +3,7 @@ Shader "NeonLite/Hue Shift"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Shift ("Hue Shift", Range(0, 1)) = 0 
+        _Shift ("Hue Shift", Range(0, 1)) = 0
         _Color ("Tint", Color) = (1,1,1,1)
 
         _StencilComp ("Stencil Comparison", Float) = 8
@@ -116,7 +116,7 @@ Shader "NeonLite/Hue Shift"
             {
                 const float PI = 3.14159265;
 
-                fixed4 col = tex2D(_MainTex, i.uv) * i.color;
+                fixed4 col = saturate(tex2D(_MainTex, i.uv) * i.color);
                 col.rgb = hueShift(col, _Shift * 360 * (PI/180));
 
                 #ifdef UNITY_UI_CLIP_RECT

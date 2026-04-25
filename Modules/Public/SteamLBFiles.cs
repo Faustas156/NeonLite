@@ -368,7 +368,7 @@ namespace NeonLite.Modules
                 NeonLite.Logger.Error("Failed to download UGC for Steam LB.");
 
             var ugcdown = ugcDowns.FirstOrDefault(x => x.steamID == (CSteamID)pCallback.m_ulSteamIDOwner);
-            if (ugcdown == default(UGCDown) || !ugcdown.score)
+            if (ugcdown == default(UGCDown) || !ugcdown.score || !ugcdown.score.gameObject.activeInHierarchy)
                 return;
 
             var lb = ugcdown.score.GetComponentInParent<Leaderboards>();

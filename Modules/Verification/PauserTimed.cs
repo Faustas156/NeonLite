@@ -105,7 +105,7 @@ namespace NeonLite.Modules.Verification
                 if (rushTimer > RUSH_LIMIT)
                 {
                     gameObject.SetActive(false);
-                    Verifier.SetRushUnverifiable(typeof(PauserTimed), RUSH_FAILTEXT);
+                    Verifier.SetRushUnverifiable(typeof(PauserTimed), string.Format(RUSH_FAILTEXT, RUSH_LIMIT / 60));
                     rushFail = true;
                     return;
                 }
