@@ -146,7 +146,7 @@ namespace NeonLite.Modules
                     List<long> community = [.. pk.Value as ProxyArray];
                     List<long> initial = [];
 
-                    if (level || !level.isSidequest)
+                    if (level && !level.isSidequest)
                     {
                         initial = [
                             long.MaxValue,
@@ -635,9 +635,9 @@ namespace NeonLite.Modules
 
                 if (level.isSidequest)
                 {
-                    if (medalEarned < I(MedalEnum.Dev))
+                    if (medalEarned < I(MedalEnum.Ace))
                         return; // we can't show rolling for sidequests
-                    if (medalEarned == I(MedalEnum.Dev)) // start at emmy anyway, we have no dex
+                    if (medalEarned == I(MedalEnum.Ace)) // start at emmy anyway, we have no dex
                         startingMedal = I(MedalEnum.Emerald);
                 }
             }

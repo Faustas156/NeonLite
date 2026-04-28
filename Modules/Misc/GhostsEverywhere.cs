@@ -4,6 +4,7 @@ using HarmonyLib;
 using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
+using static NeonLite.Modules.CommunityMedals;
 
 namespace NeonLite.Modules.Misc
 {
@@ -58,9 +59,10 @@ namespace NeonLite.Modules.Misc
                 __instance._insightAniamtor.gameObject.SetActive(true);
             }
 
-            bool showing = level && CommunityMedals.Ready && CommunityMedals.medalTimes.ContainsKey(level.levelID) &&
-                (CommunityMedals.style.Value != CommunityMedals.DisplayStyle.Stamps ||
-                (CommunityMedals.GetMedalIndex(level.levelID, stats._timeBestMicroseconds) >= (int)CommunityMedals.MedalEnum.Emerald));
+            // sq logic
+            bool showing = level && CommunityMedals.Ready && medalTimes.ContainsKey(level.levelID);
+            if (CommunityMedals.style.Value == DisplayStyle.Stamps)
+                showing &= GetMedalIndex(level.levelID) >= I(MedalEnum.Emerald);
 
             Image[] dotteds = __instance._insightAniamtor.GetComponentsInChildren<Image>();
             dotteds[0].enabled = !active || !level.isSidequest || (stats.GetCompleted() && CommunityMedals.setting.Value && showing);
