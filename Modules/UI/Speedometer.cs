@@ -4,6 +4,7 @@ using I2.Loc;
 using MelonLoader;
 using TMPro;
 using UnityEngine;
+using static NeonLite.NeonLite;
 
 namespace NeonLite.Modules.UI
 {
@@ -272,7 +273,7 @@ namespace NeonLite.Modules.UI
             internal static void Relocalize() => instance?.Localize();
             public void Localize()
             {
-                SetKey("NeonLite/SPEEDOMETER_VELOCITY");
+                SetKey(LC.Term("SPEEDOMETER_VELOCITY"));
                 ChangeFont();
             }
             public void SetKey(string key) => localizeCache = LocalizationManager.GetTranslation(key);
@@ -314,7 +315,7 @@ namespace NeonLite.Modules.UI
             internal static void Relocalize() => instance?.Localize();
             public void Localize()
             {
-                SetKey("NeonLite/SPEEDOMETER_LATERAL");
+                SetKey(LC.Term("SPEEDOMETER_LATERAL"));
                 ChangeFont();
             }
             public void SetKey(string key) => localizeCache = LocalizationManager.GetTranslation(key);
@@ -353,7 +354,7 @@ namespace NeonLite.Modules.UI
             internal static void Relocalize() => instance?.Localize();
             public void Localize()
             {
-                SetKey("NeonLite/SPEEDOMETER_YVEL");
+                SetKey(LC.Term("SPEEDOMETER_YVEL"));
                 ChangeFont();
             }
             public void SetKey(string key) => localizeCache = LocalizationManager.GetTranslation(key);
@@ -385,7 +386,7 @@ namespace NeonLite.Modules.UI
             internal static void Relocalize() => instance?.Localize();
             public void Localize()
             {
-                SetKey("NeonLite/SPEEDOMETER_SWAP");
+                SetKey(LC.Term("SPEEDOMETER_SWAP"));
                 ChangeFont();
             }
             public void SetKey(string key) => localizeCache = LocalizationManager.GetTranslation(key);
@@ -421,7 +422,7 @@ namespace NeonLite.Modules.UI
             internal static void Relocalize() => instance?.Localize();
             public void Localize()
             {
-                SetKey("NeonLite/SPEEDOMETER_COYOTE");
+                SetKey(LC.Term("SPEEDOMETER_COYOTE"));
                 ChangeFont();
             }
             public void SetKey(string key) => localizeCache = LocalizationManager.GetTranslation(key);

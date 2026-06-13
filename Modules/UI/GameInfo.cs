@@ -4,6 +4,7 @@ using MelonLoader;
 using MelonLoader.TinyJSON;
 using TMPro;
 using UnityEngine;
+using static NeonLite.NeonLite;
 
 namespace NeonLite.Modules.UI
 {
@@ -325,7 +326,7 @@ namespace NeonLite.Modules.UI
             }
             internal void UpdateText()
             {
-                text?.SetKey("NeonLite/INFO_SESSIONPB",
+                text?.SetKey(LC.Term("INFO_SESSIONPB"),
                     [new("{0}",
                         Helpers.FormatTime((time == long.MaxValue ? 0 : time) / 1000, ShowMS.setting.Value, '.', true),
                         false)]);
@@ -345,7 +346,7 @@ namespace NeonLite.Modules.UI
             internal static void Relocalize() => instance?.Localize();
             public void Localize()
             {
-                SetKey(showCompleted.Value ? "NeonLite/INFO_ATTEMPTS_THIS" : "NeonLite/INFO_ATTEMPTS_THIS_NC");
+                SetKey(LC.Term(showCompleted.Value ? "INFO_ATTEMPTS_THIS" : "INFO_ATTEMPTS_THIS_NC"));
                 ChangeFont();
             }
             public void SetKey(string key) => localizeCache = LocalizationManager.GetTranslation(key);
@@ -362,7 +363,7 @@ namespace NeonLite.Modules.UI
             void Start() => AxKLocalizedTextLord.GetInstance().AddText(this);
             public void Localize()
             {
-                SetKey("NeonLite/INFO_ATTEMPTS_TOTAL");
+                SetKey(LC.Term("INFO_ATTEMPTS_TOTAL"));
                 ChangeFont();
             }
             public void SetKey(string key) => localizeCache = LocalizationManager.GetTranslation(key);

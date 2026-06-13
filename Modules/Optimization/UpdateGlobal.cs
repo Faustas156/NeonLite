@@ -1,6 +1,7 @@
 ﻿#if !XBOX
 using MelonLoader;
 using System.Reflection;
+using static NeonLite.NeonLite;
 
 namespace NeonLite.Modules.Optimization
 {
@@ -59,7 +60,7 @@ namespace NeonLite.Modules.Optimization
         {
             if (!popup.Value)
             {
-                MainMenu.Instance()._popup.SetPopup("NeonLite/AUTOGLOBAL_NOTICE", static () =>
+                MainMenu.Instance()._popup.SetPopup(LC.Term("AUTOGLOBAL_NOTICE"), static () =>
                 {
                     setting.Value = false;
                     MelonPreferences.Save();

@@ -3,6 +3,7 @@ using MelonLoader;
 using NeonLite.Modules.Optimization;
 using TMPro;
 using UnityEngine;
+using static NeonLite.NeonLite;
 
 namespace NeonLite.Modules.UI
 {
@@ -56,7 +57,7 @@ namespace NeonLite.Modules.UI
             frozenText.color = best < time ? Color.red : Color.green;
             frozenText.enableWordWrapping = false;
             var local = Localization.Setup(frozenText);
-            local.SetKey("NeonLite/DNF", [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
+            local.SetKey(LC.Term("DNF"), [new("{0}", Helpers.FormatTime(time / 1000, null), false)]);
             if (!string.IsNullOrEmpty(sfxSetting.Value))
                 AudioController.Play(sfxSetting.Value);
         }

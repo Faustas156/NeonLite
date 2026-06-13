@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using static NeonLite.NeonLite;
 using UnityEngine;
 
 namespace NeonLite.Modules.Misc
@@ -47,7 +48,7 @@ namespace NeonLite.Modules.Misc
                 obj.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
                 ghostButton.transform.localPosition = Vector3.zero;
                 ghostButton.transform.localScale = Vector3.one;
-                ghostButton.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_GHOSTDIRECTORY");
+                ghostButton.GetComponentInChildren<AxKLocalizedText>().SetKey(LC.Term("BUTTON_GHOSTDIRECTORY"));
 
                 var ani = obj.GetComponent<Animator>();
                 var oldAni = backButton.GetComponentInParent<Animator>(true);

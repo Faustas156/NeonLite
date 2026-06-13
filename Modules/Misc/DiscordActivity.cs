@@ -1,5 +1,5 @@
 using System.Text;
-using Discord;
+using DiscordGameSDKWrapper;
 using I2.Loc;
 using MelonLoader;
 using NeonLite.Modules.UI;
@@ -23,7 +23,7 @@ namespace NeonLite.Modules.Misc
         static MelonPreferences_Entry<string> levelDesc;
         static MelonPreferences_Entry<bool> seshTimer;
 
-        static Discord.Discord DiscordInstance;
+        static Discord DiscordInstance;
         const long ID = 1268765228167073802L;
         static Activity activity = new();
 
@@ -96,11 +96,6 @@ namespace NeonLite.Modules.Misc
             levelTitle = Settings.Add(Settings.h, "Discord", "levelTitle", "Headline in level", "%l = Level name, %p = Personal best, %r = Session attempts, %t = Total attempts", "%l");
             levelDesc = Settings.Add(Settings.h, "Discord", "levelDesc", "Description in level", "Same as above.", "PB: %p");
             seshTimer = Settings.Add(Settings.h, "Discord", "seshTimer", "Show session timer", "Show a total session timer instead of a level/rush session timer.", true);
-
-            string file = Directory.GetCurrentDirectory() + "/discord_game_sdk.dll";
-            if (File.Exists(file))
-                return;
-            File.WriteAllBytes(file, Resources.DiscordDLL.GetBytes());
         }
 
         static void Activate(bool activate)

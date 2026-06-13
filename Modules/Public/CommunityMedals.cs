@@ -10,6 +10,7 @@ using NeonLite.Modules.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static NeonLite.NeonLite;
 
 #pragma warning disable IDE0130
 namespace NeonLite.Modules
@@ -516,10 +517,10 @@ namespace NeonLite.Modules
                 "Interface/RESULTS_MEDAL_SILVER",
                 "Interface/RESULTS_MEDAL_GOLD",
                 "Interface/RESULTS_MEDAL_ACE",
-                "NeonLite/RESULTS_MEDAL_DEV",
-                "NeonLite/RESULTS_MEDAL_EMERALD",
-                "NeonLite/RESULTS_MEDAL_AMETHYST",
-                "NeonLite/RESULTS_MEDAL_SAPPHIRE"
+                LC.Term("RESULTS_MEDAL_DEV"),
+                LC.Term("RESULTS_MEDAL_EMERALD"),
+                LC.Term("RESULTS_MEDAL_AMETHYST"),
+                LC.Term("RESULTS_MEDAL_SAPPHIRE")
             ];
 
             _medalDatas.Clear();
@@ -841,7 +842,7 @@ namespace NeonLite.Modules
                 __instance._insightEarned_Localized.SetKey(""); // disable this too, we're at max
             }
             else if (modded >= I(MedalEnum.Emerald))
-                __instance._insightEarned_Localized.SetKey("NeonLite/RESULTS_MEDAL_MODDED_INSIGHT");
+                __instance._insightEarned_Localized.SetKey(LC.Term("RESULTS_MEDAL_MODDED_INSIGHT"));
             if (modded < I(MedalEnum.Dev)) // don't do anything else on dev and under
                 return;
 

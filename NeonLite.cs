@@ -43,6 +43,8 @@ namespace NeonLite
         internal static bool activateEarly;
         internal static bool activateLate;
 
+        internal static Localization.LocaleCategory LC;
+
         public override void OnEarlyInitializeMelon()
         {
             i = this;
@@ -75,9 +77,11 @@ namespace NeonLite
                 if (Helpers.HasModulesInAssembly(m.MelonAssembly.Assembly))
                     expected.Add(m.MelonAssembly);
             }
+
+            const string URL = "https://raw.githubusercontent.com/Faustas156/NeonLite/main/Resources/locale.csv";
+            LC = Localization.GetLocale_Stream("NeonLite", Localization.Reader_CSVStream, Resources.locale.GetStream(), URL);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void ActivatePriority()
         {
             if (activateEarly)

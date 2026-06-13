@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using static NeonLite.NeonLite;
 
 #pragma warning disable IDE0130
 namespace NeonLite.Modules
@@ -248,8 +249,8 @@ namespace NeonLite.Modules
                 return;
             }
 
-            __instance._levelCompleteNewBestText.GetComponent<AxKLocalizedText>().SetKey("NeonLite/RESULTS_NEWBEST_WR");
-            __instance._resultsScreenNewBestTimeIndicator.GetComponent<AxKLocalizedText>().SetKey("NeonLite/RESULTS_NEWBEST_WR");
+            __instance._levelCompleteNewBestText.GetComponent<AxKLocalizedText>().SetKey(LC.Term("RESULTS_NEWBEST_WR"));
+            __instance._resultsScreenNewBestTimeIndicator.GetComponent<AxKLocalizedText>().SetKey(LC.Term("RESULTS_NEWBEST_WR"));
             prepWRSound = true;
         }
 

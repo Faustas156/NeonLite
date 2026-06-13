@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using MelonLoader;
 using UnityEngine;
+using static NeonLite.NeonLite;
 
 namespace NeonLite.Modules.Misc
 {
@@ -43,7 +44,7 @@ namespace NeonLite.Modules.Misc
                 bh.ButtonRef.onClick.AddListener(CopyAllTimes);
             }
 
-            titleButton.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPYPBS");
+            titleButton.GetComponentInChildren<AxKLocalizedText>().SetKey(LC.Term("BUTTON_COPYPBS"));
             titleButton.SetActive(titleButtonS.Value);
         }
 
@@ -82,7 +83,7 @@ namespace NeonLite.Modules.Misc
                 button = obj;
             }
             button.GetComponent<MenuButtonHolder>().LoadButton();
-            button.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPYPBS");
+            button.GetComponentInChildren<AxKLocalizedText>().SetKey(LC.Term("BUTTON_COPYPBS"));
         }
 
         static void CopyAllTimes()
@@ -124,8 +125,8 @@ namespace NeonLite.Modules.Misc
 
             GUIUtility.systemCopyBuffer = final.ToString();
 
-            button?.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPIED");
-            titleButton?.GetComponentInChildren<AxKLocalizedText>().SetKey("NeonLite/BUTTON_COPIED");
+            button?.GetComponentInChildren<AxKLocalizedText>().SetKey(LC.Term("BUTTON_COPIED"));
+            titleButton?.GetComponentInChildren<AxKLocalizedText>().SetKey(LC.Term("BUTTON_COPIED"));
         }
 
     }
