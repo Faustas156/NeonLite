@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Tomlet;
 using Tomlet.Models;
@@ -22,6 +23,8 @@ namespace NeonLite
         static readonly Dictionary<MelonPreferences_Category, string> catLoc = new(32);
 
         internal static readonly Dictionary<string, Dictionary<string, MelonPreferences_Category>> catHolders = new(32);
+
+        internal static readonly Dictionary<string, Assembly> holderOwners = new(32);
 
         internal const string h = "NeonLite";
 
@@ -41,9 +44,13 @@ namespace NeonLite
                 mainCategory.CreateEntry("DEBUG", true, is_hidden: true);
             AddHolder(h);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
-        public static void AddHolder(string name) => catHolders.Add(name, new(8));
+        [MethodImpl(MethodImplOptions.NoInlining)] // the swap
+        public static void AddHolder(string name)
+        {
+            holderOwners.Add(name, Assembly.GetCallingAssembly());
+            catHolders.Add(name, new(8));
+        }
 
         internal static MelonPreferences_Category CreateCategory(string holder, string name)
         {

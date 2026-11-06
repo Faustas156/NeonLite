@@ -376,7 +376,7 @@ namespace NeonLite.Modules
             if (string.IsNullOrWhiteSpace(path))
                 return;
 #if !XBOX
-            if (string.IsNullOrWhiteSpace(saveRedir))
+            if (string.IsNullOrWhiteSpace(saveRedir) && File.Exists(Path.Combine(Helpers.GetSaveDirectory(), "savedata.dat")))
             {
                 // do a backup rq in a Special place
                 var backups = Path.Combine(Helpers.GetSaveDirectory(), "NeonLite", "SaveRedirBaks");

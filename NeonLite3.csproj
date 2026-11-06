@@ -3,7 +3,7 @@
         <!-- The name of the mod -->
         <NWName>NeonLite</NWName>
         <NWAuthor>Faustas, MOPSKATER, stxticOVFL</NWAuthor>
-        <NWVersion>3.0.11+12</NWVersion>
+        <NWVersion>3.0.11+13</NWVersion>
         <!-- The name of the *DLL* -->
         <AssemblyName>$(NWName)</AssemblyName>
 
@@ -89,6 +89,8 @@
         <Reference Include="$(NWManaged)/eToileAssembly.dll" Private="false" Condition="'$(NWXbox)' != 'true'" />
 
         <Reference Include="$(NWDirectory)/MelonLoader/net35/Tomlet.dll" Private="false" />
+        <Reference Include="$(NWDirectory)/Mods/MelonPrefManager.Mono.dll" Private="false" />
+
     </ItemGroup>
 
     <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
